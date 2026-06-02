@@ -1,4 +1,4 @@
-import { PrismaClient, AccountType, AccountNature, UserRole } from "@prisma/client";
+import { PrismaClient, AccountType, AccountNature, UserRole, PlanTier, OrgPlanStatus } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 const url = process.env.DATABASE_URL ?? "file:./dev.db";
@@ -111,8 +111,58 @@ async function main() {
     },
   });
 
+  const plans: { id: string; name: string; nameAr: string; tier: PlanTier; monthlyPrice: number; maxUsers: number; maxInvoices: number; maxItems: number; sortOrder: number }[] = [
+    { id: "plan-free", name: "Free", nameAr: "مجاني", tier: PlanTier.FREE, monthlyPrice: 0, maxUsers: 1, maxInvoices: 50, maxItems: 50, sortOrder: 1 },
+    { id: "plan-starter", name: "Starter", nameAr: "مبتدئ", tier: PlanTier.STARTER, monthlyPrice: 99, maxUsers: 3, maxInvoices: 500, maxItems: 200, sortOrder: 2 },
+    { id: "plan-professional", name: "Professional", nameAr: "احترافي", tier: PlanTier.PROFESSIONAL, monthlyPrice: 249, maxUsers: 10, maxInvoices: 5000, maxItems: 1000, sortOrder: 3 },
+    { id: "plan-enterprise", name: "Enterprise", nameAr: "مؤسسات", tier: PlanTier.ENTERPRISE, monthlyPrice: 999, maxUsers: 999, maxInvoices: 99999, maxItems: 99999, sortOrder: 4 },
+  ];
+
+  for (const p of plans) {
+    await prisma.plan.upsert({
+      where: { id: p.id },
+      update: {},
+      create: p,
+    });
+  }
+
+  await prisma.organizationPlan.upsert({
+    where: { organizationId: org.id },
+    update: {},
+    create: {
+      organizationId: org.id,
+      planId: "plan-professional",
+      status: OrgPlanStatus.ACTIVE,
+    },
+  });
+
+  const ownerOrg = await prisma.organization.upsert({
+    where: { id: "owner-org" },
+    update: {},
+    create: {
+      id: "owner-org",
+      name: "SaaS Admin",
+      email: "owner@saas.com",
+    },
+  });
+
+  const ownerHashed = await bcrypt.hash("Speed@5186751867", 12);
+
+  await prisma.user.upsert({
+    where: { email: "owner@saas.com" },
+    update: {},
+    create: {
+      email: "owner@saas.com",
+      name: "مالك النظام",
+      passwordHash: ownerHashed,
+      role: UserRole.OWNER,
+      organizationId: ownerOrg.id,
+    },
+  });
+
   console.log("Seed complete");
-  console.log("Login: admin@demo.com / Speed@5186751867");
+  console.log("Admin: admin@demo.com / Speed@5186751867");
+  console.log("Owner: owner@saas.com / Speed@5186751867");
 }
 
 main()

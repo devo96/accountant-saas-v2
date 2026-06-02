@@ -101,6 +101,61 @@ model Organization {
   notifications Notification[]
   emailTemplates EmailTemplate[]
   fixedAssets FixedAsset[]
+  organizationPlan OrganizationPlan?
+}
+
+enum PlanTier {
+  FREE
+  STARTER
+  PROFESSIONAL
+  ENTERPRISE
+}
+
+enum OrgPlanStatus {
+  ACTIVE
+  TRIALING
+  EXPIRED
+  CANCELLED
+  PAUSED
+}
+
+model Plan {
+  id          String    @id @default(uuid())
+  name        String
+  nameAr      String?
+  tier        PlanTier  @default(FREE)
+  monthlyPrice Decimal  @default(0)
+  yearlyPrice  Decimal  @default(0)
+  maxUsers    Int       @default(1)
+  maxInvoices Int       @default(50)
+  maxItems    Int       @default(50)
+  features    Json?
+  active      Boolean   @default(true)
+  sortOrder   Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  organizationPlans OrganizationPlan[]
+}
+
+model OrganizationPlan {
+  id             String         @id @default(uuid())
+  organizationId String         @unique
+  planId         String
+  status         OrgPlanStatus  @default(TRIALING)
+  startsAt       DateTime       @default(now())
+  endsAt         DateTime?
+  trialEndsAt    DateTime?
+  autoRenew      Boolean        @default(true)
+  notes          String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  plan         Plan         @relation(fields: [planId], references: [id])
+
+  @@index([planId])
+  @@index([status])
 }
 
 model EmailTemplate {
