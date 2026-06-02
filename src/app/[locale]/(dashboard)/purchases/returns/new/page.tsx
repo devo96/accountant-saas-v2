@@ -1,0 +1,18 @@
+import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import NewPurchaseReturnClient from "./client";
+
+export default async function NewPurchaseReturnPage() {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.organizationId) redirect("/auth/login");
+
+  const vendors = await prisma.vendor.findMany({
+    where: { organizationId: session.user.organizationId },
+    select: { id: true, name: true },
+    orderBy: { name: "asc" },
+  });
+
+  return <NewPurchaseReturnClient vendors={vendors} />;
+}
