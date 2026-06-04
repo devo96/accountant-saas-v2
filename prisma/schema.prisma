@@ -112,6 +112,7 @@ model Organization {
   projects Project[]
   tasks Task[]
   supportTickets SupportTicket[]
+  paymentTransactions PaymentTransaction[]
 }
 
 enum PlanTier {
@@ -147,6 +148,7 @@ model Plan {
 
   organizationPlans OrganizationPlan[]
   coupons Coupon[]
+  paymentTransactions PaymentTransaction[]
 }
 
 model Coupon {
@@ -205,6 +207,30 @@ model OrganizationPlan {
 
   @@index([planId])
   @@index([status])
+}
+
+model PaymentTransaction {
+  id             String    @id @default(uuid())
+  organizationId String
+  planId         String
+  amount         Decimal   @default(0)
+  currency       String    @default("SAR")
+  type           String    // RENEWAL, MANUAL_ACTIVATION, COMPENSATION
+  status         String    // SUCCESS, FAILED, PENDING
+  paymentMethod  String?   // BANK_TRANSFER, CASH, or null for COMPENSATION
+  receiptUrl     String?
+  reason         String?
+  subscriptionStart DateTime?
+  subscriptionEnd   DateTime?
+  notes          String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  plan         Plan         @relation(fields: [planId], references: [id])
+
+  @@index([organizationId])
+  @@index([createdAt])
 }
 
 model EmailTemplate {

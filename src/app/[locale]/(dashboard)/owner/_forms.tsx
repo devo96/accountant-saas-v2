@@ -7,13 +7,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/toast";
 import { useState, useEffect } from "react";
 
-type OrganizationInfo = {
+type OrgPlan = { id: string; name: string; tier: string; status: string; startsAt?: string; endsAt?: string | null; trialEndsAt?: string | null } | null;
+export type OrganizationInfo = {
   id: string; name: string; email: string; createdAt: Date;
-  userCount: number;
-  plan: { id: string; name: string; tier: string; status: string } | null;
+  userCount: number; plan: OrgPlan;
 };
-type PlanInfo = {
-  id: string; name: string; tier: string; monthlyPrice: number;
+export type PlanInfo = {
+  id: string; name: string; tier: string; monthlyPrice: number; yearlyPrice: number;
   maxUsers: number; maxInvoices: number; active: boolean;
 };
 type CouponInfo = { id: string; code: string; discountType: string; discountValue: number; maxUses: number; usedCount: number; minAmount: number; planId: string | null; expiresAt: string | null; active: boolean };
@@ -22,14 +22,15 @@ export function PlanForm({ plan, onClose, onSave }: { plan?: PlanInfo | null; on
   const [name, setName] = useState(plan?.name ?? "");
   const [tier, setTier] = useState(plan?.tier ?? "FREE");
   const [monthlyPrice, setMonthlyPrice] = useState(String(plan?.monthlyPrice ?? ""));
+  const [yearlyPrice, setYearlyPrice] = useState(String(plan?.yearlyPrice ?? ""));
   const [maxUsers, setMaxUsers] = useState(String(plan?.maxUsers ?? ""));
   const [maxInvoices, setMaxInvoices] = useState(String(plan?.maxInvoices ?? ""));
   const { toast } = useToast();
-  useEffect(() => { if (plan) { setName(plan.name); setTier(plan.tier); setMonthlyPrice(String(plan.monthlyPrice)); setMaxUsers(String(plan.maxUsers)); setMaxInvoices(String(plan.maxInvoices)); } }, [plan]);
+  useEffect(() => { if (plan) { setName(plan.name); setTier(plan.tier); setMonthlyPrice(String(plan.monthlyPrice)); setYearlyPrice(String(plan.yearlyPrice)); setMaxUsers(String(plan.maxUsers)); setMaxInvoices(String(plan.maxInvoices)); } }, [plan]);
   async function handleSave() {
     const url = plan ? `/api/owner/plans/${plan.id}` : "/api/owner/plans";
     const method = plan ? "PATCH" : "POST";
-    const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, tier, monthlyPrice: Number(monthlyPrice), maxUsers: Number(maxUsers), maxInvoices: Number(maxInvoices) }) });
+    const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, tier, monthlyPrice: Number(monthlyPrice), yearlyPrice: Number(yearlyPrice), maxUsers: Number(maxUsers), maxInvoices: Number(maxInvoices) }) });
     if (!res.ok) { toast({ title: "Error", message: "Failed to save plan", type: "error" }); return; }
     toast({ title: "Success", message: `Plan ${plan ? "updated" : "created"}`, type: "success" });
     onClose(); onSave();
@@ -39,8 +40,11 @@ export function PlanForm({ plan, onClose, onSave }: { plan?: PlanInfo | null; on
     <div><label className="block text-sm font-medium mb-1">Tier</label>
       <Select options={[{ value: "FREE", label: "Free" }, { value: "STARTER", label: "Starter" }, { value: "PROFESSIONAL", label: "Professional" }, { value: "ENTERPRISE", label: "Enterprise" }]} value={tier} onChange={e => setTier(e.target.value)} />
     </div>
-    <div className="grid grid-cols-3 gap-2">
-      <div><label className="block text-sm font-medium mb-1">Price (SAR)</label><Input type="number" value={monthlyPrice} onChange={e => setMonthlyPrice(e.target.value)} /></div>
+    <div className="grid grid-cols-2 gap-2">
+      <div><label className="block text-sm font-medium mb-1">Monthly (SAR)</label><Input type="number" value={monthlyPrice} onChange={e => setMonthlyPrice(e.target.value)} /></div>
+      <div><label className="block text-sm font-medium mb-1">Yearly (SAR)</label><Input type="number" value={yearlyPrice} onChange={e => setYearlyPrice(e.target.value)} /></div>
+    </div>
+    <div className="grid grid-cols-2 gap-2">
       <div><label className="block text-sm font-medium mb-1">Max Users</label><Input type="number" value={maxUsers} onChange={e => setMaxUsers(e.target.value)} /></div>
       <div><label className="block text-sm font-medium mb-1">Max Invoices</label><Input type="number" value={maxInvoices} onChange={e => setMaxInvoices(e.target.value)} /></div>
     </div>

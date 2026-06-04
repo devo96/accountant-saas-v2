@@ -10,16 +10,23 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   const { id } = await params;
   const json = await req.json();
 
+  const plan = await prisma.plan.findUnique({ where: { id: json.planId } });
+  if (!plan) return NextResponse.json({ error: "Plan not found" }, { status: 404 });
+
+  const now = new Date();
+  let data: any = { planId: json.planId, status: json.status ?? "ACTIVE" };
+
+  if (plan.tier === "FREE" && (!json.status || json.status === "TRIALING")) {
+    data.status = "TRIALING";
+    data.trialEndsAt = new Date(now.getTime() + 30 * 86400000);
+    data.endsAt = null;
+  }
+
   const existing = await prisma.organizationPlan.findUnique({ where: { organizationId: id } });
   if (existing) {
-    await prisma.organizationPlan.update({
-      where: { organizationId: id },
-      data: { planId: json.planId, status: json.status ?? existing.status },
-    });
+    await prisma.organizationPlan.update({ where: { organizationId: id }, data });
   } else {
-    await prisma.organizationPlan.create({
-      data: { organizationId: id, planId: json.planId, status: json.status ?? "ACTIVE" },
-    });
+    await prisma.organizationPlan.create({ data: { organizationId: id, ...data } });
   }
 
   return NextResponse.json({ success: true });

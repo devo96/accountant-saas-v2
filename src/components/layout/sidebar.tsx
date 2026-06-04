@@ -35,6 +35,7 @@ const navItems: NavItem[] = [
       { key: "organizations", href: "/owner/organizations", icon: Building2 },
       { key: "plans", href: "/owner/plans", icon: Package },
       { key: "users", href: "/owner/users", icon: Users },
+      { key: "payments", href: "/owner/payments", icon: CreditCard },
       { key: "billing", href: "/owner/billing", icon: CreditCard },
       { key: "security", href: "/owner/security", icon: Shield },
       { key: "support", href: "/owner/support", icon: Ticket },

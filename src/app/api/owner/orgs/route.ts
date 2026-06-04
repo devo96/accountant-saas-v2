@@ -22,7 +22,15 @@ export async function GET() {
     id: org.id, name: org.name, email: org.email ?? "", createdAt: org.createdAt,
     userCount: userCountMap.get(org.id) ?? 0,
     plan: org.organizationPlan
-      ? { id: org.organizationPlan.plan.id, name: org.organizationPlan.plan.name, tier: org.organizationPlan.plan.tier, status: org.organizationPlan.status }
+      ? {
+          id: org.organizationPlan.plan.id,
+          name: org.organizationPlan.plan.name,
+          tier: org.organizationPlan.plan.tier,
+          status: org.organizationPlan.status,
+          startsAt: org.organizationPlan.startsAt.toISOString(),
+          endsAt: org.organizationPlan.endsAt?.toISOString() ?? null,
+          trialEndsAt: org.organizationPlan.trialEndsAt?.toISOString() ?? null,
+        }
       : null,
   }));
 

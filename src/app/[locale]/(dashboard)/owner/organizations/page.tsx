@@ -22,7 +22,17 @@ export default async function OwnerOrganizationsPage() {
   const orgsWithDetails = orgs.map((org) => ({
     id: org.id, name: org.name, email: org.email ?? "", createdAt: org.createdAt,
     userCount: org._count.users,
-    plan: org.organizationPlan ? { id: org.organizationPlan.plan.id, name: org.organizationPlan.plan.name, tier: org.organizationPlan.plan.tier, status: org.organizationPlan.status } : null,
+    plan: org.organizationPlan
+      ? {
+          id: org.organizationPlan.plan.id,
+          name: org.organizationPlan.plan.name,
+          tier: org.organizationPlan.plan.tier,
+          status: org.organizationPlan.status,
+          startsAt: org.organizationPlan.startsAt.toISOString(),
+          endsAt: org.organizationPlan.endsAt?.toISOString() ?? null,
+          trialEndsAt: org.organizationPlan.trialEndsAt?.toISOString() ?? null,
+        }
+      : null,
   }));
 
   return (
@@ -31,7 +41,7 @@ export default async function OwnerOrganizationsPage() {
         <PageHeader title="Organizations" description="Manage all organizations and their plans" />
         <OrganizationsClient
           orgs={orgsWithDetails}
-          plans={plans.map((p) => ({ id: p.id, name: p.name, tier: p.tier, monthlyPrice: Number(p.monthlyPrice), maxUsers: p.maxUsers, maxInvoices: p.maxInvoices, active: p.active }))}
+          plans={plans.map((p) => ({ id: p.id, name: p.name, tier: p.tier, monthlyPrice: Number(p.monthlyPrice), yearlyPrice: Number(p.yearlyPrice), maxUsers: p.maxUsers, maxInvoices: p.maxInvoices, active: p.active }))}
         />
       </div>
     </FadeIn>

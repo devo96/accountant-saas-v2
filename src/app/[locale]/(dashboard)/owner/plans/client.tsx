@@ -8,7 +8,7 @@ import { useState, useCallback } from "react";
 import { PlanForm } from "../_forms";
 
 type PlanExt = {
-  id: string; name: string; tier: string; monthlyPrice: number;
+  id: string; name: string; tier: string; monthlyPrice: number; yearlyPrice: number;
   maxUsers: number; maxInvoices: number; active: boolean; orgCount: number;
 };
 
@@ -39,7 +39,10 @@ export function PlansClient({ plans: initialPlans }: { plans: PlanExt[] }) {
             <CardHeader><CardTitle className="flex items-center gap-2"><Crown className="h-4 w-4 text-primary-500" /><span className="text-sm">{plan.name}</span></CardTitle></CardHeader>
             <CardContent className="space-y-2">
               <p className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${tc}`}>{plan.tier}</p>
-              <p className="text-lg font-bold">﷼ {plan.monthlyPrice}<span className="text-xs font-normal text-gray-400">/mo</span></p>
+              <div className="flex gap-3">
+                <p className="text-lg font-bold">﷼ {plan.monthlyPrice}<span className="text-xs font-normal text-gray-400">/mo</span></p>
+                <p className="text-lg font-bold text-gray-500">﷼ {plan.yearlyPrice}<span className="text-xs font-normal text-gray-400">/yr</span></p>
+              </div>
               <div className="space-y-1 text-xs">
                 <p className="flex justify-between"><span className="text-gray-400">Max Users</span><span>{plan.maxUsers}</span></p>
                 <p className="flex justify-between"><span className="text-gray-400">Max Invoices</span><span>{plan.maxInvoices}</span></p>

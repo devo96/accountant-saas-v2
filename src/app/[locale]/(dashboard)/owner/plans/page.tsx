@@ -16,7 +16,7 @@ export default async function OwnerPlansPage() {
   const countMap = new Map(orgPlanCounts.map((o) => [o.planId, o._count]));
 
   const plansWithCount = plans.map((p) => ({
-    id: p.id, name: p.name, tier: p.tier, monthlyPrice: Number(p.monthlyPrice), maxUsers: p.maxUsers, maxInvoices: p.maxInvoices, active: p.active, orgCount: countMap.get(p.id) ?? 0,
+    id: p.id, name: p.name, tier: p.tier, monthlyPrice: Number(p.monthlyPrice), yearlyPrice: Number(p.yearlyPrice), maxUsers: p.maxUsers, maxInvoices: p.maxInvoices, active: p.active, orgCount: countMap.get(p.id) ?? 0,
   }));
 
   return (
