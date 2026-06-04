@@ -3,18 +3,21 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { FadeIn } from "@/components/transitions";
 import { PageHeader } from "@/components/ui/page-header";
-import { Trash2, Plus, ArrowLeft } from "lucide-react";
+import { Trash2, Plus, ArrowLeft, Upload, CreditCard } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import { useTranslations } from "next-intl";
 
 type Vendor = { id: string; name: string };
 type Item = { id: string; name: string; costPrice: number; type: string };
 type TaxCode = { id: string; name: string; rate: number };
+type PaymentTerm = { id: string; name: string; dueDays: number };
+type Branch = { id: string; name: string };
 
-type Props = { vendors: Vendor[]; items: Item[]; taxCodes: TaxCode[] };
+type Props = { vendors: Vendor[]; items: Item[]; taxCodes: TaxCode[]; paymentTerms: PaymentTerm[]; branches: Branch[] };
 
 type Line = {
   key: number;
@@ -29,15 +32,26 @@ type Line = {
 
 let nextKey = 1;
 
-export function NewPurchaseInvoiceClient({ vendors, items, taxCodes }: Props) {
-  const t = useTranslations("purchaseInvoiceNew");
+function calcLineTotal(l: Line) {
+  const net = l.quantity * l.unitPrice * (1 - l.discountPercent / 100);
+  return net + net * l.taxRate / 100;
+}
+
+export function NewPurchaseInvoiceClient({ vendors, items, taxCodes, paymentTerms, branches }: Props) {
   const router = useRouter();
+  const t = useTranslations("purchaseInvoiceNew");
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [dueDate, setDueDate] = useState("");
+  const [referenceNumber, setReferenceNumber] = useState("");
+  const [description, setDescription] = useState("");
   const [vendorId, setVendorId] = useState("");
+  const [paymentTermId, setPaymentTermId] = useState("");
+  const [branchId, setBranchId] = useState("");
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [lines, setLines] = useState<Line[]>([{ key: nextKey++, itemId: "", description: "", quantity: 1, unitPrice: 0, discountPercent: 0, taxCodeId: "", taxRate: 0 }]);
+  const [attachments, setAttachments] = useState<File[]>([]);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   function addLine() {
     setLines([...lines, { key: nextKey++, itemId: "", description: "", quantity: 1, unitPrice: 0, discountPercent: 0, taxCodeId: "", taxRate: 0 }]);
@@ -72,16 +86,20 @@ export function NewPurchaseInvoiceClient({ vendors, items, taxCodes }: Props) {
   const taxAmount = useMemo(() => lines.reduce((s, l) => s + ((l.quantity * l.unitPrice - l.quantity * l.unitPrice * l.discountPercent / 100) * l.taxRate / 100), 0), [lines]);
   const total = taxableAmount + taxAmount;
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleSubmit(status: "DRAFT" | "CONFIRMED") {
     setSubmitting(true);
     try {
       const res = await fetch("/api/purchase-invoices", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          status,
           invoiceDate: new Date(date).toISOString(),
           dueDate: dueDate ? new Date(dueDate).toISOString() : null,
+          referenceNumber: referenceNumber || null,
+          description: description || null,
+          paymentTermId: paymentTermId || null,
+          branchId: branchId || null,
           vendorId,
           notes,
           subtotal,
@@ -96,7 +114,7 @@ export function NewPurchaseInvoiceClient({ vendors, items, taxCodes }: Props) {
             discountPercent: l.discountPercent,
             taxCodeId: l.taxCodeId || null,
             taxRate: l.taxRate,
-            lineTotal: l.quantity * l.unitPrice - l.quantity * l.unitPrice * l.discountPercent / 100 + (l.quantity * l.unitPrice - l.quantity * l.unitPrice * l.discountPercent / 100) * l.taxRate / 100,
+            lineTotal: calcLineTotal(l),
           })),
         }),
       });
@@ -110,77 +128,294 @@ export function NewPurchaseInvoiceClient({ vendors, items, taxCodes }: Props) {
   }
 
   const vendorOpts = vendors.map((v) => ({ value: v.id, label: v.name }));
-  const itemOpts = items.map((i) => ({ value: i.id, label: `${i.name} - ﷼${i.costPrice}` }));
+  const itemOpts = items.filter((i) => i.type === "PRODUCT" || i.type === "SERVICE").map((i) => ({ value: i.id, label: `${i.name} - ﷼${i.costPrice}` }));
   const taxOpts = taxCodes.map((t) => ({ value: t.id, label: `${t.name} (${t.rate}%)` }));
+  const termOpts = paymentTerms.map((p) => ({ value: p.id, label: p.name }));
+  const branchOpts = branches.map((b) => ({ value: b.id, label: b.name }));
+
+  const selectedTerm = paymentTerms.find((p) => p.id === paymentTermId);
 
   return (
     <FadeIn>
-    <div className="space-y-6">
-      <PageHeader
-        title={t("title")}
-        description={t("subtitle")}
-        actions={
-          <Button variant="ghost" onClick={() => router.push("/purchases/invoices")}>
-            <ArrowLeft className="h-5 w-5 rtl:scale-x-[-1]" />
-          </Button>
-        }
-      />
+      <div className="space-y-6 max-w-5xl mx-auto">
+        <PageHeader
+          title={t("title")}
+          description={t("subtitle")}
+          actions={
+            <Button variant="ghost" onClick={() => router.push("/purchases/invoices")}>
+              <ArrowLeft className="h-5 w-5 rtl:scale-x-[-1]" />
+            </Button>
+          }
+        />
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid grid-cols-3 gap-4">
-          <Select label={t("vendor")} options={vendorOpts} value={vendorId} onChange={(e) => setVendorId(e.target.value)} required placeholder={t("selectVendor")} />
-          <Input label={t("invoiceDate")} type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
-          <Input label={t("dueDate")} type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
-        </div>
-
-        <div className="rounded-lg border">
-          <div className="p-4 border-b bg-gray-50 dark:bg-gray-800/50 flex items-center justify-between">
-            <span className="font-medium">{t("invoiceLines")}</span>
-            <Button type="button" variant="outline" size="sm" onClick={addLine}><Plus className="h-4 w-4 ms-1" /> {t("addLine")}</Button>
-          </div>
-          <div className="p-4 space-y-3">
-            {lines.map((line, i) => (
-              <div key={line.key} className="flex gap-2 items-start p-3 bg-white rounded border">
-                <div className="w-48">
-                  <Select placeholder={t("item")} options={itemOpts} value={line.itemId} onChange={(e) => updateLine(line.key, "itemId", e.target.value)} />
+        <form onSubmit={(e) => { e.preventDefault(); handleSubmit("CONFIRMED"); }} className="space-y-5">
+          {/* ─── Invoice Details Card ─── */}
+          <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-sm">
+            <div className="p-6 space-y-5">
+              {/* Vendor */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                  {t("vendor")} <span className="text-red-500">*</span>
+                </label>
+                <div className="flex gap-2">
+                  <div className="flex-1">
+                    <Select
+                      placeholder={t("selectVendor")}
+                      options={vendorOpts}
+                      value={vendorId}
+                      onChange={(e) => setVendorId(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => router.push("/purchases/vendors/new")}
+                    className="whitespace-nowrap shrink-0"
+                  >
+                    <Plus className="h-4 w-4 ms-1" />
+                    {t("addVendor")}
+                  </Button>
                 </div>
-                <div className="flex-1">
-                  <Input placeholder={t("description")} value={line.description} onChange={(e) => updateLine(line.key, "description", e.target.value)} />
-                </div>
-                <Input type="number" placeholder={t("qty")} className="w-20" value={line.quantity} onChange={(e) => updateLine(line.key, "quantity", Number(e.target.value))} />
-                <Input type="number" placeholder={t("price")} className="w-24" value={line.unitPrice} onChange={(e) => updateLine(line.key, "unitPrice", Number(e.target.value))} />
-                <Input type="number" placeholder={t("discPct")} className="w-20" value={line.discountPercent} onChange={(e) => updateLine(line.key, "discountPercent", Number(e.target.value))} />
-                <div className="w-28">
-                  <Select placeholder={t("tax")} options={taxOpts} value={line.taxCodeId} onChange={(e) => updateLine(line.key, "taxCodeId", e.target.value)} />
-                </div>
-                <div className="w-24 text-right pt-2 font-mono text-sm">
-                  ﷼ {(line.quantity * line.unitPrice - line.quantity * line.unitPrice * line.discountPercent / 100 + (line.quantity * line.unitPrice - line.quantity * line.unitPrice * line.discountPercent / 100) * line.taxRate / 100).toFixed(2)}
-                </div>
-                <Button type="button" variant="ghost" onClick={() => removeLine(line.key)} className="text-red-500 mt-1">
-                  <Trash2 className="h-4 w-4" />
-                </Button>
               </div>
-            ))}
+
+              {/* Reference + Description */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Input
+                  label={t("referenceNumber")}
+                  value={referenceNumber}
+                  onChange={(e) => setReferenceNumber(e.target.value)}
+                  placeholder={t("referenceNumber")}
+                />
+                <div>
+                  <Input
+                    label={t("description")}
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder={t("description")}
+                  />
+                  <p className="text-xs text-gray-400 mt-1">{t("descriptionHint")}</p>
+                </div>
+              </div>
+
+              {/* Dates */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <Input label={t("invoiceDate")} type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
+                <Input label={t("dueDate")} type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
+                <Select
+                  label={t("paymentTerm")}
+                  options={termOpts}
+                  value={paymentTermId}
+                  onChange={(e) => {
+                    setPaymentTermId(e.target.value);
+                    const term = paymentTerms.find((p) => p.id === e.target.value);
+                    if (term && term.dueDays > 0 && date) {
+                      const d = new Date(date);
+                      d.setDate(d.getDate() + term.dueDays);
+                      setDueDate(d.toISOString().split("T")[0]);
+                    }
+                  }}
+                  placeholder={t("selectPaymentTerm")}
+                />
+              </div>
+
+              {/* Branch */}
+              <Select
+                label={t("branch")}
+                options={branchOpts}
+                value={branchId}
+                onChange={(e) => setBranchId(e.target.value)}
+                placeholder={t("selectBranch")}
+              />
+            </div>
           </div>
 
-          <div className="p-4 border-t bg-gray-50 dark:bg-gray-800/50 space-y-1 text-sm">
-            <div className="flex justify-between"><span>{t("subtotal")}</span><span className="font-mono">﷼ {subtotal.toFixed(2)}</span></div>
-            {discountTotal > 0 && <div className="flex justify-between text-red-600"><span>{t("discount")}</span><span className="font-mono">-﷼ {discountTotal.toFixed(2)}</span></div>}
-            <div className="flex justify-between"><span>{t("tax")}</span><span className="font-mono">﷼ {taxAmount.toFixed(2)}</span></div>
-            <div className="flex justify-between font-bold text-lg border-t pt-1"><span>{t("total")}</span><span className="font-mono">﷼ {total.toFixed(2)}</span></div>
+          {/* ─── Products Table Card ─── */}
+          <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-sm overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-gray-50/50 dark:bg-gray-800/30">
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">{t("invoiceLines")}</h3>
+              <Button type="button" variant="outline" size="sm" onClick={addLine}>
+                <Plus className="h-4 w-4 ms-1" /> {t("addLine")}
+              </Button>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50/30 dark:bg-gray-800/20">
+                    <th className="text-right p-3 font-medium text-gray-500 dark:text-gray-400 min-w-[180px]">{t("item")}</th>
+                    <th className="text-right p-3 font-medium text-gray-500 dark:text-gray-400 min-w-[160px]">{t("desc")}</th>
+                    <th className="text-right p-3 font-medium text-gray-500 dark:text-gray-400 w-24">{t("qty")}</th>
+                    <th className="text-right p-3 font-medium text-gray-500 dark:text-gray-400 w-28">{t("price")}</th>
+                    <th className="text-right p-3 font-medium text-gray-500 dark:text-gray-400 w-20">{t("discPct")}</th>
+                    <th className="text-right p-3 font-medium text-gray-500 dark:text-gray-400 w-28">{t("tax")}</th>
+                    <th className="text-right p-3 font-medium text-gray-500 dark:text-gray-400 w-28">{t("lineTotal")}</th>
+                    <th className="w-12 p-3"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {lines.length === 0 && (
+                    <tr>
+                      <td colSpan={8} className="p-6 text-center text-gray-400 text-sm">{t("addLine")}</td>
+                    </tr>
+                  )}
+                  {lines.map((line) => (
+                    <tr key={line.key} className="border-b border-gray-50 dark:border-gray-800 last:border-b-0 hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-colors">
+                      <td className="p-2">
+                        <Select
+                          placeholder={t("item")}
+                          options={itemOpts}
+                          value={line.itemId}
+                          onChange={(e) => updateLine(line.key, "itemId", e.target.value)}
+                        />
+                      </td>
+                      <td className="p-2">
+                        <Input
+                          value={line.description}
+                          onChange={(e) => updateLine(line.key, "description", e.target.value)}
+                          className="text-xs"
+                        />
+                      </td>
+                      <td className="p-2">
+                        <Input
+                          type="number"
+                          min={1}
+                          value={line.quantity}
+                          onChange={(e) => updateLine(line.key, "quantity", Math.max(1, parseInt(e.target.value) || 1))}
+                          className="text-xs text-center"
+                        />
+                      </td>
+                      <td className="p-2">
+                        <Input
+                          type="number"
+                          min={0}
+                          step={0.01}
+                          value={line.unitPrice}
+                          onChange={(e) => updateLine(line.key, "unitPrice", parseFloat(e.target.value) || 0)}
+                          className="text-xs text-left font-mono"
+                        />
+                      </td>
+                      <td className="p-2">
+                        <Input
+                          type="number"
+                          min={0}
+                          max={100}
+                          value={line.discountPercent}
+                          onChange={(e) => updateLine(line.key, "discountPercent", parseFloat(e.target.value) || 0)}
+                          className="text-xs text-center"
+                        />
+                      </td>
+                      <td className="p-2">
+                        <Select
+                          placeholder={t("tax")}
+                          options={taxOpts}
+                          value={line.taxCodeId}
+                          onChange={(e) => updateLine(line.key, "taxCodeId", e.target.value)}
+                        />
+                      </td>
+                      <td className="p-2 text-left font-mono text-sm align-middle text-gray-900 dark:text-gray-100">
+                        ﷼ {calcLineTotal(line).toFixed(2)}
+                      </td>
+                      <td className="p-2">
+                        <Button type="button" variant="ghost" onClick={() => removeLine(line.key)} className="text-red-400 hover:text-red-600 h-8 w-8 p-0">
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
 
-        <Input label={t("notes")} value={notes} onChange={(e) => setNotes(e.target.value)} />
+          {/* ─── Notes + Bonds + Attachments ─── */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {/* Notes */}
+            <div className="md:col-span-1 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-sm p-5">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t("notes")}</label>
+              <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={4} placeholder={t("notes")} />
+            </div>
 
-        <div className="flex gap-3 justify-end">
-          <Button type="button" variant="outline" onClick={() => router.push("/purchases/invoices")}>{t("cancel")}</Button>
-          <Button type="submit" disabled={submitting || !vendorId || lines.length === 0}>
-            {submitting ? t("creating") : t("createInvoice")}
-          </Button>
-        </div>
-      </form>
-    </div>
+            {/* Bonds */}
+            <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-sm p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <CreditCard className="h-5 w-5 text-qoyod" />
+                <h3 className="font-semibold text-sm text-gray-900 dark:text-gray-100">{t("bonds")}</h3>
+              </div>
+              <p className="text-xs text-gray-400">{t("bondsHint")}</p>
+            </div>
+
+            {/* Attachments */}
+            <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-sm p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <Upload className="h-5 w-5 text-qoyod" />
+                <h3 className="font-semibold text-sm text-gray-900 dark:text-gray-100">{t("attachments")}</h3>
+              </div>
+              <p className="text-xs text-gray-400 mb-3">{t("attachmentsHint")}</p>
+              <input
+                ref={fileRef}
+                type="file"
+                multiple
+                className="block w-full text-xs text-gray-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-medium file:bg-qoyod-bg file:text-qoyod hover:file:bg-qoyod/10"
+                onChange={(e) => {
+                  if (e.target.files) setAttachments(Array.from(e.target.files));
+                }}
+              />
+              {attachments.length > 0 && (
+                <p className="text-xs text-gray-500 mt-2">{attachments.length} file(s)</p>
+              )}
+            </div>
+          </div>
+
+          {/* ─── Summary ─── */}
+          <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-sm p-6">
+            <div className="flex justify-end">
+              <div className="w-full max-w-xs space-y-2 text-sm">
+                <div className="flex justify-between text-gray-500 dark:text-gray-400">
+                  <span>{t("subtotal")}</span>
+                  <span className="font-mono">﷼ {subtotal.toFixed(2)}</span>
+                </div>
+                {discountTotal > 0 && (
+                  <div className="flex justify-between text-red-500">
+                    <span>{t("discount")}</span>
+                    <span className="font-mono">-﷼ {discountTotal.toFixed(2)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between text-gray-500 dark:text-gray-400">
+                  <span>{t("taxLabel")}</span>
+                  <span className="font-mono">﷼ {taxAmount.toFixed(2)}</span>
+                </div>
+                <div className="border-t border-gray-200 dark:border-gray-700 pt-2 flex justify-between font-bold text-base text-gray-900 dark:text-gray-100">
+                  <span>{t("total")}</span>
+                  <span className="font-mono text-qoyod">﷼ {total.toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ─── Actions ─── */}
+          <div className="flex gap-3 justify-end">
+            <Button type="button" variant="outline" onClick={() => router.push("/purchases/invoices")}>
+              {t("cancel")}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={submitting || !vendorId || lines.length === 0}
+              onClick={() => handleSubmit("DRAFT")}
+            >
+              {submitting ? t("creating") : t("saveDraft")}
+            </Button>
+            <Button
+              type="submit"
+              disabled={submitting || !vendorId || lines.length === 0}
+              className="bg-qoyod text-white hover:bg-qoyod-dark dark:bg-qoyod dark:hover:opacity-90"
+            >
+              {submitting ? t("creating") : t("createInvoice")}
+            </Button>
+          </div>
+        </form>
+      </div>
     </FadeIn>
   );
 }

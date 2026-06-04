@@ -11,7 +11,7 @@ import {
   PiggyBank, Calculator, FileSpreadsheet, Calendar, Layout, Activity, QrCode, Mail, Upload, Crown,
   Handshake, ArrowRightLeft, UserPlus, ShieldCheck, HandCoins, Truck, CheckCheck,
   ClipboardList, FolderTree, Ruler, BriefcaseBusiness, CircleDollarSign,
-  Network,
+  Network, CreditCard, Shield, Ticket,
 } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -28,9 +28,17 @@ const navItems: NavItem[] = [
   },
   {
     key: "owner",
-    href: "/owner",
     icon: Crown,
     ownerOnly: true,
+    children: [
+      { key: "overview", href: "/owner", icon: LayoutDashboard },
+      { key: "organizations", href: "/owner/organizations", icon: Building2 },
+      { key: "plans", href: "/owner/plans", icon: Package },
+      { key: "users", href: "/owner/users", icon: Users },
+      { key: "billing", href: "/owner/billing", icon: CreditCard },
+      { key: "security", href: "/owner/security", icon: Shield },
+      { key: "support", href: "/owner/support", icon: Ticket },
+    ],
   },
   {
     key: "sales",

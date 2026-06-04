@@ -703,6 +703,10 @@ model PurchaseInvoice {
   status         InvoiceStatus @default(DRAFT)
   vendorId       String
   currencyId     String?
+  referenceNumber String?
+  description     String?
+  paymentTermId   String?
+  branchId        String?
   subtotal       Decimal       @default(0)
   discountAmount Decimal       @default(0)
   taxAmount      Decimal       @default(0)
@@ -725,6 +729,8 @@ model PurchaseInvoice {
 
   vendor       Vendor                @relation(fields: [vendorId], references: [id])
   currency     Currency?             @relation(fields: [currencyId], references: [id])
+  paymentTerm  PaymentTerm?          @relation(fields: [paymentTermId], references: [id])
+  branch       Branch?               @relation(fields: [branchId], references: [id])
   organization Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   createdBy    User                  @relation(fields: [createdById], references: [id])
   lines        PurchaseInvoiceLine[]
@@ -732,6 +738,8 @@ model PurchaseInvoice {
 
   @@unique([organizationId, number])
   @@index([vendorId])
+  @@index([paymentTermId])
+  @@index([branchId])
 }
 
 model PurchaseInvoiceLine {
@@ -1077,8 +1085,9 @@ model PaymentTerm {
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  salesInvoices SalesInvoice[]
+  organization   Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  salesInvoices   SalesInvoice[]
+  purchaseInvoices PurchaseInvoice[]
 
   @@unique([organizationId, name])
 }
@@ -1095,8 +1104,9 @@ model Branch {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  salesInvoices SalesInvoice[]
+  organization   Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  salesInvoices   SalesInvoice[]
+  purchaseInvoices PurchaseInvoice[]
 
   @@unique([organizationId, code])
 }

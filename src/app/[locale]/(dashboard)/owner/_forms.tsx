@@ -1,0 +1,149 @@
+"use client";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/components/ui/toast";
+import { useState, useEffect } from "react";
+
+type OrganizationInfo = {
+  id: string; name: string; email: string; createdAt: Date;
+  userCount: number;
+  plan: { id: string; name: string; tier: string; status: string } | null;
+};
+type PlanInfo = {
+  id: string; name: string; tier: string; monthlyPrice: number;
+  maxUsers: number; maxInvoices: number; active: boolean;
+};
+type CouponInfo = { id: string; code: string; discountType: string; discountValue: number; maxUses: number; usedCount: number; minAmount: number; planId: string | null; expiresAt: string | null; active: boolean };
+
+export function PlanForm({ plan, onClose, onSave }: { plan?: PlanInfo | null; onClose: () => void; onSave: () => void }) {
+  const [name, setName] = useState(plan?.name ?? "");
+  const [tier, setTier] = useState(plan?.tier ?? "FREE");
+  const [monthlyPrice, setMonthlyPrice] = useState(String(plan?.monthlyPrice ?? ""));
+  const [maxUsers, setMaxUsers] = useState(String(plan?.maxUsers ?? ""));
+  const [maxInvoices, setMaxInvoices] = useState(String(plan?.maxInvoices ?? ""));
+  const { toast } = useToast();
+  useEffect(() => { if (plan) { setName(plan.name); setTier(plan.tier); setMonthlyPrice(String(plan.monthlyPrice)); setMaxUsers(String(plan.maxUsers)); setMaxInvoices(String(plan.maxInvoices)); } }, [plan]);
+  async function handleSave() {
+    const url = plan ? `/api/owner/plans/${plan.id}` : "/api/owner/plans";
+    const method = plan ? "PATCH" : "POST";
+    const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, tier, monthlyPrice: Number(monthlyPrice), maxUsers: Number(maxUsers), maxInvoices: Number(maxInvoices) }) });
+    if (!res.ok) { toast({ title: "Error", message: "Failed to save plan", type: "error" }); return; }
+    toast({ title: "Success", message: `Plan ${plan ? "updated" : "created"}`, type: "success" });
+    onClose(); onSave();
+  }
+  return (<div className="space-y-3">
+    <div><label className="block text-sm font-medium mb-1">Name</label><Input value={name} onChange={e => setName(e.target.value)} /></div>
+    <div><label className="block text-sm font-medium mb-1">Tier</label>
+      <Select options={[{ value: "FREE", label: "Free" }, { value: "STARTER", label: "Starter" }, { value: "PROFESSIONAL", label: "Professional" }, { value: "ENTERPRISE", label: "Enterprise" }]} value={tier} onChange={e => setTier(e.target.value)} />
+    </div>
+    <div className="grid grid-cols-3 gap-2">
+      <div><label className="block text-sm font-medium mb-1">Price (SAR)</label><Input type="number" value={monthlyPrice} onChange={e => setMonthlyPrice(e.target.value)} /></div>
+      <div><label className="block text-sm font-medium mb-1">Max Users</label><Input type="number" value={maxUsers} onChange={e => setMaxUsers(e.target.value)} /></div>
+      <div><label className="block text-sm font-medium mb-1">Max Invoices</label><Input type="number" value={maxInvoices} onChange={e => setMaxInvoices(e.target.value)} /></div>
+    </div>
+    <div className="flex gap-2 pt-2"><Button onClick={handleSave} className="flex-1">{plan ? "Update" : "Create"}</Button><Button variant="outline" onClick={onClose}>Cancel</Button></div>
+  </div>);
+}
+
+export function OrgPlanForm({ org, plans, onClose, onSave }: { org: OrganizationInfo; plans: PlanInfo[]; onClose: () => void; onSave: () => void }) {
+  const [planId, setPlanId] = useState(org.plan?.id ?? "");
+  const [status, setStatus] = useState(org.plan?.status ?? "ACTIVE");
+  const { toast } = useToast();
+  useEffect(() => { if (org.plan) { setPlanId(org.plan.id); setStatus(org.plan.status); } }, [org]);
+  async function handleSave() {
+    const res = await fetch(`/api/owner/orgs/${org.id}/plan`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ planId, status }) });
+    if (!res.ok) { toast({ title: "Error", message: "Failed to update plan", type: "error" }); return; }
+    toast({ title: "Success", message: "Organization plan updated", type: "success" });
+    onClose(); onSave();
+  }
+  return (<div className="space-y-3">
+    <div><label className="block text-sm font-medium mb-1">Plan</label>
+      <Select options={[{ value: "", label: "No plan" }, ...plans.map(p => ({ value: p.id, label: `${p.name} (﷼${p.monthlyPrice}/mo)` }))]} value={planId} onChange={e => setPlanId(e.target.value)} />
+    </div>
+    <div><label className="block text-sm font-medium mb-1">Status</label>
+      <Select options={[{ value: "ACTIVE", label: "Active" }, { value: "TRIALING", label: "Trialing" }, { value: "EXPIRED", label: "Expired" }, { value: "CANCELLED", label: "Cancelled" }, { value: "PAUSED", label: "Paused" }]} value={status} onChange={e => setStatus(e.target.value)} />
+    </div>
+    <div className="flex gap-2 pt-2"><Button onClick={handleSave} className="flex-1">Save</Button><Button variant="outline" onClick={onClose}>Cancel</Button></div>
+  </div>);
+}
+
+export function NotificationForm({ onClose }: { onClose: () => void }) {
+  const [orgList, setOrgList] = useState<{ id: string; name: string }[]>([]);
+  const [orgId, setOrgId] = useState("*");
+  const [title, setTitle] = useState("");
+  const [message, setMessage] = useState("");
+  const { toast } = useToast();
+  useEffect(() => { (async () => { const res = await fetch("/api/owner/orgs"); if (res.ok) { const orgs: OrganizationInfo[] = await res.json(); setOrgList(orgs.map(o => ({ id: o.id, name: o.name }))); } })(); }, []);
+  async function handleSend() {
+    const res = await fetch("/api/owner/notifications", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ organizationId: orgId, title, message, type: "INFO" }) });
+    if (!res.ok) { toast({ title: "Error", message: "Failed to send", type: "error" }); return; }
+    toast({ title: "Success", message: "Notification sent", type: "success" });
+    onClose(); setTitle(""); setMessage("");
+  }
+  return (<div className="space-y-3">
+    <div><label className="block text-sm font-medium mb-1">Send to</label>
+      <Select options={[{ value: "*", label: "All Organizations" }, ...orgList.map(o => ({ value: o.id, label: o.name }))]} value={orgId} onChange={e => setOrgId(e.target.value)} />
+    </div>
+    <div><label className="block text-sm font-medium mb-1">Title</label><Input value={title} onChange={e => setTitle(e.target.value)} /></div>
+    <div><label className="block text-sm font-medium mb-1">Message</label><Textarea value={message} onChange={e => setMessage(e.target.value)} /></div>
+    <div className="flex gap-2 pt-2"><Button onClick={handleSend} className="flex-1">Send</Button><Button variant="outline" onClick={onClose}>Cancel</Button></div>
+  </div>);
+}
+
+export function CouponForm({ coupon, onClose, onSave }: { coupon: CouponInfo | null; onClose: () => void; onSave: () => void }) {
+  const [code, setCode] = useState(coupon?.code ?? "");
+  const [discountType, setDiscountType] = useState(coupon?.discountType ?? "PERCENTAGE");
+  const [discountValue, setDiscountValue] = useState(coupon?.discountValue ?? 10);
+  const [maxUses, setMaxUses] = useState(coupon?.maxUses ?? 0);
+  const [expiresAt, setExpiresAt] = useState(coupon?.expiresAt ? coupon.expiresAt.slice(0, 10) : "");
+  const [active, setActive] = useState(coupon?.active ?? true);
+  const { toast } = useToast();
+  async function handleSave() {
+    const body = { code, discountType, discountValue, maxUses: maxUses || null, expiresAt: expiresAt || null, active };
+    const r = coupon ? await fetch(`/api/owner/coupons/${coupon.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }) : await fetch("/api/owner/coupons", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    if (!r.ok) { toast({ title: "Error", message: "Failed to save coupon", type: "error" }); return; }
+    toast({ title: "Success", message: coupon ? "Coupon updated" : "Coupon created", type: "success" });
+    onSave();
+  }
+  return (<div className="space-y-3">
+    <div><label className="block text-sm font-medium mb-1">Code</label><Input value={code} onChange={e => setCode(e.target.value.toUpperCase())} /></div>
+    <div><label className="block text-sm font-medium mb-1">Discount Type</label>
+      <Select options={[{ value: "PERCENTAGE", label: "Percentage" }, { value: "FIXED", label: "Fixed Amount" }]} value={discountType} onChange={e => setDiscountType(e.target.value)} />
+    </div>
+    <div><label className="block text-sm font-medium mb-1">Value</label><Input type="number" value={discountValue} onChange={e => setDiscountValue(Number(e.target.value))} /></div>
+    <div><label className="block text-sm font-medium mb-1">Max Uses (0 = unlimited)</label><Input type="number" value={maxUses} onChange={e => setMaxUses(Number(e.target.value))} /></div>
+    <div><label className="block text-sm font-medium mb-1">Expires At</label><Input type="date" value={expiresAt} onChange={e => setExpiresAt(e.target.value)} /></div>
+    <div className="flex items-center gap-2"><input type="checkbox" checked={active} onChange={e => setActive(e.target.checked)} className="rounded" /><label className="text-sm">Active</label></div>
+    <div className="flex gap-2 pt-2"><Button onClick={handleSave} className="flex-1">Save</Button><Button variant="outline" onClick={onClose}>Cancel</Button></div>
+  </div>);
+}
+
+export function NewTicketForm({ onClose }: { onClose: () => void }) {
+  const [organizationId, setOrganizationId] = useState("");
+  const [orgList, setOrgList] = useState<{ id: string; name: string }[]>([]);
+  const [subject, setSubject] = useState("");
+  const [message, setMessage] = useState("");
+  const [priority, setPriority] = useState("NORMAL");
+  const { toast } = useToast();
+  useEffect(() => { (async () => { const res = await fetch("/api/owner/orgs"); if (res.ok) { const orgs: OrganizationInfo[] = await res.json(); setOrgList(orgs.map(o => ({ id: o.id, name: o.name }))); } })(); }, []);
+  async function handleCreate() {
+    const r = await fetch("/api/owner/tickets", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ organizationId, subject, message, priority }) });
+    if (!r.ok) { toast({ title: "Error", message: "Failed to create ticket", type: "error" }); return; }
+    toast({ title: "Success", message: "Ticket created", type: "success" });
+    onClose();
+  }
+  return (<div className="space-y-3">
+    <div><label className="block text-sm font-medium mb-1">Organization</label>
+      <Select options={orgList.map(o => ({ value: o.id, label: o.name }))} value={organizationId} onChange={e => setOrganizationId(e.target.value)} placeholder="Select organization" />
+    </div>
+    <div><label className="block text-sm font-medium mb-1">Priority</label>
+      <Select options={[{ value: "LOW", label: "Low" }, { value: "NORMAL", label: "Normal" }, { value: "HIGH", label: "High" }, { value: "URGENT", label: "Urgent" }]} value={priority} onChange={e => setPriority(e.target.value)} />
+    </div>
+    <div><label className="block text-sm font-medium mb-1">Subject</label><Input value={subject} onChange={e => setSubject(e.target.value)} /></div>
+    <div><label className="block text-sm font-medium mb-1">Message</label><Textarea value={message} onChange={e => setMessage(e.target.value)} /></div>
+    <div className="flex gap-2 pt-2"><Button onClick={handleCreate} className="flex-1">Create</Button><Button variant="outline" onClick={onClose}>Cancel</Button></div>
+  </div>);
+}

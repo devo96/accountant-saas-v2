@@ -30,6 +30,7 @@ export async function POST(req: Request) {
   const invoice = await createPurchaseInvoice({
     organizationId: session.user.organizationId,
     createdById: session.user.id,
+    status: body.status === "DRAFT" ? "DRAFT" : "CONFIRMED",
     vendorId: body.vendorId,
     vendorName: vendor?.name ?? "",
     vendorVatNumber: vendor?.taxNumber ?? undefined,
@@ -37,6 +38,10 @@ export async function POST(req: Request) {
     sellerVatNumber: org?.taxNumber ?? undefined,
     invoiceDate: body.invoiceDate,
     dueDate: body.dueDate,
+    referenceNumber: body.referenceNumber ?? null,
+    description: body.description ?? null,
+    paymentTermId: body.paymentTermId ?? null,
+    branchId: body.branchId ?? null,
     subtotal: body.subtotal,
     discountAmount: body.discountAmount ?? 0,
     taxAmount: body.taxAmount,

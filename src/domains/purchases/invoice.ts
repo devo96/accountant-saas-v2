@@ -12,6 +12,7 @@ export async function getPurchaseInvoices(organizationId: string) {
 export async function createPurchaseInvoice(data: {
   organizationId: string;
   createdById: string;
+  status: "DRAFT" | "CONFIRMED";
   vendorId: string;
   vendorName?: string;
   vendorVatNumber?: string;
@@ -19,6 +20,10 @@ export async function createPurchaseInvoice(data: {
   sellerVatNumber?: string;
   invoiceDate: string;
   dueDate?: string | null;
+  referenceNumber?: string | null;
+  description?: string | null;
+  paymentTermId?: string | null;
+  branchId?: string | null;
   subtotal: number;
   discountAmount?: number;
   taxAmount: number;
@@ -80,8 +85,12 @@ export async function createPurchaseInvoice(data: {
       number: nextNumber,
       invoiceDate,
       dueDate: data.dueDate ? new Date(data.dueDate) : null,
-      status: "CONFIRMED",
+      status: data.status,
       vendorId: data.vendorId,
+      referenceNumber: data.referenceNumber ?? null,
+      description: data.description ?? null,
+      paymentTermId: data.paymentTermId ?? null,
+      branchId: data.branchId ?? null,
       subtotal: data.subtotal,
       discountAmount: data.discountAmount ?? 0,
       taxAmount: data.taxAmount,
