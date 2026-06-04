@@ -1,11 +1,13 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { redirect } from "next/navigation";
 import { InventoryAdjustmentsClient } from "./client";
 
 export default async function InventoryAdjustmentsPage() {
   const session = await getServerSession(authOptions);
-  const orgId = session?.user?.organizationId;
+  if (!session?.user?.organizationId) redirect("/auth/login");
+  const orgId = session.user.organizationId;
 
   const [adjustments, items, warehouses] = await Promise.all([
     prisma.inventoryAdjustment.findMany({

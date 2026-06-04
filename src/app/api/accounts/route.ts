@@ -29,7 +29,6 @@ export async function POST(req: Request) {
     data: {
       code: body.code,
       name: body.name,
-      nameAr: body.nameAr || null,
       type: body.type,
       nature: body.nature,
       parentId: body.parentId || null,

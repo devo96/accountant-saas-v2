@@ -24,6 +24,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   const invoice = await createSalesInvoice({
     organizationId: session.user.organizationId,
     createdById: session.user.id,
+    status: "CONFIRMED",
     customerId: quote.customerId,
     customerName: quote.customer.name,
     customerVatNumber: quote.customer.taxNumber ?? undefined,

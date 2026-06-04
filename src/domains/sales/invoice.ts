@@ -12,6 +12,7 @@ export async function getSalesInvoices(organizationId: string) {
 export async function createSalesInvoice(data: {
   organizationId: string;
   createdById: string;
+  status: "DRAFT" | "CONFIRMED";
   customerId: string;
   customerName?: string;
   customerVatNumber?: string;
@@ -19,6 +20,10 @@ export async function createSalesInvoice(data: {
   sellerVatNumber?: string;
   invoiceDate: string;
   dueDate?: string | null;
+  referenceNumber?: string | null;
+  description?: string | null;
+  paymentTermId?: string | null;
+  branchId?: string | null;
   subtotal: number;
   discountAmount?: number;
   taxAmount: number;
@@ -79,8 +84,12 @@ export async function createSalesInvoice(data: {
       number: nextNumber,
       invoiceDate,
       dueDate: data.dueDate ? new Date(data.dueDate) : null,
-      status: "CONFIRMED",
+      status: data.status,
       customerId: data.customerId,
+      referenceNumber: data.referenceNumber ?? null,
+      description: data.description ?? null,
+      paymentTermId: data.paymentTermId ?? null,
+      branchId: data.branchId ?? null,
       subtotal: data.subtotal,
       discountAmount: data.discountAmount ?? 0,
       taxAmount: data.taxAmount,

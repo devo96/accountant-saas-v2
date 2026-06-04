@@ -6,6 +6,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { cn } from "@/lib/utils";
 import { ChevronLeft, ChevronRight, Download, Search, Trash2, Inbox } from "lucide-react";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { exportToCsv } from "@/lib/export";
 
 type Column<T> = {
@@ -59,6 +60,7 @@ export function DataTable<T extends Record<string, unknown>>({
   idKey = "id",
   bulkActions,
 }: DataTableProps<T>) {
+  const t = useTranslations("common");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(0);
   const [filterValues, setFilterValues] = useState<Record<string, string>>({});
@@ -187,7 +189,7 @@ export function DataTable<T extends Record<string, unknown>>({
             {paged.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={columns.length + (onEdit || onDelete ? 1 : 0) + (selectable ? 1 : 0)} className="py-12">
-                  <EmptyState title="No data found" icon={<Inbox className="h-8 w-8 text-gray-400" />} />
+                  <EmptyState title={t("noData")} icon={<Inbox className="h-8 w-8 text-gray-400" />} />
                 </TableCell>
               </TableRow>
             ) : (

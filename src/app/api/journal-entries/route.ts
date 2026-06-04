@@ -31,6 +31,7 @@ export async function POST(req: Request) {
     const entry = await createJournalEntry(session.user.organizationId, session.user.id, {
       date: new Date(body.date).toISOString(),
       description: body.description,
+      status: body.status,
       lines: body.lines.map((l: { accountId: string; debit: number; credit: number }) => ({
         accountId: l.accountId,
         debit: l.debit,

@@ -20,7 +20,7 @@ export default async function SalesReturnsPage() {
     returnDate: r.returnDate.toISOString(),
     status: r.status,
     total: Number(r.total),
-    customerName: r.customer.name,
+    customerName: r.customer?.name ?? "",
   }));
 
   return <SalesReturnsClient returns={data} />;

@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { FadeIn } from "@/components/transitions";
 import { PageHeader } from "@/components/ui/page-header";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2 } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
 import { useState } from "react";
 
@@ -34,10 +34,10 @@ export function JournalEntriesClient({ entries, accounts, fiscalYears }: Props) 
   const statusLabels: Record<string, string> = { DRAFT: "draft", POSTED: "posted" };
   const router = useRouter();
   const [showAdd, setShowAdd] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [form, setForm] = useState({
     date: new Date().toISOString().split("T")[0],
     description: "",
-    descriptionAr: "",
     reference: "",
     fiscalYearId: "",
     lines: [{ accountId: "", debit: "", credit: "" }],
@@ -57,17 +57,16 @@ export function JournalEntriesClient({ entries, accounts, fiscalYears }: Props) 
     setForm({ ...form, lines });
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleSubmit(status: string) {
     const res = await fetch("/api/journal-entries", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         date: new Date(form.date).toISOString(),
         description: form.description,
-        descriptionAr: form.descriptionAr || undefined,
         reference: form.reference || undefined,
         fiscalYearId: form.fiscalYearId || undefined,
+        status,
         lines: form.lines.map((l) => ({
           accountId: l.accountId,
           debit: Number(l.debit),
@@ -76,6 +75,12 @@ export function JournalEntriesClient({ entries, accounts, fiscalYears }: Props) 
       }),
     });
     if (res.ok) { setShowAdd(false); router.refresh(); }
+  }
+
+  async function handleDelete() {
+    if (!deletingId) return;
+    const res = await fetch(`/api/journal-entries/${deletingId}`, { method: "DELETE" });
+    if (res.ok) { setDeletingId(null); router.refresh(); }
   }
 
   const totalDebit = form.lines.reduce((s, l) => s + Number(l.debit), 0);
@@ -107,6 +112,19 @@ export function JournalEntriesClient({ entries, accounts, fiscalYears }: Props) 
           { key: "description", label: t("description") },
           { key: "status", label: t("status"), render: (e) => <Badge variant={(e as Entry).status === "POSTED" ? "success" : "outline"}>{s(statusLabels[(e as Entry).status] || (e as Entry).status)}</Badge> },
           { key: "createdBy", label: t("createdBy"), render: (e) => (e as Entry).createdBy?.name ?? "-" },
+          { key: "actions", label: "", render: (e) => {
+            const entry = e as Entry;
+            return (
+              <div className="flex gap-1">
+                <Button variant="ghost" size="sm" onClick={() => router.push(`/accounting/journal-entries/${entry.id}`)} className="h-8 w-8 p-0 text-gray-400 hover:text-primary-600">
+                  <Pencil className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="sm" onClick={(ev) => { ev.stopPropagation(); setDeletingId(entry.id); }} className="h-8 w-8 p-0 text-gray-400 hover:text-red-600">
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            );
+          }},
         ]}
         data={entries as unknown as Record<string, unknown>[]}
         onRowClick={(e) => router.push(`/accounting/journal-entries/${(e as Entry).id}`)}
@@ -115,13 +133,12 @@ export function JournalEntriesClient({ entries, accounts, fiscalYears }: Props) 
       />
 
       <Dialog open={showAdd} onClose={() => setShowAdd(false)} title={t("dialogTitle")} className="w-full max-w-2xl">
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <Input label={t("date")} type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} required />
             <Input label={t("reference")} value={form.reference} onChange={(e) => setForm({ ...form, reference: e.target.value })} />
           </div>
           <Input label={t("description")} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} required />
-          <Input label={t("descriptionAr")} value={form.descriptionAr} onChange={(e) => setForm({ ...form, descriptionAr: e.target.value })} />
           <Select label={t("fiscalYear")} options={fiscalYearOpts} placeholder={t("selectFiscalYear")} value={form.fiscalYearId} onChange={(e) => setForm({ ...form, fiscalYearId: e.target.value })} />
 
           <div className="space-y-2">
@@ -153,10 +170,19 @@ export function JournalEntriesClient({ entries, accounts, fiscalYears }: Props) 
             </div>
           </div>
 
-          <Button type="submit" className="w-full" disabled={!isBalanced || form.lines.length < 2}>
-            {t("postEntry")}
-          </Button>
+          <div className="flex justify-end gap-3">
+            <Button type="button" variant="outline" onClick={() => handleSubmit("DRAFT")} disabled={!isBalanced || form.lines.length < 2}>{t("saveDraft")}</Button>
+            <Button type="button" onClick={() => handleSubmit("POSTED")} disabled={!isBalanced || form.lines.length < 2}>{t("postEntry")}</Button>
+          </div>
         </form>
+      </Dialog>
+
+      <Dialog open={!!deletingId} onClose={() => setDeletingId(null)} title={t("deleteTitle")}>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">{t("deleteConfirm")}</p>
+        <div className="flex justify-end gap-3">
+          <Button type="button" variant="outline" onClick={() => setDeletingId(null)}>{t("cancel")}</Button>
+          <Button type="button" variant="danger" onClick={handleDelete}>{t("delete")}</Button>
+        </div>
       </Dialog>
     </div>
     </FadeIn>

@@ -6,33 +6,12 @@ import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import { useSession } from "next-auth/react";
 import {
-  LayoutDashboard,
-  ShoppingCart,
-  ShoppingBag,
-  Receipt,
-  Banknote,
-  Package,
-  BookOpen,
-  BarChart3,
-  Users,
-  Settings,
-  ChevronDown,
-  ChevronLeft,
-  FileText,
-  UserCircle,
-  Building2,
-  Warehouse,
-  Wallet,
-  PiggyBank,
-  Calculator,
-  FileSpreadsheet,
-  Calendar,
-  Layout,
-  Activity,
-  QrCode,
-  Mail,
-  Upload,
-  Crown,
+  LayoutDashboard, ShoppingCart, ShoppingBag, Receipt, Banknote, Package, BookOpen, BarChart3,
+  Users, Settings, ChevronDown, ChevronLeft, FileText, UserCircle, Building2, Warehouse, Wallet,
+  PiggyBank, Calculator, FileSpreadsheet, Calendar, Layout, Activity, QrCode, Mail, Upload, Crown,
+  Handshake, ArrowRightLeft, UserPlus, ShieldCheck, HandCoins, Truck, CheckCheck,
+  ClipboardList, FolderTree, Ruler, BriefcaseBusiness, CircleDollarSign,
+  Network,
 } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -59,9 +38,10 @@ const navItems: NavItem[] = [
     children: [
       { key: "invoices", href: "/sales/invoices", icon: FileText },
       { key: "quotes", href: "/sales/quotes", icon: FileText },
+      { key: "recurring", href: "/sales/recurring", icon: Calendar },
+      { key: "customerReceipts", href: "/sales/customer-receipts", icon: HandCoins },
       { key: "salesReturns", href: "/sales/returns", icon: FileText },
       { key: "customers", href: "/sales/customers", icon: UserCircle },
-      { key: "recurring", href: "/sales/recurring", icon: Calendar },
     ],
   },
   {
@@ -69,9 +49,24 @@ const navItems: NavItem[] = [
     icon: ShoppingBag,
     children: [
       { key: "purchaseInvoices", href: "/purchases/invoices", icon: FileText },
+      { key: "simpleInvoices", href: "/purchases/simple-invoices", icon: Receipt },
       { key: "purchaseOrders", href: "/purchases/orders", icon: FileSpreadsheet },
+      { key: "supplierPayments", href: "/purchases/supplier-payments", icon: Handshake },
       { key: "purchaseReturns", href: "/purchases/returns", icon: FileText },
       { key: "vendors", href: "/purchases/vendors", icon: Building2 },
+    ],
+  },
+  {
+    key: "products",
+    icon: Package,
+    children: [
+      { key: "items", href: "/inventory/items", icon: Package },
+      { key: "inventoryDashboard", href: "/inventory/dashboard", icon: ClipboardList },
+      { key: "warehouses", href: "/inventory/warehouses", icon: Warehouse },
+      { key: "stockMovements", href: "/inventory/stock-movements", icon: ArrowRightLeft },
+      { key: "adjustments", href: "/inventory/adjustments", icon: Calculator },
+      { key: "categories", href: "/inventory/categories", icon: FolderTree },
+      { key: "units", href: "/inventory/units", icon: Ruler },
     ],
   },
   {
@@ -90,26 +85,40 @@ const navItems: NavItem[] = [
     ],
   },
   {
-    key: "inventory",
-    icon: Package,
-    children: [
-      { key: "items", href: "/inventory/items", icon: Package },
-      { key: "warehouses", href: "/inventory/warehouses", icon: Warehouse },
-      { key: "adjustments", href: "/inventory/adjustments", icon: Calculator },
-      { key: "stockMovements", href: "/inventory/stock-movements", icon: Package },
-    ],
-  },
-  {
     key: "accounting",
     icon: BookOpen,
     children: [
       { key: "chartOfAccounts", href: "/accounting/chart-of-accounts", icon: BarChart3 },
       { key: "journalEntries", href: "/accounting/journal-entries", icon: FileSpreadsheet },
+      { key: "easyEntries", href: "/accounting/easy-entries", icon: FileSpreadsheet },
+      { key: "openingBalances", href: "/accounting/opening-balances", icon: Calculator },
       { key: "generalLedger", href: "/accounting/general-ledger", icon: BookOpen },
-      { key: "fixedAssets", href: "/accounting/fixed-assets", icon: Building2 },
-      { key: "budgets", href: "/budgets", icon: Calculator },
-      { key: "fiscalYears", href: "/settings/fiscal-years", icon: Calendar },
       { key: "accountingDimensions", href: "/settings/accounting-dimensions", icon: Layout },
+      { key: "costCenters", href: "/settings/cost-centers", icon: Network },
+      { key: "currencies", href: "/settings/currencies", icon: Wallet },
+      { key: "fiscalYears", href: "/settings/fiscal-years", icon: Calendar },
+      { key: "accountingQuality", href: "/accounting/accounting-quality", icon: ShieldCheck },
+    ],
+  },
+  {
+    key: "fixedAssets",
+    icon: Building2,
+    children: [
+      { key: "fixedAssetsList", href: "/accounting/fixed-assets", icon: Building2 },
+      { key: "depreciation", href: "/accounting/fixed-assets/depreciation", icon: Calculator },
+      { key: "disposals", href: "/accounting/fixed-assets/disposals", icon: ArrowRightLeft },
+      { key: "assetTransfer", href: "/accounting/fixed-assets/transfer", icon: Truck },
+    ],
+  },
+  {
+    key: "payroll",
+    icon: Users,
+    children: [
+      { key: "payrollRuns", href: "/payroll", icon: FileText },
+      { key: "employees", href: "/payroll/employees", icon: Users },
+      { key: "advances", href: "/payroll/advances", icon: CircleDollarSign },
+      { key: "deductions", href: "/payroll/deductions", icon: Calculator },
+      { key: "socialInsurance", href: "/payroll/social-insurance", icon: ShieldCheck },
     ],
   },
   {
@@ -126,14 +135,17 @@ const navItems: NavItem[] = [
       { key: "purchaseReport", href: "/reports/purchase-report", icon: FileText },
       { key: "expenseReport", href: "/reports/expense-report", icon: FileText },
       { key: "taxReport", href: "/reports/tax-report", icon: FileText },
+      { key: "vatReturn", href: "/reports/vat-return", icon: FileText },
+      { key: "inventoryReport", href: "/reports/inventory-report", icon: FileText },
+      { key: "budgets", href: "/budgets", icon: Calculator },
     ],
   },
   {
-    key: "payroll",
-    icon: Users,
+    key: "tasks",
+    icon: ClipboardList,
     children: [
-      { key: "payrollRuns", href: "/payroll", icon: FileText },
-      { key: "employees", href: "/payroll/employees", icon: Users },
+      { key: "projects", href: "/projects", icon: BriefcaseBusiness },
+      { key: "tasksList", href: "/tasks", icon: ClipboardList },
     ],
   },
   {
@@ -141,12 +153,13 @@ const navItems: NavItem[] = [
     icon: Settings,
     children: [
       { key: "organization", href: "/settings/organization", icon: Building2 },
-      { key: "currencies", href: "/settings/currencies", icon: Wallet },
+      { key: "users", href: "/settings/users", icon: Users, adminOnly: true },
       { key: "taxCodes", href: "/settings/tax-codes", icon: Receipt },
+      { key: "paymentTerms", href: "/settings/payment-terms", icon: Handshake },
+      { key: "branches", href: "/settings/branches", icon: Building2 },
+      { key: "emailTemplates", href: "/settings/email-templates", icon: Mail },
       { key: "import", href: "/settings/import", icon: Upload },
       { key: "zatca", href: "/settings/zatca", icon: QrCode },
-      { key: "users", href: "/settings/users", icon: Users, adminOnly: true },
-      { key: "emailTemplates", href: "/settings/email-templates", icon: Mail },
       { key: "auditLogs", href: "/settings/audit-logs", icon: Activity, adminOnly: true },
     ],
   },
@@ -170,12 +183,13 @@ export function Sidebar({ show, onClose, desktopOpen, onToggleDesktop }: { show?
 
   const filteredNavItems = navItems
     .map((item) => {
+      if (role === "OWNER") return item.ownerOnly ? item : null;
       if (item.children) {
         const filteredChildren = item.children.filter((child) => !child.adminOnly || isAdmin);
         if (filteredChildren.length === 0) return null;
         return { ...item, children: filteredChildren };
       }
-      if (item.ownerOnly && role !== "OWNER") return null;
+      if (item.ownerOnly) return null;
       if (item.adminOnly && !isAdmin) return null;
       return item;
     })

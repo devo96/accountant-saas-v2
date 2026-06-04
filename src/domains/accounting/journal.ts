@@ -33,7 +33,7 @@ export type JournalEntryInput = z.infer<typeof JournalEntrySchema>;
 export async function createJournalEntry(
   organizationId: string,
   userId: string,
-  input: JournalEntryInput
+  input: JournalEntryInput & { status?: string }
 ) {
   const data = JournalEntrySchema.parse(input);
 
@@ -53,7 +53,7 @@ export async function createJournalEntry(
       fiscalYearId: data.fiscalYearId,
       organizationId,
       createdById: userId,
-      status: "POSTED",
+      status: input.status === "DRAFT" ? "DRAFT" : "POSTED",
       lines: {
         create: data.lines.map((line) => ({
           accountId: line.accountId,

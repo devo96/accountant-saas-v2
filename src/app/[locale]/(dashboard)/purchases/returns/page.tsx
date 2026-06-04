@@ -20,7 +20,7 @@ export default async function PurchaseReturnsPage() {
     returnDate: r.returnDate.toISOString(),
     status: r.status,
     total: Number(r.total),
-    vendorName: r.vendor.name,
+    vendorName: r.vendor?.name ?? "",
   }));
 
   return <PurchaseReturnsClient returns={data} />;

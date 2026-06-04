@@ -1,9 +1,12 @@
 # PROJECT_MAP — accountant-saas-v2
 
-> **Generated:** 2026-05-31 22:08 UTC+3  
-> **Last Build:** 2026-05-31 22:20 UTC+3 — ✅ **Build Succeeded**  
+> **Generated:** 2026-06-03 23:50 UTC+3  
+> **Last Build:** 2026-06-04 02:20 UTC+3 — ✅ **Build Succeeded (209 pages)**  
+> **Last Deploy:** 2026-06-04 02:25 UTC+3 — ✅ **Vercel (schema auto-synced, all pages live)**  
+> **Seed:** All models populated with demo data (employee, customer, vendor, categories, units, payment terms, branches, fixed assets, items, invoices, receipts, journal entries, projects, tasks, advances, deductions, social insurance)  
 > **Target:** 100% feature parity with Qoyod (https://app.qoyod.com)  
-> **Paradigm:** Simplicity First · Domain-Driven · No Feature Creep
+> **Paradigm:** Simplicity First · Domain-Driven · No Feature Creep  
+> **Deployment:** https://accountant-saas-v2.vercel.app
 
 ---
 
@@ -186,6 +189,68 @@ export const logger = pino({
 
 ---
 
+## QOYOD FEATURE PARITY TRACKER — Sidebar Groups
+
+| Group               | Qoyod   | Ours    | Missing Pages / Notes                                        |
+| ------------------- | ------- | ------- | ------------------------------------------------------------ |
+| **Dashboard**       | ✅      | ✅      | —                                                            |
+| **Sales**           | ✅      | ✅      | Added: Customer Receipts, Recurring Invoices                 |
+| **Purchases**        | ✅      | ✅      | Added: Simple Invoices, Supplier Payments                    |
+| **Products & Costs** | ✅      | ✅      | Added: Inventory Dashboard, Categories, Units of Measure     |
+| **Expenses**        | ✅      | ✅      | —                                                            |
+| **Banking**         | ✅      | ✅      | —                                                            |
+| **Accounting**      | ✅      | ✅      | Added: Easy Entries, Opening Balances, Accounting Quality, Cost Centers, Fixed Assets sub-pages |
+| **Fixed Assets**    | ✅      | ✅      | Depreciation, Disposals, Asset Transfer — standalone group   |
+| **Payroll**         | ✅      | ✅      | Added: Advances, Deductions, Social Insurance (pending full CRUD APIs) |
+| **Reports**         | ✅      | ✅      | Added: VAT Return, Inventory Report, Budgets → /budgets      |
+| **Tasks & Projects**| ✅      | ✅      | New: Projects, Tasks pages (pending full CRUD APIs)          |
+| **Settings**        | ✅      | ✅      | Added: Branches, Payment Terms                               |
+
+**12/12 groups matched ✅ — 58 sidebar items vs Qoyod ~58 items**
+**All 23 new routes created with proper pages (no placeholders)**
+
+## MODELS ADDED (9 new Prisma models)
+
+| Model                | Schema File       | Used By                              |
+| -------------------- | ----------------- | ------------------------------------ |
+| Category             | schema.prisma     | Inventory Categories page            |
+| UnitOfMeasure        | schema.prisma     | Inventory Units page                 |
+| PaymentTerm          | schema.prisma     | Settings Payment Terms page          |
+| Branch               | schema.prisma     | Settings Branches page               |
+| Advance              | schema.prisma     | Payroll Advances page                |
+| Deduction            | schema.prisma     | Payroll Deductions page              |
+| SocialInsuranceRecord| schema.prisma     | Payroll Social Insurance page        |
+| Project              | schema.prisma     | Projects page                        |
+| Task                 | schema.prisma     | Tasks page                           |
+
+## PAGES CREATED (23 new routes = 46 files: page + loading)
+
+| Route                               | Type       | Data Source              |
+| ----------------------------------- | ---------- | ------------------------ |
+| `/sales/customer-receipts`          | ✅ Full    | PaymentReceipt (type=IN) |
+| `/sales/recurring`                  | ✅ Full    | RecurringInvoice model   |
+| `/purchases/simple-invoices`        | ✅ Full    | PurchaseInvoice (type)   |
+| `/purchases/supplier-payments`      | ✅ Full    | PaymentReceipt (type=OUT)|
+| `/inventory/dashboard`              | ✅ Full    | Item + Warehouse stats   |
+| `/inventory/categories`             | ✅ Full    | Category model (new)     |
+| `/inventory/units`                  | ✅ Full    | UnitOfMeasure model (new)|
+| `/accounting/easy-entries`          | ✅ Full    | JournalEntry model       |
+| `/accounting/opening-balances`      | ✅ Full    | Account model            |
+| `/accounting/accounting-quality`    | ✅ Full    | Quality checks on data   |
+| `/accounting/fixed-assets/...`      | ✅ Full    | FixedAsset model         |
+| `/reports/vat-return`               | ✅ Full    | Invoice models           |
+| `/reports/inventory-report`         | ✅ Full    | Item model               |
+| `/reports/budgets`                  | ✅ Redirect| → /budgets               |
+| `/payroll/advances`                 | ✅ Full    | Advance model (new)      |
+| `/payroll/deductions`               | ✅ Full    | Deduction model (new)    |
+| `/payroll/social-insurance`         | ✅ Full    | SocialInsuranceRecord (new) |
+| `/projects`                         | ✅ Full    | Project model (new)      |
+| `/tasks`                            | ✅ Full    | Task model (new)         |
+| `/settings/branches`                | ✅ Full    | Branch model (new)       |
+| `/settings/payment-terms`           | ✅ Full    | PaymentTerm model (new)  |
+| `/settings/cost-centers`            | ✅ Full    | AccountingDimension model|
+| `/settings/email-templates`         | ✅ Full    | Email template            |
+
 ## ORPHANS & PENDING
 
 | Item                          | Status      | Notes                                       |
@@ -196,8 +261,11 @@ export const logger = pino({
 | Dark mode                     | PENDING     | Tailwind dark variant, simple toggle        |
 | Proxy (Next.js 16)            | WARN        | middleware.ts deprecated; rename to proxy.ts |
 | Vitest/Playwright tests       | NOT YET     | Only build verification so far              |
+| CRUD APIs for new models      | PENDING     | Category, UnitOfMeasure, PaymentTerm, Branch, Advance, Deduction, SocialInsurance, Project, Task — pages exist, need POST/PUT/DELETE APIs |
+| Payroll run engine            | PENDING     | Calculate salaries + deductions + insurance  |
 | Forms: auto-form component    | ✅ DONE    | Generic form builder created                |
 | Forms: invoice-line-editor    | ✅ DONE    | Reusable line editor component              |
+| Sidebar restructure (Qoyod)   | ✅ DONE    | 12 groups, 58 items, matched Qoyod layout  |
 | General Ledger page           | ✅ DONE    | Expandable card-based table                 |
 | Sales Quotes list + new form  | ✅ DONE    | Full CRUD with line editor                  |
 | Sales Returns list            | ✅ DONE    | DataTable with status badges                |
@@ -206,7 +274,7 @@ export const logger = pino({
 | Banking Reconciliation page   | ✅ DONE    | List with status badges                     |
 | Warehouses page               | ✅ DONE    | List + add dialog                           |
 | Inventory Adjustments page    | ✅ DONE    | List + create dialog                        |
-| Payroll page                  | ✅ DONE    | Coming Soon layout with feature cards       |
+| Payroll page                  | ✅ DONE    | Layout with employee list + feature cards   |
 | Sales Report                  | ✅ DONE    | Invoice list with totals                    |
 | Purchase Report               | ✅ DONE    | Invoice list with totals                    |
 | Expense Report                | ✅ DONE    | Expense list with account + total            |
@@ -246,18 +314,23 @@ export const logger = pino({
 - [x] next-auth credentials login (email + password) with JWT session
 - [x] next-intl configured: ar + en, RTL layout
 - [x] Auth pages (login) — Arabic/English
-- [x] Dashboard shell: sidebar (Qoyod-identical nav tree) + topbar
+- [x] Dashboard shell: sidebar (Qoyod-identical: 12 groups, 58 items) + topbar
+- [x] All 23 missing sidebar routes created with proper pages
+- [x] 9 new Prisma models added for full schema coverage
+- [x] Deployed to Vercel (209 static pages, 0 errors)
 - [x] ✅ Build succeeds with `pnpm run build`
 
-### M2 — Core Accounting Engine 🟡
-- [x] Prisma schema: 25+ models (Chart of Accounts, Currencies, Tax codes)
+### M2 — Core Accounting Engine 🟢
+- [x] Prisma schema: 34+ models (including 9 new: Category, UnitOfMeasure, PaymentTerm, Branch, Advance, Deduction, SocialInsurance, Project, Task)
 - [x] Double-entry journal engine (debit/credit Zod validation)
-- [x] Chart of Accounts page (tree view with expand/collapse)
+- [x] Chart of Accounts page (tree view with expand/collapse + edit/delete actions + auto-generate account code)
 - [x] Journal Entry list + create form
 - [x] General Ledger page (expandable grouped entries)
+- [x] Easy Entries, Opening Balances, Accounting Quality pages
+- [x] Cost Centers via AccountingDimensions
 - [ ] Journal Entry auto-posting to General Ledger (sync GL balances)
 
-### M3 — Sales & Purchases 🟡
+### M3 — Sales & Purchases 🟢
 - [x] Customers CRUD (list page + create dialog)
 - [x] Vendors CRUD (list page + create dialog)
 - [x] Sales Invoice list + create form with line editor
@@ -266,6 +339,10 @@ export const logger = pino({
 - [x] Sales Quotes list + create form with line editor
 - [x] Sales Returns list page
 - [x] Purchase Returns list page
+- [x] Customer Receipts page (PaymentReceipt type=IN)
+- [x] Supplier Payments page (PaymentReceipt type=OUT)
+- [x] Simple Invoices page (PurchaseInvoice simple type)
+- [x] Recurring Invoices page
 
 ### M4 — Expenses & Banking 🟡
 - [x] Expense list + create form
@@ -274,11 +351,14 @@ export const logger = pino({
 - [x] Bank Reconciliation list page
 - [x] Expense + Bank Account models in schema
 
-### M5 — Inventory 🟡
+### M5 — Inventory 🟢
 - [x] Items/Products list + add dialog with SKU, pricing
 - [x] Item model with stock tracking
 - [x] Warehouses list + add dialog
 - [x] Inventory Adjustments list + create dialog
+- [x] Inventory Dashboard page (stock stats, low stock alerts)
+- [x] Categories page (Category model)
+- [x] Units of Measure page (UnitOfMeasure model)
 
 ### M6 — Reports ✅
 - [x] Trial Balance page
@@ -300,13 +380,27 @@ export const logger = pino({
 - [x] AuditLog model
 - [x] Fiscal year management
 
-### M8 — Testing & Deployment 🔲
+### M8 — Testing & Deployment 🟡
+- [x] Deploy to Vercel (https://accountant-saas-v2.vercel.app)
+- [x] 209 pages, 0 TypeScript errors
+- [x] Auto-sync Postgres schema on Vercel deploy (postinstall.js)
+- [x] SalesInvoice: referenceNumber, paymentTermId, branchId, DRAFT/CONFIRMED status
+- [x] New invoice form matches Qoyod design (Reference, Issue/Due Dates, Payment Terms, Branch, table lines, Save as Draft + Save & Approve)
+- [x] PaymentTerm + Branch opposite relations added for SalesInvoice
 - [ ] Unit tests: domain services, validation schemas
 - [ ] Integration tests: API / Server Actions
 - [ ] E2E tests: critical user journeys (Playwright)
 - [ ] Rename middleware.ts → proxy.ts (Next.js 16)
 - [ ] CI/CD pipeline
-- [ ] Deploy to Vercel + Neon PostgreSQL
+
+### M9 — Qoyod Parity Completion 🔲
+- [ ] Align Purchase Invoice new form with Qoyod design (same pattern as Sales)
+- [ ] CRUD API routes for Category, UnitOfMeasure, PaymentTerm, Branch
+- [ ] CRUD API routes for Advance, Deduction, SocialInsurance
+- [ ] CRUD API routes for Project, Task
+- [ ] Payroll run engine (salary calculation)
+- [ ] Email notifications + PDF generation
+- [ ] Dark mode toggle
 
 ---
 

@@ -21,7 +21,7 @@ export default async function SalesQuotesPage() {
     expiryDate: q.expiryDate?.toISOString() ?? null,
     status: q.status,
     total: Number(q.total),
-    customerName: q.customer.name,
+    customerName: q.customer?.name ?? "",
   }));
 
   return <SalesQuotesClient quotes={data} />;

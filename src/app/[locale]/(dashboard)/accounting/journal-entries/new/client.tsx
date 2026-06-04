@@ -41,7 +41,7 @@ export default function NewJournalEntryClient({ accounts, fiscalYears }: { accou
   const accountOpts = accounts.map((a) => ({ value: a.id, label: `${a.code} - ${a.nameAr ?? a.name}` }));
   const fiscalYearOpts = fiscalYears.map((fy) => ({ value: fy.id, label: fy.name }));
 
-  async function handleSubmit() {
+  async function handleSubmit(status: string) {
     setSubmitting(true);
     try {
       const res = await fetch("/api/journal-entries", {
@@ -52,6 +52,7 @@ export default function NewJournalEntryClient({ accounts, fiscalYears }: { accou
           description: form.description,
           reference: form.reference || undefined,
           fiscalYearId: form.fiscalYearId || undefined,
+          status,
           lines: form.lines.filter((l) => l.accountId).map((l) => ({ accountId: l.accountId, debit: Number(l.debit), credit: Number(l.credit) })),
         }),
       });
@@ -67,7 +68,8 @@ export default function NewJournalEntryClient({ accounts, fiscalYears }: { accou
         actions={
           <div className="flex gap-3">
             <Button variant="outline" onClick={() => router.back()}>{t("cancel")}</Button>
-            <Button onClick={handleSubmit} disabled={submitting || !isBalanced || form.lines.length < 2}>{submitting ? t("saving") : t("postEntry")}</Button>
+            <Button variant="outline" onClick={() => handleSubmit("DRAFT")} disabled={submitting || !isBalanced || form.lines.length < 2}>{submitting ? t("saving") : t("saveDraft")}</Button>
+            <Button onClick={() => handleSubmit("POSTED")} disabled={submitting || !isBalanced || form.lines.length < 2}>{submitting ? t("saving") : t("postEntry")}</Button>
           </div>
         }
       />

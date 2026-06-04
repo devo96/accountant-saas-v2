@@ -29,7 +29,7 @@ export default async function GeneralLedgerPage() {
     date: e.date.toISOString(),
     description: e.description,
     status: e.status,
-    createdByName: e.createdBy.name,
+    createdByName: e.createdBy?.name ?? "",
     lines: e.lines.map((l) => ({
       id: l.id,
       accountCode: l.account.code,

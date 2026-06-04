@@ -14,7 +14,7 @@
     "db:migrate": "prisma migrate dev --schema=prisma/schema.sqlite.prisma",
     "db:seed": "tsx prisma/seed.ts",
     "db:generate:pg": "prisma generate --schema=prisma/schema.prisma",
-    "postinstall": "prisma generate --schema=prisma/schema.prisma",
+    "postinstall": "node scripts/postinstall.js",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui"
   },
