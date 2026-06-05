@@ -1,4 +1,4 @@
-"use client"; import { useTranslations } from "next-intl"; import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"; import { Button } from "@/components/ui/button"; import { Dialog } from "@/components/ui/dialog"; import { Input } from "@/components/ui/input"; import { Select } from "@/components/ui/select"; import { Textarea } from "@/components/ui/textarea"; import { useToast } from "@/components/ui/toast"; import { Package, Building2, Users, Crown, Play, LogIn } from "lucide-react"; import { useState, useCallback } from "react"; import { OrgPlanForm } from "../_forms";
+"use client"; import { useTranslations } from "next-intl"; import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"; import { Button } from "@/components/ui/button"; import { Dialog } from "@/components/ui/dialog"; import { Input } from "@/components/ui/input"; import { Select } from "@/components/ui/select"; import { Textarea } from "@/components/ui/textarea"; import { useToast } from "@/components/ui/toast"; import { Package, Building2, Users, Crown, Play, LogIn, Eye } from "lucide-react"; import { useState, useCallback } from "react"; import Link from "next/link"; import { OrgPlanForm } from "../_forms";
 type OrgPlan = { id: string; name: string; tier: string; status: string; startsAt?: string; endsAt?: string | null; trialEndsAt?: string | null } | null;
 type OrganizationInfo = { id: string; name: string; email: string; createdAt: Date; userCount: number; plan: OrgPlan; };
 type PlanInfo = { id: string; name: string; tier: string; monthlyPrice: number; yearlyPrice: number; maxUsers: number; maxInvoices: number; active: boolean; };
@@ -70,14 +70,15 @@ export function OrganizationsClient({ orgs: initialOrgs, plans }: { orgs: Organi
                 const trialDays = org.plan?.trialEndsAt ? daysRemaining(org.plan.trialEndsAt) : null;
                 const endDays = org.plan?.endsAt ? daysRemaining(org.plan.endsAt) : null;
                 return (<tr key={org.id} className="border-b hover:bg-gray-50">
-                  <td className="p-3 font-medium">{org.name}<br /><span className="text-gray-400">{org.email}</span></td>
+                   <td className="p-3 font-medium"><Link href={`/owner/organizations/${org.id}`} className="text-primary-600 hover:underline">{org.name}</Link><br /><span className="text-gray-400">{org.email}</span></td>
                   <td className="p-3"><span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${tc}`}>{org.plan?.name ?? t("noPlan")}</span></td>
                   <td className="p-3">{st ? <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${st.color}`}>{st.icon}{t(`status${org.plan!.status}`)}</span> : <span className="text-gray-400">{t("noPlan")}</span>}</td>
                   <td className="p-3"><DaysBadge days={trialDays} t={t} /></td>
                   <td className="p-3"><DaysBadge days={endDays} t={t} /></td>
                   <td className="p-3">{org.userCount}</td>
-                  <td className="p-3 flex gap-1">
-                    <Button size="sm" variant="ghost" onClick={() => setOrgPlanDialog(org)} title={t("changePlan")}><Package className="h-3 w-3" /></Button>
+                   <td className="p-3 flex gap-1">
+                     <Link href={`/owner/organizations/${org.id}`}><Button size="sm" variant="ghost" title="Profile"><Eye className="h-3 w-3 text-gray-600" /></Button></Link>
+                     <Button size="sm" variant="ghost" onClick={() => setOrgPlanDialog(org)} title={t("changePlan")}><Package className="h-3 w-3" /></Button>
                     <Button size="sm" variant="ghost" onClick={() => setActivateDialog(org)} title={t("activateExtend")}><Play className="h-3 w-3 text-green-600" /></Button>
                     <Button size="sm" variant="ghost" onClick={async () => {
                       const r = await fetch(`/api/owner/impersonate/${org.id}`, { method: "POST" });
