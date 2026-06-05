@@ -21,7 +21,8 @@ export default function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const locale = getLocale(pathname);
   const publicPaths = ["/login", "/register", "/forgot-password"];
-  const isPublic = publicPaths.some((p) => pathname.includes(p));
+  const isPublic = publicPaths.some((p) => pathname.includes(p))
+    || pathname === "/" || /^\/(ar|en)$/.test(pathname);
 
   if (isPublic) {
     return setLocaleCookie(intlMiddleware(req), locale);

@@ -35,7 +35,6 @@ export async function POST(req: Request) {
       organizationId: orgId,
       code: body.code,
       name: body.name,
-      nameAr: body.nameAr || null,
       category: body.category,
       purchaseDate: new Date(body.purchaseDate),
       purchaseCost: cost,

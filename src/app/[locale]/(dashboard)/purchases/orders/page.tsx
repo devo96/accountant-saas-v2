@@ -11,12 +11,12 @@ export default async function PurchaseOrdersPage() {
   const rawOrders = await prisma.purchaseOrder.findMany({
     where: { organizationId: session.user.organizationId },
     orderBy: { createdAt: "desc" },
-    include: { vendor: { select: { name: true, nameAr: true } } },
+    include: { vendor: { select: { name: true } } },
   });
   const orders = rawOrders.map((o) => ({ ...o, subtotal: Number(o.subtotal), discountAmount: Number(o.discountAmount), taxAmount: Number(o.taxAmount), total: Number(o.total) }));
   const vendors = await prisma.vendor.findMany({
     where: { organizationId: session.user.organizationId },
-    select: { id: true, name: true, nameAr: true },
+    select: { id: true, name: true },
     orderBy: { name: "asc" },
   });
 

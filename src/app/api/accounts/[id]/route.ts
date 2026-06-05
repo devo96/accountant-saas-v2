@@ -19,7 +19,6 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     data: {
       code: body.code ?? existing.code,
       name: body.name ?? existing.name,
-      nameAr: body.nameAr ?? existing.nameAr,
       type: body.type ?? existing.type,
       nature: body.nature ?? existing.nature,
       parentId: body.parentId === "" ? null : (body.parentId ?? existing.parentId),

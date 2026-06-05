@@ -21,7 +21,7 @@ type Line = {
 type Invoice = {
   id: string; number: number; invoiceDate: Date; dueDate: Date | null; status: string;
   subtotal: number; discountAmount: number; taxAmount: number; total: number; paidAmount: number;
-  notes: string | null; customer: { id: string; name: string; nameAr?: string | null; taxNumber?: string | null } | null;
+  notes: string | null; customer: { id: string; name: string; taxNumber?: string | null } | null;
   lines: Line[]; createdBy: { name: string } | null;
   zatcaStatus?: string; zatcaQr?: string | null; zatcaUuid?: string | null;
 };

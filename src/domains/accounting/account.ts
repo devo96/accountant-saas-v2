@@ -12,7 +12,6 @@ export async function getChartOfAccounts(organizationId: string) {
 export async function createAccount(data: {
   code: string;
   name: string;
-  nameAr?: string;
   type: AccountType;
   nature: AccountNature;
   parentId?: string;

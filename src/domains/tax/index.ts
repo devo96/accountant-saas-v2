@@ -8,7 +8,7 @@ export async function getTaxCodes(orgId: string) {
   return raw.map((t) => ({ ...t, rate: Number(t.rate) }));
 }
 
-export async function createTaxCode(orgId: string, data: { name: string; nameAr?: string; rate: number; isDefault?: boolean }) {
+export async function createTaxCode(orgId: string, data: { name: string; rate: number; isDefault?: boolean }) {
   if (data.isDefault) {
     await prisma.taxCode.updateMany({
       where: { organizationId: orgId, isDefault: true },

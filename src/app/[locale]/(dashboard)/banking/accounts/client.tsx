@@ -19,7 +19,7 @@ export function BankAccountsClient({ accounts }: Props) {
   const t = useTranslations("bankAccounts");
   const router = useRouter();
   const [showAdd, setShowAdd] = useState(false);
-  const [form, setForm] = useState({ name: "", nameAr: "", accountNumber: "", iban: "", bankName: "", openingBalance: "" });
+  const [form, setForm] = useState({ name: "", accountNumber: "", iban: "", bankName: "", openingBalance: "" });
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -61,7 +61,6 @@ export function BankAccountsClient({ accounts }: Props) {
       <Dialog open={showAdd} onClose={() => setShowAdd(false)} title={t("dialogTitle")}>
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input label={t("accountName")} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
-          <Input label={t("nameAr")} value={form.nameAr} onChange={(e) => setForm({ ...form, nameAr: e.target.value })} />
           <Input label={t("bankName")} value={form.bankName} onChange={(e) => setForm({ ...form, bankName: e.target.value })} required />
           <Input label={t("accountNumber")} value={form.accountNumber} onChange={(e) => setForm({ ...form, accountNumber: e.target.value })} required />
           <Input label={t("iban")} value={form.iban} onChange={(e) => setForm({ ...form, iban: e.target.value })} />

@@ -32,12 +32,11 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   });
   if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  const item = await prisma.item.update({
-    where: { id },
-    data: {
-      name: body.name,
-      nameAr: body.nameAr ?? null,
-      sku: body.sku ?? null,
+    const item = await prisma.item.update({
+      where: { id },
+      data: {
+        name: body.name,
+        sku: body.sku ?? null,
       barcode: body.barcode ?? null,
       type: body.type ?? "PRODUCT",
       unit: body.unit ?? "piece",

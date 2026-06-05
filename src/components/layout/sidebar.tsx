@@ -8,38 +8,23 @@ import { useSession } from "next-auth/react";
 import {
   LayoutDashboard, ShoppingCart, ShoppingBag, Receipt, Banknote, Package, BookOpen, BarChart3,
   Users, Settings, ChevronDown, ChevronLeft, FileText, UserCircle, Building2, Warehouse, Wallet,
-  PiggyBank, Calculator, FileSpreadsheet, Calendar, Layout, Activity, QrCode, Mail, Upload, Crown,
+  PiggyBank, Calculator, FileSpreadsheet, Calendar, Layout, Activity, QrCode, Mail, Upload,
   Handshake, ArrowRightLeft, UserPlus, ShieldCheck, HandCoins, Truck, CheckCheck,
   ClipboardList, FolderTree, Ruler, BriefcaseBusiness, CircleDollarSign,
-  Network, CreditCard, Shield, Ticket,
+  Network,
 } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { PanelLeftClose, PanelLeft } from "lucide-react";
 
 type NavChild = { key: string; href: string; icon: React.ComponentType<{ className?: string }>; adminOnly?: boolean };
-type NavItem = { key: string; href?: string; icon: React.ComponentType<{ className?: string }>; children?: NavChild[]; adminOnly?: boolean; ownerOnly?: boolean };
+type NavItem = { key: string; href?: string; icon: React.ComponentType<{ className?: string }>; children?: NavChild[]; adminOnly?: boolean };
 
 const navItems: NavItem[] = [
   {
     key: "dashboard",
     href: "/dashboard",
     icon: LayoutDashboard,
-  },
-  {
-    key: "owner",
-    icon: Crown,
-    ownerOnly: true,
-    children: [
-      { key: "overview", href: "/owner", icon: LayoutDashboard },
-      { key: "organizations", href: "/owner/organizations", icon: Building2 },
-      { key: "plans", href: "/owner/plans", icon: Package },
-      { key: "users", href: "/owner/users", icon: Users },
-      { key: "payments", href: "/owner/payments", icon: CreditCard },
-      { key: "billing", href: "/owner/billing", icon: CreditCard },
-      { key: "security", href: "/owner/security", icon: Shield },
-      { key: "support", href: "/owner/support", icon: Ticket },
-    ],
   },
   {
     key: "sales",
@@ -192,13 +177,11 @@ export function Sidebar({ show, onClose, desktopOpen, onToggleDesktop }: { show?
 
   const filteredNavItems = navItems
     .map((item) => {
-      if (role === "OWNER") return item.ownerOnly ? item : null;
       if (item.children) {
         const filteredChildren = item.children.filter((child) => !child.adminOnly || isAdmin);
         if (filteredChildren.length === 0) return null;
         return { ...item, children: filteredChildren };
       }
-      if (item.ownerOnly) return null;
       if (item.adminOnly && !isAdmin) return null;
       return item;
     })

@@ -10,7 +10,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   const existing = await prisma.branch.findFirst({ where: { id, organizationId: session.user.organizationId } });
   if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
   const body = await req.json();
-  const branch = await prisma.branch.update({ where: { id }, data: { name: body.name ?? existing.name, nameAr: body.nameAr ?? existing.nameAr, code: body.code ?? existing.code, address: body.address ?? existing.address, phone: body.phone ?? existing.phone, active: body.active ?? existing.active } });
+  const branch = await prisma.branch.update({ where: { id }, data: { name: body.name ?? existing.name, code: body.code ?? existing.code, address: body.address ?? existing.address, phone: body.phone ?? existing.phone, active: body.active ?? existing.active } });
   return NextResponse.json(branch);
 }
 

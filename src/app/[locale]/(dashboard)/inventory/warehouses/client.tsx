@@ -15,7 +15,6 @@ import { useTranslations } from "next-intl";
 type Warehouse = {
   id: string;
   name: string;
-  nameAr: string | null;
   address: string | null;
   active: boolean;
 };
@@ -28,7 +27,7 @@ export function WarehousesClient({ data }: Props) {
   const router = useRouter();
   const t = useTranslations("warehouses");
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ name: "", nameAr: "", address: "" });
+  const [form, setForm] = useState({ name: "", address: "" });
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -51,7 +50,6 @@ export function WarehousesClient({ data }: Props) {
 
   const columns = [
     { key: "name", label: t("name") },
-    { key: "nameAr", label: t("nameAr") },
     {
       key: "address",
       label: t("location"),
@@ -89,11 +87,6 @@ export function WarehousesClient({ data }: Props) {
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
             required
-          />
-          <Input
-            label={t("nameAr")}
-            value={form.nameAr}
-            onChange={(e) => setForm({ ...form, nameAr: e.target.value })}
           />
           <Input
             label={t("location")}

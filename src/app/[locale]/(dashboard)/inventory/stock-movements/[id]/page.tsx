@@ -13,8 +13,8 @@ export default async function StockMovementViewPage(props: { params: Promise<{ i
   const raw = await prisma.stockMovement.findFirst({
     where: { id, organizationId: session.user.organizationId },
     include: {
-      item: { select: { name: true, nameAr: true, sku: true } },
-      warehouse: { select: { name: true, nameAr: true } },
+      item: { select: { name: true, sku: true } },
+      warehouse: { select: { name: true } },
       createdBy: { select: { name: true } },
     },
   });

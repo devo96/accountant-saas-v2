@@ -15,7 +15,7 @@ export async function getWarehouses(orgId: string) {
   });
 }
 
-export async function createWarehouse(orgId: string, data: { name: string; nameAr?: string; address?: string }) {
+export async function createWarehouse(orgId: string, data: { name: string; address?: string }) {
   return prisma.warehouse.create({
     data: { ...data, organizationId: orgId },
   });

@@ -28,7 +28,6 @@ export async function POST(req: Request) {
   const vendor = await prisma.vendor.create({
     data: {
       name: body.name,
-      nameAr: body.nameAr || null,
       email: body.email || null,
       phone: body.phone || null,
       mobile: body.mobile || null,

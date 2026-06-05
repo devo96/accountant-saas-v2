@@ -11,14 +11,14 @@ import { useRouter } from "@/i18n/navigation";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 
-type Vendor = { id: string; name: string; nameAr: string | null; email: string | null; phone: string | null; mobile: string | null; address: string | null; taxNumber: string | null; balance: number };
+type Vendor = { id: string; name: string; email: string | null; phone: string | null; mobile: string | null; address: string | null; taxNumber: string | null; balance: number };
 type Props = { vendors: Vendor[] };
 
 export function VendorsClient({ vendors }: Props) {
   const t = useTranslations("vendors");
   const router = useRouter();
   const [showAdd, setShowAdd] = useState(false);
-  const [form, setForm] = useState({ name: "", nameAr: "", email: "", phone: "", mobile: "", address: "", taxNumber: "" });
+  const [form, setForm] = useState({ name: "", email: "", phone: "", mobile: "", address: "", taxNumber: "" });
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -63,7 +63,6 @@ export function VendorsClient({ vendors }: Props) {
       <Dialog open={showAdd} onClose={() => setShowAdd(false)} title={t("dialogTitle")}>
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input label={t("name")} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
-          <Input label={t("nameAr")} value={form.nameAr} onChange={(e) => setForm({ ...form, nameAr: e.target.value })} />
           <Input label={t("email")} type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
           <Input label={t("phone")} value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
           <Input label={t("mobile")} value={form.mobile} onChange={(e) => setForm({ ...form, mobile: e.target.value })} />

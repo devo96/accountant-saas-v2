@@ -11,7 +11,7 @@ export default async function NewJournalEntryPage() {
   const [accounts, fiscalYears] = await Promise.all([
     prisma.account.findMany({
       where: { organizationId: session.user.organizationId, isMaster: false },
-      select: { id: true, code: true, name: true, nameAr: true },
+      select: { id: true, code: true, name: true },
     }),
     prisma.fiscalYear.findMany({
       where: { organizationId: session.user.organizationId },

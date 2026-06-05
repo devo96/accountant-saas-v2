@@ -4,7 +4,7 @@ export async function getOrganization(orgId: string) {
   return prisma.organization.findUnique({ where: { id: orgId } });
 }
 
-export async function updateOrganization(orgId: string, data: { name?: string; nameAr?: string; email?: string; phone?: string; address?: string; logo?: string; taxNumber?: string; commercialReg?: string; fiscalYearStart?: number }) {
+export async function updateOrganization(orgId: string, data: { name?: string; email?: string; phone?: string; address?: string; logo?: string; taxNumber?: string; commercialReg?: string; fiscalYearStart?: number }) {
   return prisma.organization.update({
     where: { id: orgId },
     data,

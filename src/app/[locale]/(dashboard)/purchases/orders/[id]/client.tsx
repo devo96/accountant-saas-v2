@@ -13,7 +13,7 @@ import { formatDate, formatCurrency, generateNumber } from "@/lib/utils";
 
 type PurchaseOrder = {
   id: string; number: number; orderDate: Date; expectedDate: Date | null; status: string;
-  vendor: { name: string; nameAr: string | null };
+  vendor: { name: string };
   subtotal: number; discountAmount: number; taxAmount: number; total: number;
   notes: string | null; createdBy: { name: string } | null;
 };
@@ -84,7 +84,7 @@ export function PurchaseOrderViewClient({ order: initial }: Props) {
 
       <div className="grid grid-cols-2 gap-6">
         <div className="rounded-lg border p-4 space-y-2 text-sm">
-          <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">{t("vendor")}</span><span className="font-semibold">{initial.vendor.nameAr ?? initial.vendor.name}</span></div>
+          <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">{t("vendor")}</span><span className="font-semibold">{initial.vendor.name}</span></div>
           <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">{t("orderDate")}</span><span>{formatDate(new Date(initial.orderDate))}</span></div>
           <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">{t("expectedDate")}</span><span>{initial.expectedDate ? formatDate(new Date(initial.expectedDate)) : "-"}</span></div>
         </div>

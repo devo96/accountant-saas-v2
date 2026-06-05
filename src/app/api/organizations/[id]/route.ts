@@ -14,7 +14,6 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     where: { id: (await params).id },
     data: {
       name: body.name,
-      nameAr: body.nameAr || null,
       email: body.email || null,
       phone: body.phone || null,
       address: body.address || null,

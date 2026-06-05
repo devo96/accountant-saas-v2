@@ -81,7 +81,7 @@ export default async function InventoryDashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-amber-600">{lowStockCount}</div>
-            <p className="text-xs text-gray-500 mt-1">{"items below min stock"}</p>
+            <p className="text-xs text-gray-500 mt-1">{tc("lowStock")}</p>
           </CardContent>
         </Card>
       </div>
@@ -89,7 +89,7 @@ export default async function InventoryDashboardPage() {
       {lowStockItems.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>{"Low Stock Items"}</CardTitle>
+            <CardTitle>{tc("lowStockItems")}</CardTitle>
           </CardHeader>
           <CardContent>
             <Table>
@@ -106,7 +106,7 @@ export default async function InventoryDashboardPage() {
                     <TableCell>{item.name}</TableCell>
                     <TableCell>{item.currentStock}</TableCell>
                     <TableCell>
-                      <Badge variant="danger">{"Low"}</Badge>
+                      <Badge variant="danger">{tc("lowStock")}</Badge>
                     </TableCell>
                   </TableRow>
                 ))}

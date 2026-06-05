@@ -33,14 +33,13 @@ export default async function CostCentersPage() {
           <TableHeader>
             <TableRow>
               <TableHead>{td("name")}</TableHead>
-              <TableHead>{td("nameAr")}</TableHead>
               <TableHead>{td("accountsCount")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {dimensions.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={3} className="py-12 text-center text-gray-500">
+                <TableCell colSpan={2} className="py-12 text-center text-gray-500">
                   <div className="flex flex-col items-center gap-2">
                     <FolderTree className="h-8 w-8 text-gray-400" />
                     <span>{td("noResults")}</span>
@@ -51,7 +50,6 @@ export default async function CostCentersPage() {
               dimensions.map((d) => (
                 <TableRow key={d.id}>
                   <TableCell className="font-medium">{d.name}</TableCell>
-                  <TableCell className="text-gray-500">{d.nameAr ?? "—"}</TableCell>
                   <TableCell>
                     <Badge variant="outline">{d._count.allocations}</Badge>
                   </TableCell>

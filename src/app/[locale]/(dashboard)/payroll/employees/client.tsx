@@ -16,7 +16,6 @@ import { useState } from "react";
 type Employee = {
   id: string;
   name: string;
-  nameAr: string | null;
   email: string | null;
   phone: string | null;
   position: string | null;
@@ -35,7 +34,7 @@ export function EmployeesClient({ employees }: Props) {
   const router = useRouter();
   const [showAdd, setShowAdd] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [form, setForm] = useState({ name: "", nameAr: "", email: "", phone: "", position: "", basicSalary: "", allowances: "", gosiContribution: "", iqamaNumber: "", bankAccountNumber: "" });
+  const [form, setForm] = useState({ name: "", email: "", phone: "", position: "", basicSalary: "", allowances: "", gosiContribution: "", iqamaNumber: "", bankAccountNumber: "" });
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -53,7 +52,7 @@ export function EmployeesClient({ employees }: Props) {
   }
 
   const columns = [
-    { key: "name", label: t("name"), render: (e: Employee) => e.nameAr ?? e.name },
+    { key: "name", label: t("name"), render: (e: Employee) => e.name },
     { key: "position", label: t("position"), render: (e: Employee) => e.position ?? "-" },
     { key: "email", label: t("email"), render: (e: Employee) => e.email ?? "-" },
     { key: "phone", label: t("phone"), render: (e: Employee) => e.phone ?? "-" },
@@ -79,7 +78,6 @@ export function EmployeesClient({ employees }: Props) {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <Input label={t("name")} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
-            <Input label={t("nameAr")} value={form.nameAr} onChange={(e) => setForm({ ...form, nameAr: e.target.value })} />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <Input label={t("email")} type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />

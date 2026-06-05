@@ -10,8 +10,8 @@ import { PageHeader } from "@/components/ui/page-header";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 
-type Item = { id: string; name: string; nameAr: string | null; sku: string | null };
-type Warehouse = { id: string; name: string; nameAr: string | null };
+type Item = { id: string; name: string; sku: string | null };
+type Warehouse = { id: string; name: string };
 
 export default function NewStockMovementClient({ items, warehouses }: { items: Item[]; warehouses: Warehouse[] }) {
   const router = useRouter();
@@ -28,8 +28,8 @@ export default function NewStockMovementClient({ items, warehouses }: { items: I
     description: "",
   });
 
-  const itemOpts = items.map((i) => ({ value: i.id, label: `${i.sku ?? ""} ${i.nameAr ?? i.name}`.trim() }));
-  const warehouseOpts = warehouses.map((w) => ({ value: w.id, label: w.nameAr ?? w.name }));
+  const itemOpts = items.map((i) => ({ value: i.id, label: `${i.sku ?? ""} ${i.name}`.trim() }));
+  const warehouseOpts = warehouses.map((w) => ({ value: w.id, label: w.name }));
   const typeOpts = [
     { value: "PURCHASE_RECEIPT", label: t("typePURCHASE_RECEIPT") },
     { value: "SALES_DELIVERY", label: t("typeSALES_DELIVERY") },

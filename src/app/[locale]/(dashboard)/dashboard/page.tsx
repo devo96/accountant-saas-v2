@@ -10,7 +10,7 @@ export default async function DashboardPage({ params }: Props) {
   const { locale } = await params;
   const session = await getServerSession(authOptions);
   if (!session?.user?.organizationId) redirect("/auth/login");
-  if (session.user.role === "OWNER") redirect("/owner");
+
 
   const orgId = session.user.organizationId;
 

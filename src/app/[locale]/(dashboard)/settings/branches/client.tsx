@@ -10,8 +10,9 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
-type Branch = { id: string; name: string; nameAr: string | null; code: string; address: string | null; phone: string | null; active: boolean };
+type Branch = { id: string; name: string; code: string; address: string | null; phone: string | null; active: boolean };
 type Props = { branches: Branch[] };
 
 export function BranchesClient({ branches }: Props) {
@@ -19,11 +20,12 @@ export function BranchesClient({ branches }: Props) {
   const [showAdd, setShowAdd] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [form, setForm] = useState({ name: "", nameAr: "", code: "", address: "", phone: "", active: true });
+  const [form, setForm] = useState({ name: "", code: "", address: "", phone: "", active: true });
+  const t = useTranslations("branches");
   const [loading, setLoading] = useState(false);
 
   function startEdit(b: Branch) {
-    setForm({ name: b.name, nameAr: b.nameAr || "", code: b.code, address: b.address || "", phone: b.phone || "", active: b.active });
+    setForm({ name: b.name, code: b.code, address: b.address || "", phone: b.phone || "", active: b.active });
     setEditingId(b.id);
     setShowAdd(true);
   }
@@ -51,33 +53,31 @@ export function BranchesClient({ branches }: Props) {
   return (
     <FadeIn>
       <div className="space-y-6">
-        <PageHeader title="Branches" description={`${branches.length} branches configured`}
-          actions={<Button onClick={() => { setEditingId(null); setForm({ name: "", nameAr: "", code: "", address: "", phone: "", active: true }); setShowAdd(true); }}><Plus className="h-4 w-4 ms-1" /> Add Branch</Button>} />
+        <PageHeader title={t("title")} description={t("description", { count: branches.length })}
+          actions={<Button onClick={() => { setEditingId(null); setForm({ name: "", code: "", address: "", phone: "", active: true }); setShowAdd(true); }}><Plus className="h-4 w-4 ms-1" /> {t("add")}</Button>} />
         <DataTable searchable columns={[
-          { key: "code", label: "Code" },
-          { key: "name", label: "Name" },
-          { key: "nameAr", label: "Arabic Name", render: (c) => (c as Branch).nameAr || "-" },
-          { key: "address", label: "Address", render: (c) => (c as Branch).address || "-" },
-          { key: "phone", label: "Phone", render: (c) => (c as Branch).phone || "-" },
-          { key: "active", label: "Status", render: (c) => <Badge variant={(c as Branch).active ? "success" : "danger"}>{(c as Branch).active ? "Active" : "Inactive"}</Badge> },
+          { key: "code", label: t("code") },
+          { key: "name", label: t("name") },
+          { key: "address", label: t("address"), render: (c) => (c as Branch).address || "-" },
+          { key: "phone", label: t("phone"), render: (c) => (c as Branch).phone || "-" },
+          { key: "active", label: t("status"), render: (c) => <Badge variant={(c as Branch).active ? "success" : "danger"}>{(c as Branch).active ? t("active") : t("inactive")}</Badge> },
           { key: "actions", label: "", render: (c) => { const cur = c as Branch; return (<div className="flex gap-1"><Button variant="ghost" size="sm" onClick={() => startEdit(cur)} className="h-8 w-8 p-0 text-gray-400 hover:text-primary-600"><Pencil className="h-4 w-4" /></Button><Button variant="ghost" size="sm" onClick={() => setDeletingId(cur.id)} className="h-8 w-8 p-0 text-gray-400 hover:text-red-600"><Trash2 className="h-4 w-4" /></Button></div>); }},
         ]} data={branches as unknown as Record<string, unknown>[]} />
 
-        <Dialog open={showAdd} onClose={() => { setShowAdd(false); setEditingId(null); }} title={editingId ? "Edit Branch" : "Add Branch"}>
+        <Dialog open={showAdd} onClose={() => { setShowAdd(false); setEditingId(null); }} title={editingId ? t("edit") : t("add")}>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <Input label="Code" value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} required />
-            <Input label="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
-            <Input label="Arabic Name" value={form.nameAr} onChange={(e) => setForm({ ...form, nameAr: e.target.value })} />
-            <Input label="Address" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
-            <Input label="Phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
-            <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} /> Active</label>
-            <div className="flex justify-end gap-3 pt-2"><Button type="button" variant="outline" onClick={() => { setShowAdd(false); setEditingId(null); }}>Cancel</Button><Button type="submit" disabled={loading}>{loading ? "Saving..." : "Save"}</Button></div>
+            <Input label={t("code")} value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} required />
+            <Input label={t("name")} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
+            <Input label={t("address")} value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
+            <Input label={t("phone")} value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+            <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} /> {t("active")}</label>
+            <div className="flex justify-end gap-3 pt-2"><Button type="button" variant="outline" onClick={() => { setShowAdd(false); setEditingId(null); }}>{t("cancel")}</Button><Button type="submit" disabled={loading}>{loading ? t("saving") : t("save")}</Button></div>
           </form>
         </Dialog>
 
-        <Dialog open={!!deletingId} onClose={() => setDeletingId(null)} title="Delete Branch">
-          <p className="text-sm text-gray-600 mb-6">Are you sure? This may affect existing invoices.</p>
-          <div className="flex justify-end gap-3"><Button type="button" variant="outline" onClick={() => setDeletingId(null)}>Cancel</Button><Button type="button" variant="danger" onClick={handleDelete} disabled={loading}>{loading ? "Deleting..." : "Delete"}</Button></div>
+        <Dialog open={!!deletingId} onClose={() => setDeletingId(null)} title={t("delete")}>
+          <p className="text-sm text-gray-600 mb-6">{t("confirmDelete")}</p>
+          <div className="flex justify-end gap-3"><Button type="button" variant="outline" onClick={() => setDeletingId(null)}>{t("cancel")}</Button><Button type="button" variant="danger" onClick={handleDelete} disabled={loading}>{loading ? t("deleting") : t("delete")}</Button></div>
         </Dialog>
       </div>
     </FadeIn>

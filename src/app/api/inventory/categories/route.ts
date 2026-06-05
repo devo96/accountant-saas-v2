@@ -15,7 +15,7 @@ export async function POST(req: Request) {
   if (!session?.user?.organizationId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const body = await req.json();
   const category = await prisma.category.create({
-    data: { name: body.name, nameAr: body.nameAr || null, type: body.type || "PRODUCT", description: body.description || null, parentId: body.parentId || null, active: body.active ?? true, organizationId: session.user.organizationId },
+    data: { name: body.name, type: body.type || "PRODUCT", description: body.description || null, parentId: body.parentId || null, active: body.active ?? true, organizationId: session.user.organizationId },
   });
   return NextResponse.json(category);
 }

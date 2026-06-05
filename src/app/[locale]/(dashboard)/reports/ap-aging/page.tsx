@@ -32,7 +32,7 @@ export default async function APAgingPage() {
       else buckets.days90Plus += outstanding;
     }
     const total = buckets.current + buckets.days1_30 + buckets.days31_60 + buckets.days61_90 + buckets.days90Plus;
-    return { id: v.id, name: v.name, nameAr: v.nameAr, total, ...buckets };
+    return { id: v.id, name: v.name, total, ...buckets };
   });
 
   return <APAgingClient vendors={vendors} />;

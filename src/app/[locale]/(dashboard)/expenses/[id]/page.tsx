@@ -41,7 +41,7 @@ export default async function ExpenseViewPage(props: { params: Promise<{ id: str
     organizationId: string; createdById: string;
     createdAt: Date; updatedAt: Date;
     createdBy: { name: string };
-    lines: { id: string; amount: number; account: { code: string; name: string; nameAr: string | null };
+    lines: { id: string; amount: number; account: { code: string; name: string };
       taxCode: { name: string; rate: number } | null; taxRate: number; taxAmount: number; description: string | null }[];
   };
 

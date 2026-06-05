@@ -15,7 +15,7 @@ import { useRouter } from "@/i18n/navigation";
 import { formatDate, formatCurrency } from "@/lib/utils";
 
 type Asset = {
-  id: string; code: string; name: string; nameAr: string | null;
+  id: string; code: string; name: string;
   category: string; purchaseDate: Date; purchaseCost: number;
   usefulLifeYears: number; salvageValue: number;
   depreciationMethod: string; bookValue: number;
@@ -35,7 +35,7 @@ export function FixedAssetsClient({ assets: initial }: Props) {
   const [showAdd, setShowAdd] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  const emptyForm = { code: "", name: "", nameAr: "", category: "Equipment", purchaseDate: "", purchaseCost: "", usefulLifeYears: "5", salvageValue: "0", depreciationMethod: "STRAIGHT_LINE", notes: "" };
+  const emptyForm = { code: "", name: "", category: "Equipment", purchaseDate: "", purchaseCost: "", usefulLifeYears: "5", salvageValue: "0", depreciationMethod: "STRAIGHT_LINE", notes: "" };
   const [form, setForm] = useState(emptyForm);
 
   async function createAsset() {
@@ -107,7 +107,6 @@ export function FixedAssetsClient({ assets: initial }: Props) {
         <div className="grid grid-cols-2 gap-4">
           <Input label={t("code")} value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} required />
           <Input label={t("name")} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
-          <Input label={t("nameAr")} value={form.nameAr} onChange={(e) => setForm({ ...form, nameAr: e.target.value })} />
           <Select label={t("category")} options={[
             { value: "Equipment", label: "Equipment" },
             { value: "Furniture", label: "Furniture" },

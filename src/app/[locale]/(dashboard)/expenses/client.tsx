@@ -12,7 +12,7 @@ import { useRouter } from "@/i18n/navigation";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 
-type ExpenseLine = { id: string; amount: number; account: { code: string; name: string; nameAr: string | null } };
+type ExpenseLine = { id: string; amount: number; account: { code: string; name: string } };
 type Expense = {
   id: string;
   date: Date;
@@ -21,8 +21,8 @@ type Expense = {
   lines: ExpenseLine[];
 };
 
-type Account = { id: string; code: string; name: string; nameAr: string | null };
-type Vendor = { id: string; name: string; nameAr: string | null };
+type Account = { id: string; code: string; name: string };
+type Vendor = { id: string; name: string };
 
 type Props = { expenses: Expense[]; accounts: Account[]; vendors: Vendor[] };
 
@@ -48,8 +48,8 @@ export function ExpensesClient({ expenses, accounts, vendors }: Props) {
     }
   }
 
-  const accountOpts = accounts.map((a) => ({ value: a.id, label: `${a.code} - ${a.nameAr ?? a.name}` }));
-  const vendorOpts = vendors.map((v) => ({ value: v.id, label: v.nameAr ?? v.name }));
+  const accountOpts = accounts.map((a) => ({ value: a.id, label: `${a.code} - ${a.name}` }));
+  const vendorOpts = vendors.map((v) => ({ value: v.id, label: v.name }));
   const paymentMethods = [
     { value: "CASH", label: t("cash") },
     { value: "BANK_TRANSFER", label: t("bankTransfer") },
@@ -89,7 +89,7 @@ export function ExpensesClient({ expenses, accounts, vendors }: Props) {
         columns={[
           { key: "date", label: t("date"), render: (e) => new Date((e as Expense).date).toLocaleDateString() },
           { key: "description", label: t("description") },
-          { key: "account", label: t("account"), render: (e) => { const lines = (e as Expense).lines; return lines?.[0]?.account ? `${lines[0].account.code} - ${lines[0].account.nameAr ?? lines[0].account.name}` : "-"; } },
+          { key: "account", label: t("account"), render: (e) => { const lines = (e as Expense).lines; return lines?.[0]?.account ? `${lines[0].account.code} - ${lines[0].account.name}` : "-"; } },
           { key: "amount", label: t("amount"), render: (e) => `﷼ ${Number((e as Expense).amount).toLocaleString()}` },
         ]}
         data={expenses as unknown as Record<string, unknown>[]}

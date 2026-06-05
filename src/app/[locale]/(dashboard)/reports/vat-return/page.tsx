@@ -35,14 +35,15 @@ export default async function VatReturnPage() {
 
   const tnav = await getTranslations("nav");
   const tc = await getTranslations("common");
+  const tv = await getTranslations("vatReturn");
 
   return (
     <FadeIn>
-      <PageHeader title={tnav("vatReturn")} description="VAT return summary for the period" />
+      <PageHeader title={tnav("vatReturn")} description={tv("description")} />
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">Sales (excl. Tax)</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-500">{tv("salesExclTax")}</CardTitle>
             <TrendingUp className="h-5 w-5 text-primary-600" />
           </CardHeader>
           <CardContent>
@@ -51,7 +52,7 @@ export default async function VatReturnPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">Output VAT</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-500">{tv("outputVat")}</CardTitle>
             <Receipt className="h-5 w-5 text-primary-600" />
           </CardHeader>
           <CardContent>
@@ -60,7 +61,7 @@ export default async function VatReturnPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">Purchases (excl. Tax)</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-500">{tv("purchasesExclTax")}</CardTitle>
             <TrendingDown className="h-5 w-5 text-amber-500" />
           </CardHeader>
           <CardContent>
@@ -69,7 +70,7 @@ export default async function VatReturnPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">Input VAT</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-500">{tv("inputVat")}</CardTitle>
             <ArrowRightLeft className="h-5 w-5 text-amber-500" />
           </CardHeader>
           <CardContent>
@@ -80,19 +81,19 @@ export default async function VatReturnPage() {
 
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle>Net VAT Payable</CardTitle>
+          <CardTitle>{tv("netVatPayable")}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between">
-            <span className="text-lg text-gray-500">Output VAT - Input VAT</span>
+            <span className="text-lg text-gray-500">{tv("outputMinusInput")}</span>
             <span className={`text-3xl font-bold ${netTaxPayable >= 0 ? "text-red-600" : "text-green-600"}`}>
               {formatCurrency(netTaxPayable)}
             </span>
           </div>
           <p className="text-sm text-gray-500 mt-2">
             {netTaxPayable >= 0
-              ? "Amount payable to tax authority"
-              : "Amount recoverable from tax authority"}
+              ? tv("payableToTax")
+              : tv("recoverableFromTax")}
           </p>
         </CardContent>
       </Card>
@@ -101,7 +102,7 @@ export default async function VatReturnPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Category</TableHead>
+              <TableHead>{tv("category")}</TableHead>
               <TableHead>{tc("subtotal")}</TableHead>
               <TableHead>{tc("tax")}</TableHead>
               <TableHead>{tc("total")}</TableHead>
@@ -109,13 +110,13 @@ export default async function VatReturnPage() {
           </TableHeader>
           <TableBody>
             <TableRow>
-              <TableCell className="font-medium">Sales</TableCell>
+              <TableCell className="font-medium">{tv("sales")}</TableCell>
               <TableCell>{formatCurrency(totalSales)}</TableCell>
               <TableCell>{formatCurrency(totalSalesTax)}</TableCell>
               <TableCell>{formatCurrency(totalSales + totalSalesTax)}</TableCell>
             </TableRow>
             <TableRow>
-              <TableCell className="font-medium">Purchases</TableCell>
+              <TableCell className="font-medium">{tv("purchases")}</TableCell>
               <TableCell>{formatCurrency(totalPurchases)}</TableCell>
               <TableCell>{formatCurrency(totalPurchaseTax)}</TableCell>
               <TableCell>{formatCurrency(totalPurchases + totalPurchaseTax)}</TableCell>

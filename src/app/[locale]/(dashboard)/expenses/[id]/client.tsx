@@ -12,7 +12,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Dialog } from "@/components/ui/dialog";
 
-type ExpenseLine = { id: string; amount: number; account: { code: string; name: string; nameAr: string | null }; taxCode: { name: string; rate: number } | null };
+type ExpenseLine = { id: string; amount: number; account: { code: string; name: string }; taxCode: { name: string; rate: number } | null };
 type Expense = {
   id: string; date: string; amount: number; description: string; paymentMethod: string;
   category: string | null; notes: string | null; receipt: string | null;
@@ -117,7 +117,7 @@ export function ExpenseViewClient({ expense: initial }: Props) {
             <TableBody>
               {initial.lines.map((line) => (
                 <TableRow key={line.id}>
-                  <TableCell className="text-sm">{line.account.code} - {line.account.nameAr ?? line.account.name}</TableCell>
+                  <TableCell className="text-sm">{line.account.code} - {line.account.name}</TableCell>
                   <TableCell className="text-right font-mono">﷼ {line.amount.toFixed(2)}</TableCell>
                 </TableRow>
               ))}

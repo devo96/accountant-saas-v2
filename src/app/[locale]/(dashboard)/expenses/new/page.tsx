@@ -11,11 +11,11 @@ export default async function NewExpensePage() {
   const [accounts, vendors] = await Promise.all([
     prisma.account.findMany({
       where: { organizationId: session.user.organizationId, type: "EXPENSE", isMaster: false },
-      select: { id: true, code: true, name: true, nameAr: true },
+      select: { id: true, code: true, name: true },
     }),
     prisma.vendor.findMany({
       where: { organizationId: session.user.organizationId },
-      select: { id: true, name: true, nameAr: true },
+      select: { id: true, name: true },
       orderBy: { name: "asc" },
     }),
   ]);

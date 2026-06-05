@@ -15,7 +15,7 @@ export async function POST(req: Request) {
   if (!session?.user?.organizationId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const body = await req.json();
   const unit = await prisma.unitOfMeasure.create({
-    data: { name: body.name, nameAr: body.nameAr || null, symbol: body.symbol || "", precision: body.precision ?? 0, active: body.active ?? true, organizationId: session.user.organizationId },
+    data: { name: body.name, symbol: body.symbol || "", precision: body.precision ?? 0, active: body.active ?? true, organizationId: session.user.organizationId },
   });
   return NextResponse.json(unit);
 }

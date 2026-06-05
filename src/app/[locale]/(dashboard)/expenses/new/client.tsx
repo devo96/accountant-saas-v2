@@ -11,8 +11,8 @@ import { Plus, Trash2 } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 
-type Account = { id: string; code: string; name: string; nameAr: string | null };
-type Vendor = { id: string; name: string; nameAr: string | null };
+type Account = { id: string; code: string; name: string };
+type Vendor = { id: string; name: string };
 
 export default function NewExpenseClient({ accounts, vendors }: { accounts: Account[]; vendors: Vendor[] }) {
   const router = useRouter();
@@ -44,8 +44,8 @@ export default function NewExpenseClient({ accounts, vendors }: { accounts: Acco
     { value: "CREDIT_CARD", label: t("creditCard") },
     { value: "OTHER", label: t("other") },
   ];
-  const accountOpts = accounts.map((a) => ({ value: a.id, label: `${a.code} - ${a.nameAr ?? a.name}` }));
-  const vendorOpts = vendors.map((v) => ({ value: v.id, label: v.nameAr ?? v.name }));
+  const accountOpts = accounts.map((a) => ({ value: a.id, label: `${a.code} - ${a.name}` }));
+  const vendorOpts = vendors.map((v) => ({ value: v.id, label: v.name }));
 
   async function handleSubmit() {
     setSubmitting(true);

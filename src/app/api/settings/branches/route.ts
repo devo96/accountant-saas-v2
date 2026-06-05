@@ -15,7 +15,7 @@ export async function POST(req: Request) {
   if (!session?.user?.organizationId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const body = await req.json();
   const branch = await prisma.branch.create({
-    data: { name: body.name, nameAr: body.nameAr || null, code: body.code || "", address: body.address || null, phone: body.phone || null, active: body.active ?? true, organizationId: session.user.organizationId },
+    data: { name: body.name, code: body.code || "", address: body.address || null, phone: body.phone || null, active: body.active ?? true, organizationId: session.user.organizationId },
   });
   return NextResponse.json(branch);
 }

@@ -13,7 +13,7 @@ export default async function PurchaseOrderViewPage(props: { params: Promise<{ i
   const raw = await prisma.purchaseOrder.findFirst({
     where: { id, organizationId: session.user.organizationId },
     include: {
-      vendor: { select: { name: true, nameAr: true } },
+      vendor: { select: { name: true } },
       createdBy: { select: { name: true } },
     },
   });

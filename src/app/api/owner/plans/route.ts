@@ -19,7 +19,6 @@ export async function POST(req: Request) {
   const plan = await prisma.plan.create({
     data: {
       name: json.name,
-      nameAr: json.nameAr ?? null,
       tier: json.tier ?? "FREE",
       monthlyPrice: json.monthlyPrice ?? 0,
       yearlyPrice: json.yearlyPrice ?? 0,

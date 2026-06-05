@@ -12,7 +12,7 @@ export async function GET() {
   const orders = await prisma.purchaseOrder.findMany({
     where: { organizationId: session.user.organizationId },
     orderBy: { createdAt: "desc" },
-    include: { vendor: { select: { name: true, nameAr: true } } },
+    include: { vendor: { select: { name: true } } },
   });
 
   return NextResponse.json(orders.map((o) => ({ ...o, subtotal: Number(o.subtotal), discountAmount: Number(o.discountAmount), taxAmount: Number(o.taxAmount), total: Number(o.total) })));

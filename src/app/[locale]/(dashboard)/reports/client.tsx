@@ -8,7 +8,7 @@ import { exportToCsv } from "@/lib/export";
 import { FadeIn } from "@/components/transitions";
 import { PageHeader } from "@/components/ui/page-header";
 
-type Account = { id: string; code: string; name: string; nameAr: string | null; type: string; nature: string; calculatedBalance: number };
+type Account = { id: string; code: string; name: string; type: string; nature: string; calculatedBalance: number };
 
 type Props = { accounts: Account[]; type: "trial-balance" | "income-statement" | "balance-sheet" };
 
@@ -29,7 +29,7 @@ export function ReportsClient({ accounts, type }: Props) {
             title={title}
             description={t("asOf", { date: new Date().toLocaleDateString() })}
             actions={
-              <Button variant="outline" size="sm" onClick={() => exportToCsv(accounts.map((a) => ({ code: a.code, name: a.nameAr ?? a.name, debit: a.nature === "DEBIT" ? a.calculatedBalance : 0, credit: a.nature === "CREDIT" ? a.calculatedBalance : 0 })), "trial-balance", tbColumns)}>
+              <Button variant="outline" size="sm" onClick={() => exportToCsv(accounts.map((a) => ({ code: a.code, name: a.name, debit: a.nature === "DEBIT" ? a.calculatedBalance : 0, credit: a.nature === "CREDIT" ? a.calculatedBalance : 0 })), "trial-balance", tbColumns)}>
                 <Download className="h-4 w-4 ms-1" /> Export CSV
               </Button>
             }
@@ -48,7 +48,7 @@ export function ReportsClient({ accounts, type }: Props) {
                 {accounts.map((a) => (
                   <TableRow key={a.id}>
                     <TableCell className="font-mono text-xs">{a.code}</TableCell>
-                    <TableCell>{a.nameAr ?? a.name}</TableCell>
+                    <TableCell>{a.name}</TableCell>
                     <TableCell className="text-right font-mono">{a.nature === "DEBIT" ? `﷼ ${a.calculatedBalance.toLocaleString()}` : ""}</TableCell>
                     <TableCell className="text-right font-mono">{a.nature === "CREDIT" ? `﷼ ${a.calculatedBalance.toLocaleString()}` : ""}</TableCell>
                   </TableRow>
@@ -74,7 +74,7 @@ export function ReportsClient({ accounts, type }: Props) {
     const totalLiabilities = liabilities.reduce((s, a) => s + a.calculatedBalance, 0);
     const totalEquity = equity.reduce((s, a) => s + a.calculatedBalance, 0);
 
-    const bsData = [...assets.map((a) => ({ section: "Assets", account: a.nameAr ?? a.name, amount: a.calculatedBalance })), { section: "", account: "Total Assets", amount: totalAssets }, ...liabilities.map((a) => ({ section: "Liabilities", account: a.nameAr ?? a.name, amount: a.calculatedBalance })), { section: "", account: "Total Liabilities", amount: totalLiabilities }, ...equity.map((a) => ({ section: "Equity", account: a.nameAr ?? a.name, amount: a.calculatedBalance })), { section: "", account: "Total Equity", amount: totalEquity }];
+    const bsData = [...assets.map((a) => ({ section: "Assets", account: a.name, amount: a.calculatedBalance })), { section: "", account: "Total Assets", amount: totalAssets }, ...liabilities.map((a) => ({ section: "Liabilities", account: a.name, amount: a.calculatedBalance })), { section: "", account: "Total Liabilities", amount: totalLiabilities }, ...equity.map((a) => ({ section: "Equity", account: a.name, amount: a.calculatedBalance })), { section: "", account: "Total Equity", amount: totalEquity }];
 
     return (
       <FadeIn>
@@ -93,13 +93,13 @@ export function ReportsClient({ accounts, type }: Props) {
               <TableHeader><TableRow><TableHead>{t("account")}</TableHead><TableHead className="text-right">{t("amount")}</TableHead></TableRow></TableHeader>
               <TableBody>
                 <TableRow><TableCell colSpan={2} className="font-bold dark:text-gray-300">{t("assets")}</TableCell></TableRow>
-                {assets.map((a) => <TableRow key={a.id}><TableCell className="ps-8">{a.nameAr ?? a.name}</TableCell><TableCell className="text-right font-mono">﷼ {a.calculatedBalance.toLocaleString()}</TableCell></TableRow>)}
+                {assets.map((a) => <TableRow key={a.id}><TableCell className="ps-8">{a.name}</TableCell><TableCell className="text-right font-mono">﷼ {a.calculatedBalance.toLocaleString()}</TableCell></TableRow>)}
                 <TableRow><TableCell className="font-bold dark:text-gray-300">{t("totalAssets")}</TableCell><TableCell className="text-right font-bold font-mono">﷼ {totalAssets.toLocaleString()}</TableCell></TableRow>
                 <TableRow><TableCell colSpan={2} className="font-bold dark:text-gray-300">{t("liabilities")}</TableCell></TableRow>
-                {liabilities.map((a) => <TableRow key={a.id}><TableCell className="ps-8">{a.nameAr ?? a.name}</TableCell><TableCell className="text-right font-mono">﷼ {a.calculatedBalance.toLocaleString()}</TableCell></TableRow>)}
+                {liabilities.map((a) => <TableRow key={a.id}><TableCell className="ps-8">{a.name}</TableCell><TableCell className="text-right font-mono">﷼ {a.calculatedBalance.toLocaleString()}</TableCell></TableRow>)}
                 <TableRow><TableCell className="font-bold dark:text-gray-300">{t("totalLiabilities")}</TableCell><TableCell className="text-right font-bold font-mono">﷼ {totalLiabilities.toLocaleString()}</TableCell></TableRow>
                 <TableRow><TableCell colSpan={2} className="font-bold dark:text-gray-300">{t("equity")}</TableCell></TableRow>
-                {equity.map((a) => <TableRow key={a.id}><TableCell className="ps-8">{a.nameAr ?? a.name}</TableCell><TableCell className="text-right font-mono">﷼ {a.calculatedBalance.toLocaleString()}</TableCell></TableRow>)}
+                {equity.map((a) => <TableRow key={a.id}><TableCell className="ps-8">{a.name}</TableCell><TableCell className="text-right font-mono">﷼ {a.calculatedBalance.toLocaleString()}</TableCell></TableRow>)}
                 <TableRow><TableCell className="font-bold dark:text-gray-300">{t("totalEquity")}</TableCell><TableCell className="text-right font-bold font-mono">﷼ {totalEquity.toLocaleString()}</TableCell></TableRow>
                 <TableRow className="font-bold border-t-2 dark:border-gray-700"><TableCell>{t("totalLiabilitiesEquity")}</TableCell><TableCell className="text-right font-mono">﷼ {(totalLiabilities + totalEquity).toLocaleString()}</TableCell></TableRow>
               </TableBody>
@@ -117,7 +117,7 @@ export function ReportsClient({ accounts, type }: Props) {
     const totalExpense = expenseAccounts.reduce((s, a) => s + a.calculatedBalance, 0);
     const netIncome = totalIncome - totalExpense;
 
-    const isData = [...incomeAccounts.map((a) => ({ section: "Income", account: a.nameAr ?? a.name, amount: a.calculatedBalance })), ...expenseAccounts.map((a) => ({ section: "Expenses", account: a.nameAr ?? a.name, amount: a.calculatedBalance }))];
+    const isData = [...incomeAccounts.map((a) => ({ section: "Income", account: a.name, amount: a.calculatedBalance })), ...expenseAccounts.map((a) => ({ section: "Expenses", account: a.name, amount: a.calculatedBalance }))];
 
     return (
       <FadeIn>
@@ -142,12 +142,12 @@ export function ReportsClient({ accounts, type }: Props) {
               <TableBody>
                 <TableRow><TableCell colSpan={2} className="font-bold dark:text-gray-300">{t("income")}</TableCell></TableRow>
                 {incomeAccounts.map((a) => (
-                  <TableRow key={a.id}><TableCell className="ps-8">{a.nameAr ?? a.name}</TableCell><TableCell className="text-right font-mono">﷼ {a.calculatedBalance.toLocaleString()}</TableCell></TableRow>
+                  <TableRow key={a.id}><TableCell className="ps-8">{a.name}</TableCell><TableCell className="text-right font-mono">﷼ {a.calculatedBalance.toLocaleString()}</TableCell></TableRow>
                 ))}
                 <TableRow><TableCell className="font-bold dark:text-gray-300">{t("totalIncome")}</TableCell><TableCell className="text-right font-bold font-mono">﷼ {totalIncome.toLocaleString()}</TableCell></TableRow>
                 <TableRow><TableCell colSpan={2} className="font-bold dark:text-gray-300">{t("expenses")}</TableCell></TableRow>
                 {expenseAccounts.map((a) => (
-                  <TableRow key={a.id}><TableCell className="ps-8">{a.nameAr ?? a.name}</TableCell><TableCell className="text-right font-mono">﷼ {a.calculatedBalance.toLocaleString()}</TableCell></TableRow>
+                  <TableRow key={a.id}><TableCell className="ps-8">{a.name}</TableCell><TableCell className="text-right font-mono">﷼ {a.calculatedBalance.toLocaleString()}</TableCell></TableRow>
                 ))}
                 <TableRow><TableCell className="font-bold dark:text-gray-300">{t("totalExpenses")}</TableCell><TableCell className="text-right font-bold font-mono">﷼ {totalExpense.toLocaleString()}</TableCell></TableRow>
                 <TableRow className="font-bold border-t-2 dark:border-gray-700 text-lg">
@@ -165,7 +165,7 @@ export function ReportsClient({ accounts, type }: Props) {
   return null;
 }
 
-export function SalesReportClient({ invoices }: { invoices: { id: string; number: number; invoiceDate: Date; customer: { name: string; nameAr: string | null }; subtotal: number; taxAmount: number; total: number; status: string }[] }) {
+export function SalesReportClient({ invoices }: { invoices: { id: string; number: number; invoiceDate: Date; customer: { name: string }; subtotal: number; taxAmount: number; total: number; status: string }[] }) {
   const t = useTranslations("reports");
   const totals = invoices.reduce((s, inv) => ({ subtotal: s.subtotal + inv.subtotal, tax: s.tax + inv.taxAmount, total: s.total + inv.total }), { subtotal: 0, tax: 0, total: 0 });
 
@@ -176,7 +176,7 @@ export function SalesReportClient({ invoices }: { invoices: { id: string; number
           title={t("salesReport")}
           description={t("asOf", { date: new Date().toLocaleDateString() })}
           actions={
-            <Button variant="outline" size="sm" onClick={() => exportToCsv(invoices.map((inv) => ({ "#": String(inv.number).padStart(5, "0"), Customer: inv.customer.nameAr ?? inv.customer.name, Date: inv.invoiceDate.toLocaleDateString(), Subtotal: inv.subtotal, Tax: inv.taxAmount, Total: inv.total })), "sales-report", [{ key: "#", label: "Invoice #" }, { key: "Customer", label: "Customer" }, { key: "Date", label: "Date" }, { key: "Subtotal", label: "Subtotal" }, { key: "Tax", label: "Tax" }, { key: "Total", label: "Total" }])}>
+            <Button variant="outline" size="sm" onClick={() => exportToCsv(invoices.map((inv) => ({ "#": String(inv.number).padStart(5, "0"), Customer: inv.customer.name, Date: inv.invoiceDate.toLocaleDateString(), Subtotal: inv.subtotal, Tax: inv.taxAmount, Total: inv.total })), "sales-report", [{ key: "#", label: "Invoice #" }, { key: "Customer", label: "Customer" }, { key: "Date", label: "Date" }, { key: "Subtotal", label: "Subtotal" }, { key: "Tax", label: "Tax" }, { key: "Total", label: "Total" }])}>
               <Download className="h-4 w-4 ms-1" /> Export CSV
             </Button>
           }
@@ -190,7 +190,7 @@ export function SalesReportClient({ invoices }: { invoices: { id: string; number
               {invoices.map((inv) => (
                 <TableRow key={inv.id}>
                   <TableCell className="font-mono text-xs">{String(inv.number).padStart(5, "0")}</TableCell>
-                  <TableCell>{inv.customer.nameAr ?? inv.customer.name}</TableCell>
+                  <TableCell>{inv.customer.name}</TableCell>
                   <TableCell>{inv.invoiceDate.toLocaleDateString()}</TableCell>
                   <TableCell className="text-right font-mono">{inv.subtotal.toFixed(2)}</TableCell>
                   <TableCell className="text-right font-mono">{inv.taxAmount.toFixed(2)}</TableCell>
@@ -211,7 +211,7 @@ export function SalesReportClient({ invoices }: { invoices: { id: string; number
   );
 }
 
-export function PurchaseReportClient({ invoices }: { invoices: { id: string; number: number; invoiceDate: Date; vendor: { name: string; nameAr: string | null }; subtotal: number; taxAmount: number; total: number; status: string }[] }) {
+export function PurchaseReportClient({ invoices }: { invoices: { id: string; number: number; invoiceDate: Date; vendor: { name: string }; subtotal: number; taxAmount: number; total: number; status: string }[] }) {
   const t = useTranslations("reports");
   const totals = invoices.reduce((s, inv) => ({ subtotal: s.subtotal + inv.subtotal, tax: s.tax + inv.taxAmount, total: s.total + inv.total }), { subtotal: 0, tax: 0, total: 0 });
 
@@ -222,7 +222,7 @@ export function PurchaseReportClient({ invoices }: { invoices: { id: string; num
           title={t("purchaseReport")}
           description={t("asOf", { date: new Date().toLocaleDateString() })}
           actions={
-            <Button variant="outline" size="sm" onClick={() => exportToCsv(invoices.map((inv) => ({ "#": String(inv.number).padStart(5, "0"), Vendor: inv.vendor.nameAr ?? inv.vendor.name, Date: inv.invoiceDate.toLocaleDateString(), Subtotal: inv.subtotal, Tax: inv.taxAmount, Total: inv.total })), "purchase-report", [{ key: "#", label: "Invoice #" }, { key: "Vendor", label: "Vendor" }, { key: "Date", label: "Date" }, { key: "Subtotal", label: "Subtotal" }, { key: "Tax", label: "Tax" }, { key: "Total", label: "Total" }])}>
+            <Button variant="outline" size="sm" onClick={() => exportToCsv(invoices.map((inv) => ({ "#": String(inv.number).padStart(5, "0"), Vendor: inv.vendor.name, Date: inv.invoiceDate.toLocaleDateString(), Subtotal: inv.subtotal, Tax: inv.taxAmount, Total: inv.total })), "purchase-report", [{ key: "#", label: "Invoice #" }, { key: "Vendor", label: "Vendor" }, { key: "Date", label: "Date" }, { key: "Subtotal", label: "Subtotal" }, { key: "Tax", label: "Tax" }, { key: "Total", label: "Total" }])}>
               <Download className="h-4 w-4 ms-1" /> Export CSV
             </Button>
           }
@@ -236,7 +236,7 @@ export function PurchaseReportClient({ invoices }: { invoices: { id: string; num
               {invoices.map((inv) => (
                 <TableRow key={inv.id}>
                   <TableCell className="font-mono text-xs">{String(inv.number).padStart(5, "0")}</TableCell>
-                  <TableCell>{inv.vendor.nameAr ?? inv.vendor.name}</TableCell>
+                  <TableCell>{inv.vendor.name}</TableCell>
                   <TableCell>{inv.invoiceDate.toLocaleDateString()}</TableCell>
                   <TableCell className="text-right font-mono">{inv.subtotal.toFixed(2)}</TableCell>
                   <TableCell className="text-right font-mono">{inv.taxAmount.toFixed(2)}</TableCell>
@@ -388,7 +388,7 @@ export function CashFlowClient({ data }: { data: { month: string; inflows: numbe
   );
 }
 
-export function ARAgingClient({ customers }: { customers: { id: string; name: string; nameAr: string | null; total: number; current: number; days1_30: number; days31_60: number; days61_90: number; days90Plus: number }[] }) {
+export function ARAgingClient({ customers }: { customers: { id: string; name: string; total: number; current: number; days1_30: number; days31_60: number; days61_90: number; days90Plus: number }[] }) {
   const t = useTranslations("reports");
   const grandTotal = customers.reduce((s, c) => s + c.total, 0);
 
@@ -399,7 +399,7 @@ export function ARAgingClient({ customers }: { customers: { id: string; name: st
           title={t("arAging")}
           description={t("asOf", { date: new Date().toLocaleDateString() })}
           actions={
-            <Button variant="outline" size="sm" onClick={() => exportToCsv(customers.filter((c) => c.total > 0).map((c) => ({ Customer: c.nameAr ?? c.name, Total: c.total, Current: c.current, "1-30 Days": c.days1_30, "31-60 Days": c.days31_60, "61-90 Days": c.days61_90, "90+ Days": c.days90Plus })), "ar-aging", [{ key: "Customer", label: "Customer" }, { key: "Total", label: "Total" }, { key: "Current", label: "Current" }, { key: "1-30 Days", label: "1-30 Days" }, { key: "31-60 Days", label: "31-60 Days" }, { key: "61-90 Days", label: "61-90 Days" }, { key: "90+ Days", label: "90+ Days" }])}>
+            <Button variant="outline" size="sm" onClick={() => exportToCsv(customers.filter((c) => c.total > 0).map((c) => ({ Customer: c.name, Total: c.total, Current: c.current, "1-30 Days": c.days1_30, "31-60 Days": c.days31_60, "61-90 Days": c.days61_90, "90+ Days": c.days90Plus })), "ar-aging", [{ key: "Customer", label: "Customer" }, { key: "Total", label: "Total" }, { key: "Current", label: "Current" }, { key: "1-30 Days", label: "1-30 Days" }, { key: "31-60 Days", label: "31-60 Days" }, { key: "61-90 Days", label: "61-90 Days" }, { key: "90+ Days", label: "90+ Days" }])}>
               <Download className="h-4 w-4 ms-1" /> Export CSV
             </Button>
           }
@@ -412,7 +412,7 @@ export function ARAgingClient({ customers }: { customers: { id: string; name: st
             <TableBody>
               {customers.filter((c) => c.total > 0).map((c) => (
                 <TableRow key={c.id}>
-                  <TableCell>{c.nameAr ?? c.name}</TableCell>
+                  <TableCell>{c.name}</TableCell>
                   <TableCell className="text-right font-mono">{c.total.toFixed(2)}</TableCell>
                   <TableCell className="text-right font-mono">{c.current.toFixed(2)}</TableCell>
                   <TableCell className="text-right font-mono">{c.days1_30.toFixed(2)}</TableCell>
@@ -438,7 +438,7 @@ export function ARAgingClient({ customers }: { customers: { id: string; name: st
   );
 }
 
-export function APAgingClient({ vendors }: { vendors: { id: string; name: string; nameAr: string | null; total: number; current: number; days1_30: number; days31_60: number; days61_90: number; days90Plus: number }[] }) {
+export function APAgingClient({ vendors }: { vendors: { id: string; name: string; total: number; current: number; days1_30: number; days31_60: number; days61_90: number; days90Plus: number }[] }) {
   const t = useTranslations("reports");
   const grandTotal = vendors.reduce((s, v) => s + v.total, 0);
 
@@ -449,7 +449,7 @@ export function APAgingClient({ vendors }: { vendors: { id: string; name: string
           title={t("apAging")}
           description={t("asOf", { date: new Date().toLocaleDateString() })}
           actions={
-            <Button variant="outline" size="sm" onClick={() => exportToCsv(vendors.filter((v) => v.total > 0).map((v) => ({ Vendor: v.nameAr ?? v.name, Total: v.total, Current: v.current, "1-30 Days": v.days1_30, "31-60 Days": v.days31_60, "61-90 Days": v.days61_90, "90+ Days": v.days90Plus })), "ap-aging", [{ key: "Vendor", label: "Vendor" }, { key: "Total", label: "Total" }, { key: "Current", label: "Current" }, { key: "1-30 Days", label: "1-30 Days" }, { key: "31-60 Days", label: "31-60 Days" }, { key: "61-90 Days", label: "61-90 Days" }, { key: "90+ Days", label: "90+ Days" }])}>
+            <Button variant="outline" size="sm" onClick={() => exportToCsv(vendors.filter((v) => v.total > 0).map((v) => ({ Vendor: v.name, Total: v.total, Current: v.current, "1-30 Days": v.days1_30, "31-60 Days": v.days31_60, "61-90 Days": v.days61_90, "90+ Days": v.days90Plus })), "ap-aging", [{ key: "Vendor", label: "Vendor" }, { key: "Total", label: "Total" }, { key: "Current", label: "Current" }, { key: "1-30 Days", label: "1-30 Days" }, { key: "31-60 Days", label: "31-60 Days" }, { key: "61-90 Days", label: "61-90 Days" }, { key: "90+ Days", label: "90+ Days" }])}>
               <Download className="h-4 w-4 ms-1" /> Export CSV
             </Button>
           }
@@ -462,7 +462,7 @@ export function APAgingClient({ vendors }: { vendors: { id: string; name: string
             <TableBody>
               {vendors.filter((v) => v.total > 0).map((v) => (
                 <TableRow key={v.id}>
-                  <TableCell>{v.nameAr ?? v.name}</TableCell>
+                  <TableCell>{v.name}</TableCell>
                   <TableCell className="text-right font-mono">{v.total.toFixed(2)}</TableCell>
                   <TableCell className="text-right font-mono">{v.current.toFixed(2)}</TableCell>
                   <TableCell className="text-right font-mono">{v.days1_30.toFixed(2)}</TableCell>

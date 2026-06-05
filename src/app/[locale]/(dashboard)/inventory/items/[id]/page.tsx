@@ -20,7 +20,7 @@ export default async function ItemDetailPage({ params }: { params: Promise<{ id:
     sellingPrice: Number(raw.sellingPrice),
     costPrice: Number(raw.costPrice),
   } as unknown as {
-    id: string; name: string; nameAr: string | null; sku: string | null;
+    id: string; name: string; sku: string | null;
     barcode: string | null; type: string; unit: string; currentStock: number;
     minStock: number; sellingPrice: number; costPrice: number;
     description: string | null; active: boolean; createdAt: Date; updatedAt: Date; organizationId: string;

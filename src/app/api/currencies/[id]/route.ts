@@ -26,7 +26,6 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     data: {
       code: body.code ?? existing.code,
       name: body.name ?? existing.name,
-      nameAr: body.nameAr ?? existing.nameAr,
       symbol: body.symbol ?? existing.symbol,
       exchangeRate: body.exchangeRate !== undefined ? Number(body.exchangeRate) : existing.exchangeRate,
       isBase: body.isBase ?? existing.isBase,

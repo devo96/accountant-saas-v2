@@ -22,7 +22,7 @@ export default async function BankAccountDetailPage({ params }: { params: Promis
     createdAt: raw.createdAt.toISOString(),
     updatedAt: raw.updatedAt.toISOString(),
   } as unknown as {
-    id: string; name: string; nameAr: string | null; accountNumber: string | null;
+    id: string; name: string; accountNumber: string | null;
     iban: string | null; bankName: string; currencyId: string | null;
     openingBalance: number; currentBalance: number; active: boolean;
     organizationId: string; createdAt: string; updatedAt: string;

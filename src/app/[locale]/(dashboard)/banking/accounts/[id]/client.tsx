@@ -10,7 +10,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 
 type BankAccount = {
-  id: string; name: string; nameAr: string | null; accountNumber: string | null;
+  id: string; name: string; accountNumber: string | null;
   iban: string | null; bankName: string; openingBalance: number; currentBalance: number;
 };
 
@@ -22,7 +22,6 @@ export function BankAccountDetailClient({ bankAccount }: Props) {
   const [showEdit, setShowEdit] = useState(false);
   const [form, setForm] = useState({
     name: bankAccount.name,
-    nameAr: bankAccount.nameAr ?? "",
     accountNumber: bankAccount.accountNumber ?? "",
     iban: bankAccount.iban ?? "",
     bankName: bankAccount.bankName,
@@ -69,12 +68,7 @@ export function BankAccountDetailClient({ bankAccount }: Props) {
             <dt className="text-gray-500 dark:text-gray-400">{t("accountName")}</dt>
             <dd className="font-medium">{bankAccount.name}</dd>
           </div>
-          {bankAccount.nameAr && (
-            <div className="flex justify-between">
-              <dt className="text-gray-500 dark:text-gray-400">{t("nameAr")}</dt>
-              <dd className="font-medium">{bankAccount.nameAr}</dd>
-            </div>
-          )}
+
           <div className="flex justify-between">
             <dt className="text-gray-500 dark:text-gray-400">{t("bankName")}</dt>
             <dd className="font-medium">{bankAccount.bankName}</dd>
@@ -101,7 +95,6 @@ export function BankAccountDetailClient({ bankAccount }: Props) {
       <Dialog open={showEdit} onClose={() => setShowEdit(false)} title={t("editAccount")}>
         <form onSubmit={handleUpdate} className="space-y-4">
           <Input label={t("accountName")} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
-          <Input label={t("nameAr")} value={form.nameAr} onChange={(e) => setForm({ ...form, nameAr: e.target.value })} />
           <Input label={t("accountNumber")} value={form.accountNumber} onChange={(e) => setForm({ ...form, accountNumber: e.target.value })} required />
           <Input label={t("iban")} value={form.iban} onChange={(e) => setForm({ ...form, iban: e.target.value })} />
           <Input label={t("bankName")} value={form.bankName} onChange={(e) => setForm({ ...form, bankName: e.target.value })} required />

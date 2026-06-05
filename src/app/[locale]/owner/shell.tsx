@@ -6,7 +6,7 @@ import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
-import { LayoutDashboard, Building2, Package, Users, CreditCard, Shield, Ticket, PanelLeftClose, PanelLeft, Crown, ChevronDown, ChevronLeft, LogOut, Menu, X } from "lucide-react";
+import { LayoutDashboard, Building2, Package, Users, CreditCard, Shield, Ticket, PanelLeftClose, PanelLeft, Crown, LogOut, Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const navItems = [
@@ -44,7 +44,7 @@ export function OwnerShell({ children }: { children: ReactNode }) {
             <div className="h-8 w-8 rounded-lg bg-primary-600 flex items-center justify-center">
               <Crown className="h-4 w-4 text-white" />
             </div>
-            <span className="font-bold text-sm text-gray-900">Owner Panel</span>
+            <span className="font-bold text-sm text-gray-900">{t("owner")}</span>
           </div>
           <button onClick={() => setSidebarOpen(false)} className="md:hidden p-1 text-gray-400 hover:text-gray-600">
             <X className="h-4 w-4" />

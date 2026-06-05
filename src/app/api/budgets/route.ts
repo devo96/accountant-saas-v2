@@ -77,7 +77,7 @@ export async function GET(req: Request) {
         accountId: a.id,
         accountCode: a.code,
         accountName: a.name,
-        accountNameAr: a.nameAr,
+        accountNameAr: a.name,
         months,
       };
     });

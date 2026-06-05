@@ -21,7 +21,6 @@ export async function POST(req: Request) {
   const taxCode = await prisma.taxCode.create({
     data: {
       name: body.name,
-      nameAr: body.nameAr || null,
       rate: Number(body.rate),
       isDefault: body.isDefault ?? false,
       organizationId: session.user.organizationId,

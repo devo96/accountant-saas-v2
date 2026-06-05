@@ -11,7 +11,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 
 type Warehouse = {
-  id: string; name: string; nameAr: string | null; address: string | null;
+  id: string; name: string; address: string | null;
   active: boolean;
 };
 
@@ -23,7 +23,6 @@ export function WarehouseDetailClient({ warehouse }: Props) {
   const [showEdit, setShowEdit] = useState(false);
   const [form, setForm] = useState({
     name: warehouse.name,
-    nameAr: warehouse.nameAr ?? "",
     address: warehouse.address ?? "",
   });
   const [loading, setLoading] = useState(false);
@@ -68,12 +67,6 @@ export function WarehouseDetailClient({ warehouse }: Props) {
             <dt className="text-gray-500 dark:text-gray-400">{t("name")}</dt>
             <dd className="font-medium">{warehouse.name}</dd>
           </div>
-          {warehouse.nameAr && (
-            <div className="flex justify-between">
-              <dt className="text-gray-500 dark:text-gray-400">{t("nameAr")}</dt>
-              <dd className="font-medium">{warehouse.nameAr}</dd>
-            </div>
-          )}
           <div className="flex justify-between">
             <dt className="text-gray-500 dark:text-gray-400">{t("location")}</dt>
             <dd className="font-medium">{warehouse.address ?? "-"}</dd>
@@ -92,7 +85,6 @@ export function WarehouseDetailClient({ warehouse }: Props) {
       <Dialog open={showEdit} onClose={() => setShowEdit(false)} title={t("editWarehouse")}>
         <form onSubmit={handleUpdate} className="space-y-4">
           <Input label={t("name")} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
-          <Input label={t("nameAr")} value={form.nameAr} onChange={(e) => setForm({ ...form, nameAr: e.target.value })} />
           <Input label={t("location")} value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
           <div className="flex justify-end gap-3 pt-2">
             <Button type="button" variant="outline" onClick={() => setShowEdit(false)}>{t("cancel")}</Button>

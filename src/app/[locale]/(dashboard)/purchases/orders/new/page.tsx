@@ -10,7 +10,7 @@ export default async function NewPurchaseOrderPage() {
 
   const vendors = await prisma.vendor.findMany({
     where: { organizationId: session.user.organizationId },
-    select: { id: true, name: true, nameAr: true },
+    select: { id: true, name: true },
     orderBy: { name: "asc" },
   });
 

@@ -13,7 +13,6 @@ export async function POST(req: Request) {
   const account = await prisma.bankAccount.create({
     data: {
       name: body.name,
-      nameAr: body.nameAr || null,
       accountNumber: body.accountNumber,
       iban: body.iban || null,
       bankName: body.bankName,

@@ -1,1 +1,17 @@
-import { prisma } from "@/lib/prisma";import { getServerSession } from "next-auth";import { authOptions } from "@/lib/auth";import { redirect } from "next/navigation";import { PageHeader } from "@/components/ui/page-header";import { FadeIn } from "@/components/transitions";import { UsersClient } from "./client";export default async function OwnerUsersPage() {  const session = await getServerSession(authOptions);  if (!session?.user?.organizationId) redirect("/auth/login");  if (session.user.role !== "OWNER") redirect("/dashboard");  const users = await prisma.user.findMany({    orderBy: { createdAt: "desc" },    include: { organization: { select: { name: true } } },  });  const usersData = users.map((u) => ({    id: u.id, name: u.name, email: u.email, role: u.role, active: u.active, phone: u.phone, createdAt: u.createdAt,    organizationId: u.organizationId, organization: { name: u.organization.name },  }));  return (    <FadeIn>      <div className="space-y-4">        <PageHeader title="Users" description="Manage all platform users" />        <UsersClient users={usersData} />      </div>    </FadeIn>  );}
+import { prisma } from "@/lib/prisma"; import { getServerSession } from "next-auth"; import { authOptions } from "@/lib/auth"; import { redirect } from "next/navigation"; import { getTranslations } from "next-intl/server"; import { PageHeader } from "@/components/ui/page-header"; import { FadeIn } from "@/components/transitions"; import { UsersClient } from "./client";
+export default async function OwnerUsersPage() {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.organizationId) redirect("/auth/login");
+  if (session.user.role !== "OWNER") redirect("/dashboard");
+  const t = await getTranslations("ownerPanel");
+  const users = await prisma.user.findMany({ orderBy: { createdAt: "desc" }, include: { organization: { select: { name: true } } } });
+  const usersData = users.map((u) => ({ id: u.id, name: u.name, email: u.email, role: u.role, active: u.active, phone: u.phone, createdAt: u.createdAt, organizationId: u.organizationId, organization: { name: u.organization.name } }));
+  return (
+    <FadeIn>
+      <div className="space-y-4">
+        <PageHeader title={t("usersPageTitle")} description={t("usersSubtitle")} />
+        <UsersClient users={usersData} />
+      </div>
+    </FadeIn>
+  );
+}

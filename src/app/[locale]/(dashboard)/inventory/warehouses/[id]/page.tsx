@@ -19,7 +19,7 @@ export default async function WarehouseDetailPage({ params }: { params: Promise<
     ...raw,
     createdAt: raw.createdAt.toISOString(),
   } as unknown as {
-    id: string; name: string; nameAr: string | null; address: string | null;
+    id: string; name: string; address: string | null;
     active: boolean; organizationId: string; createdAt: string;
   };
 

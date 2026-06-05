@@ -13,8 +13,8 @@ export async function GET() {
     where: { organizationId: session.user.organizationId },
     orderBy: { createdAt: "desc" },
     include: {
-      item: { select: { name: true, nameAr: true, sku: true } },
-      warehouse: { select: { name: true, nameAr: true } },
+      item: { select: { name: true, sku: true } },
+      warehouse: { select: { name: true } },
     },
   });
 
@@ -46,8 +46,8 @@ export async function POST(req: Request) {
       createdById: session.user.id,
     },
     include: {
-      item: { select: { name: true, nameAr: true, sku: true } },
-      warehouse: { select: { name: true, nameAr: true } },
+      item: { select: { name: true, sku: true } },
+      warehouse: { select: { name: true } },
     },
   });
 

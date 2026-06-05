@@ -32,7 +32,7 @@ export default async function ARAgingPage() {
       else buckets.days90Plus += outstanding;
     }
     const total = buckets.current + buckets.days1_30 + buckets.days31_60 + buckets.days61_90 + buckets.days90Plus;
-    return { id: c.id, name: c.name, nameAr: c.nameAr, total, ...buckets };
+    return { id: c.id, name: c.name, total, ...buckets };
   });
 
   return <ARAgingClient customers={customers} />;

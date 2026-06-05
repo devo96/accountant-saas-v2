@@ -9,7 +9,6 @@ export async function getVendors(organizationId: string) {
 
 export async function createVendor(data: {
   name: string;
-  nameAr?: string;
   email?: string;
   phone?: string;
   organizationId: string;

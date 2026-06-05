@@ -19,7 +19,7 @@ export default async function JournalEntriesPage() {
   }));
   const accounts = (await prisma.account.findMany({
     where: { organizationId: session.user.organizationId, isMaster: false },
-    select: { id: true, code: true, name: true, nameAr: true },
+    select: { id: true, code: true, name: true },
   }));
   const fiscalYears = await prisma.fiscalYear.findMany({
     where: { organizationId: session.user.organizationId },

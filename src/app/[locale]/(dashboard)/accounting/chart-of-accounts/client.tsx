@@ -17,7 +17,6 @@ type Account = {
   id: string;
   code: string;
   name: string;
-  nameAr: string | null;
   type: string;
   nature: string;
   parentId: string | null;
@@ -130,7 +129,7 @@ export function ChartOfAccountsClient({ accounts, parentAccounts, currencies }: 
     setShowAdd(true);
   }
 
-  const parentOpts = parentAccounts.map((a) => ({ value: a.id, label: `${a.code} - ${a.nameAr ?? a.name}` }));
+  const parentOpts = parentAccounts.map((a) => ({ value: a.id, label: `${a.code} - ${a.name}` }));
   const currencyOpts = currencies.map((c) => ({ value: c.id, label: `${c.code} - ${c.name}` }));
   const typeOpts = [
     { value: "ASSET", label: t("typeASSET") },
@@ -183,7 +182,7 @@ export function ChartOfAccountsClient({ accounts, parentAccounts, currencies }: 
                       <span className="text-xs font-mono">{account.code}</span>
                     </div>
                   </TableCell>
-                  <TableCell className="font-medium">{account.nameAr ?? account.name}</TableCell>
+                  <TableCell className="font-medium">{account.name}</TableCell>
                   <TableCell><Badge variant={typeColors[account.type] ?? "default"}>{t("type" + account.type)}</Badge></TableCell>
                   <TableCell>{account.nature === "DEBIT" ? t("natureDebit") : t("natureCredit")}</TableCell>
                   <TableCell className="text-right font-mono">﷼ {account.balance.toLocaleString()}</TableCell>

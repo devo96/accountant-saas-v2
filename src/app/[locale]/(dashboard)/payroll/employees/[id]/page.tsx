@@ -23,7 +23,7 @@ export default async function EmployeeDetailPage({ params }: { params: Promise<{
     createdAt: raw.createdAt.toISOString(),
     updatedAt: raw.updatedAt.toISOString(),
   } as unknown as {
-    id: string; name: string; nameAr: string | null; email: string | null;
+    id: string; name: string; email: string | null;
     phone: string | null; position: string | null; basicSalary: number;
     allowances: number; gosiContribution: number; iqamaNumber: string | null;
     bankAccountNumber: string | null; active: boolean; organizationId: string;

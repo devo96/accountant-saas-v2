@@ -11,7 +11,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 
 type Employee = {
-  id: string; name: string; nameAr: string | null; email: string | null;
+  id: string; name: string; email: string | null;
   phone: string | null; position: string | null; basicSalary: number;
   allowances: number; gosiContribution: number; iqamaNumber: string | null;
   bankAccountNumber: string | null; active: boolean;
@@ -25,7 +25,6 @@ export function EmployeeDetailClient({ employee }: Props) {
   const [showEdit, setShowEdit] = useState(false);
   const [form, setForm] = useState({
     name: employee.name,
-    nameAr: employee.nameAr ?? "",
     email: employee.email ?? "",
     phone: employee.phone ?? "",
     position: employee.position ?? "",
@@ -77,14 +76,8 @@ export function EmployeeDetailClient({ employee }: Props) {
             <dt className="text-gray-500 dark:text-gray-400">{t("name")}</dt>
             <dd className="font-medium">{employee.name}</dd>
           </div>
-          {employee.nameAr && (
             <div className="flex justify-between">
-              <dt className="text-gray-500 dark:text-gray-400">{t("nameAr")}</dt>
-              <dd className="font-medium">{employee.nameAr}</dd>
-            </div>
-          )}
-          <div className="flex justify-between">
-            <dt className="text-gray-500 dark:text-gray-400">{t("position")}</dt>
+              <dt className="text-gray-500 dark:text-gray-400">{t("position")}</dt>
             <dd className="font-medium">{employee.position ?? "-"}</dd>
           </div>
           <div className="flex justify-between">
@@ -121,7 +114,6 @@ export function EmployeeDetailClient({ employee }: Props) {
       <Dialog open={showEdit} onClose={() => setShowEdit(false)} title={t("editEmployee")}>
         <form onSubmit={handleUpdate} className="space-y-4">
           <Input label={t("name")} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
-          <Input label={t("nameAr")} value={form.nameAr} onChange={(e) => setForm({ ...form, nameAr: e.target.value })} />
           <Input label={t("email")} type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
           <Input label={t("phone")} value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
           <Input label={t("position")} value={form.position} onChange={(e) => setForm({ ...form, position: e.target.value })} />

@@ -9,7 +9,7 @@ import { useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 
-type Organization = { id: string; name: string; nameAr: string | null; email: string | null; phone: string | null; address: string | null; commercialReg: string | null; taxNumber: string | null; createdAt: string };
+type Organization = { id: string; name: string; email: string | null; phone: string | null; address: string | null; commercialReg: string | null; taxNumber: string | null; createdAt: string };
 type Props = { org: Organization; settings: Record<string, string> };
 
 const smtpKeys = ["smtp_host", "smtp_port", "smtp_user", "smtp_pass", "smtp_from"];
@@ -80,7 +80,6 @@ export function OrganizationSettingsClient({ org, settings: initialSettings }: P
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <Input label={t("orgName")} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
-        <Input label={t("nameAr")} value={form.nameAr ?? ""} onChange={(e) => setForm({ ...form, nameAr: e.target.value })} />
         <Input label={t("email")} type="email" value={form.email ?? ""} onChange={(e) => setForm({ ...form, email: e.target.value })} />
         <Input label={t("phone")} value={form.phone ?? ""} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
         <Input label={t("address")} value={form.address ?? ""} onChange={(e) => setForm({ ...form, address: e.target.value })} />

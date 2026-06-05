@@ -10,7 +10,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   const existing = await prisma.project.findFirst({ where: { id, organizationId: session.user.organizationId } });
   if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
   const body = await req.json();
-  const project = await prisma.project.update({ where: { id }, data: { name: body.name ?? existing.name, nameAr: body.nameAr ?? existing.nameAr, description: body.description ?? existing.description, startDate: body.startDate ? new Date(body.startDate) : existing.startDate, endDate: body.endDate ? new Date(body.endDate) : existing.endDate, status: body.status ?? existing.status, budget: body.budget !== undefined ? Number(body.budget) : existing.budget, customerId: body.customerId ?? existing.customerId, managerId: body.managerId ?? existing.managerId, progress: body.progress ?? existing.progress } });
+  const project = await prisma.project.update({ where: { id }, data: { name: body.name ?? existing.name, description: body.description ?? existing.description, startDate: body.startDate ? new Date(body.startDate) : existing.startDate, endDate: body.endDate ? new Date(body.endDate) : existing.endDate, status: body.status ?? existing.status, budget: body.budget !== undefined ? Number(body.budget) : existing.budget, customerId: body.customerId ?? existing.customerId, managerId: body.managerId ?? existing.managerId, progress: body.progress ?? existing.progress } });
   return NextResponse.json(project);
 }
 

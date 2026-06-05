@@ -20,7 +20,7 @@ type PurchaseOrder = {
   orderDate: Date;
   expectedDate: Date | null;
   status: string;
-  vendor: { name: string; nameAr: string | null };
+  vendor: { name: string };
   subtotal: number;
   discountAmount: number;
   taxAmount: number;
@@ -28,7 +28,7 @@ type PurchaseOrder = {
   notes: string | null;
 };
 
-type Vendor = { id: string; name: string; nameAr: string | null };
+type Vendor = { id: string; name: string };
 
 type Props = { orders: PurchaseOrder[]; vendors: Vendor[] };
 
@@ -64,11 +64,11 @@ export function PurchaseOrdersClient({ orders, vendors }: Props) {
     }
   }
 
-  const vendorOpts = vendors.map((v) => ({ value: v.id, label: v.nameAr ?? v.name }));
+  const vendorOpts = vendors.map((v) => ({ value: v.id, label: v.name }));
 
   const columns = [
     { key: "number", label: t("orderNo"), render: (o: PurchaseOrder) => generateNumber("PO", o.number) },
-    { key: "vendor", label: t("vendor"), render: (o: PurchaseOrder) => o.vendor.nameAr ?? o.vendor.name },
+    { key: "vendor", label: t("vendor"), render: (o: PurchaseOrder) => o.vendor.name },
     { key: "orderDate", label: t("orderDate"), render: (o: PurchaseOrder) => formatDate(new Date(o.orderDate)) },
     { key: "expectedDate", label: t("expectedDate"), render: (o: PurchaseOrder) => o.expectedDate ? formatDate(new Date(o.expectedDate)) : "-" },
     { key: "status", label: t("status"), render: (o: PurchaseOrder) => <Badge variant={statusVariant[o.status] || "outline"}>{s(statusLabels[o.status] || o.status)}</Badge> },

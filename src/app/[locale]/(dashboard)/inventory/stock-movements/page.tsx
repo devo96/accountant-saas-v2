@@ -12,8 +12,8 @@ export default async function StockMovementsPage() {
     where: { organizationId: session.user.organizationId },
     orderBy: { createdAt: "desc" },
     include: {
-      item: { select: { name: true, nameAr: true, sku: true } },
-      warehouse: { select: { name: true, nameAr: true } },
+      item: { select: { name: true, sku: true } },
+      warehouse: { select: { name: true } },
     },
   });
   const movements = rawMovements.map((m) => ({
@@ -23,12 +23,12 @@ export default async function StockMovementsPage() {
   }));
   const items = await prisma.item.findMany({
     where: { organizationId: session.user.organizationId, active: true },
-    select: { id: true, name: true, nameAr: true, sku: true },
+    select: { id: true, name: true, sku: true },
     orderBy: { name: "asc" },
   });
   const warehouses = await prisma.warehouse.findMany({
     where: { organizationId: session.user.organizationId, active: true },
-    select: { id: true, name: true, nameAr: true },
+    select: { id: true, name: true },
     orderBy: { name: "asc" },
   });
 

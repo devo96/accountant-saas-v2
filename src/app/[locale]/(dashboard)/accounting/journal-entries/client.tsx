@@ -23,7 +23,7 @@ type Entry = {
   lines: { id: string; account: { code: string; name: string }; debit: number; credit: number }[];
 };
 
-type Account = { id: string; code: string; name: string; nameAr: string | null };
+type Account = { id: string; code: string; name: string };
 type FiscalYear = { id: string; name: string };
 
 type Props = { entries: Entry[]; accounts: Account[]; fiscalYears: FiscalYear[] };
@@ -90,7 +90,7 @@ export function JournalEntriesClient({ entries, accounts, fiscalYears }: Props) 
   const fiscalYearOpts = fiscalYears.map((fy) => ({ value: fy.id, label: fy.name }));
   const accountOpts = accounts.map((a) => ({
     value: a.id,
-    label: `${a.code} - ${a.nameAr ?? a.name}`,
+    label: `${a.code} - ${a.name}`,
   }));
 
   return (

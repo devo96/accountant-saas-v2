@@ -293,16 +293,16 @@ export const logger = pino({
 | API: sales-returns route      | ✅ DONE    | POST + GET                                  |
 | API: purchase-returns route   | ✅ DONE    | POST + GET                                  |
 | API: bank-reconciliation      | ✅ DONE    | POST + GET (was missing entirely)           |
-| API: items route              | ✅ DONE    | POST + GET + nameAr (was POST-only)         |
-| API: vendors route            | ✅ DONE    | POST + GET + nameAr (was POST-only)         |
-| API: customers route          | ✅ DONE    | POST + GET + nameAr (was POST-only)         |
+| API: items route              | ✅ DONE    | POST + GET (was POST-only)                   |
+| API: vendors route            | ✅ DONE    | POST + GET (was POST-only)                   |
+| API: customers route          | ✅ DONE    | POST + GET (was POST-only)                   |
 | API: sales-invoices route     | ✅ DONE    | POST + GET (was POST-only)                  |
 | API: purchase-invoices route  | ✅ DONE    | POST + GET (was POST-only)                  |
 | API: expenses route           | ✅ DONE    | POST + GET (was POST-only)                  |
 | API: journal-entries route    | ✅ DONE    | POST + GET, wired to domain service         |
-| API: tax-codes route          | ✅ DONE    | POST + GET + nameAr                         |
-| API: bank-accounts route      | ✅ DONE    | POST + GET + nameAr                         |
-| API: currencies route         | ✅ DONE    | POST + GET + nameAr                         |
+| API: tax-codes route          | ✅ DONE    | POST + GET                                   |
+| API: bank-accounts route      | ✅ DONE    | POST + GET                                   |
+| API: currencies route         | ✅ DONE    | POST + GET                                   |
 
 ---
 

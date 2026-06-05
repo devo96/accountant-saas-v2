@@ -32,7 +32,6 @@ export async function POST(req: Request) {
   const employee = await prisma.employee.create({
     data: {
       name: body.name,
-      nameAr: body.nameAr || null,
       email: body.email || null,
       phone: body.phone || null,
       position: body.position || null,

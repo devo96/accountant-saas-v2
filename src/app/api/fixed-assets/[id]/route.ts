@@ -35,7 +35,6 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   const body = await req.json();
   const data: Record<string, unknown> = {};
   if (body.name !== undefined) data.name = body.name;
-  if (body.nameAr !== undefined) data.nameAr = body.nameAr;
   if (body.category !== undefined) data.category = body.category;
   if (body.purchaseDate !== undefined) data.purchaseDate = new Date(body.purchaseDate);
   if (body.purchaseCost !== undefined) {

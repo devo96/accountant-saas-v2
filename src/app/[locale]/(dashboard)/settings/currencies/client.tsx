@@ -21,11 +21,11 @@ export function CurrenciesClient({ currencies }: Props) {
   const [showAdd, setShowAdd] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [form, setForm] = useState({ code: "", name: "", nameAr: "", symbol: "", exchangeRate: "", isBase: false });
+  const [form, setForm] = useState({ code: "", name: "", symbol: "", exchangeRate: "", isBase: false });
   const [loading, setLoading] = useState(false);
 
   function startEdit(c: Currency) {
-    setForm({ code: c.code, name: c.name, nameAr: "", symbol: c.symbol, exchangeRate: String(c.exchangeRate), isBase: c.isBase });
+    setForm({ code: c.code, name: c.name, symbol: c.symbol, exchangeRate: String(c.exchangeRate), isBase: c.isBase });
     setEditingId(c.id);
     setShowAdd(true);
   }
@@ -61,7 +61,7 @@ export function CurrenciesClient({ currencies }: Props) {
         title={t("title")}
         description={t("currencies", { count: currencies.length })}
         actions={
-          <Button onClick={() => { setEditingId(null); setForm({ code: "", name: "", nameAr: "", symbol: "", exchangeRate: "", isBase: false }); setShowAdd(true); }}><Plus className="h-4 w-4 ms-1" /> {t("newCurrency")}</Button>
+          <Button onClick={() => { setEditingId(null); setForm({ code: "", name: "", symbol: "", exchangeRate: "", isBase: false }); setShowAdd(true); }}><Plus className="h-4 w-4 ms-1" /> {t("newCurrency")}</Button>
         }
       />
 

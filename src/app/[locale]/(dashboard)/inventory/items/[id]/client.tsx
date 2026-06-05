@@ -11,7 +11,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 
 type Item = {
-  id: string; name: string; nameAr: string | null; sku: string | null;
+  id: string; name: string; sku: string | null;
   barcode: string | null; type: string; unit: string; currentStock: number;
   minStock: number; sellingPrice: number; costPrice: number;
   description: string | null; active: boolean;
@@ -25,7 +25,6 @@ export function ItemDetailClient({ item }: Props) {
   const [showEdit, setShowEdit] = useState(false);
   const [form, setForm] = useState({
     name: item.name,
-    nameAr: item.nameAr ?? "",
     sku: item.sku ?? "",
     barcode: item.barcode ?? "",
     type: item.type,
@@ -77,12 +76,6 @@ export function ItemDetailClient({ item }: Props) {
             <dt className="text-gray-500 dark:text-gray-400">{t("name")}</dt>
             <dd className="font-medium">{item.name}</dd>
           </div>
-          {item.nameAr && (
-            <div className="flex justify-between">
-              <dt className="text-gray-500 dark:text-gray-400">{t("nameAr")}</dt>
-              <dd className="font-medium">{item.nameAr}</dd>
-            </div>
-          )}
           <div className="flex justify-between">
             <dt className="text-gray-500 dark:text-gray-400">{t("sku")}</dt>
             <dd className="font-medium">{item.sku ?? "-"}</dd>
@@ -127,7 +120,6 @@ export function ItemDetailClient({ item }: Props) {
       <Dialog open={showEdit} onClose={() => setShowEdit(false)} title={t("editItem")}>
         <form onSubmit={handleUpdate} className="space-y-4">
           <Input label={t("name")} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
-          <Input label={t("nameAr")} value={form.nameAr} onChange={(e) => setForm({ ...form, nameAr: e.target.value })} />
           <Input label={t("sku")} value={form.sku} onChange={(e) => setForm({ ...form, sku: e.target.value })} />
           <Input label={t("barcode")} value={form.barcode} onChange={(e) => setForm({ ...form, barcode: e.target.value })} />
           <Select label={t("type")} options={[{ value: "PRODUCT", label: t("product") }, { value: "SERVICE", label: t("service") }]} value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} />

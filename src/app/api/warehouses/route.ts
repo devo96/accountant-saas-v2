@@ -24,12 +24,11 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { name, nameAr, address } = body;
+  const { name, address } = body;
 
   const warehouse = await prisma.warehouse.create({
     data: {
       name,
-      nameAr,
       address,
       organizationId: session.user.organizationId,
     },

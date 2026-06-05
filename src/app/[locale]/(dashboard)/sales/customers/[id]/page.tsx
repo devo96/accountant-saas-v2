@@ -31,7 +31,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
       total: Number(i.total),
     })),
   } as unknown as {
-    id: string; name: string; nameAr: string | null; email: string | null;
+    id: string; name: string; email: string | null;
     phone: string | null; mobile: string | null; address: string | null;
     taxNumber: string | null; creditLimit: number; balance: number;
     active: boolean; createdAt: Date; updatedAt: Date; organizationId: string;

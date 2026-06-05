@@ -9,7 +9,6 @@ export async function getCustomers(organizationId: string) {
 
 export async function createCustomer(data: {
   name: string;
-  nameAr?: string;
   email?: string;
   phone?: string;
   organizationId: string;

@@ -3,7 +3,6 @@ import Papa from "papaparse";
 const ENTITY_FIELDS: Record<string, { label: string; required: boolean; field: string }[]> = {
   Customer: [
     { label: "Name", required: true, field: "name" },
-    { label: "Name (Arabic)", required: false, field: "nameAr" },
     { label: "Email", required: false, field: "email" },
     { label: "Phone", required: false, field: "phone" },
     { label: "Mobile", required: false, field: "mobile" },
@@ -13,7 +12,6 @@ const ENTITY_FIELDS: Record<string, { label: string; required: boolean; field: s
   ],
   Vendor: [
     { label: "Name", required: true, field: "name" },
-    { label: "Name (Arabic)", required: false, field: "nameAr" },
     { label: "Email", required: false, field: "email" },
     { label: "Phone", required: false, field: "phone" },
     { label: "Mobile", required: false, field: "mobile" },
@@ -22,7 +20,6 @@ const ENTITY_FIELDS: Record<string, { label: string; required: boolean; field: s
   ],
   Item: [
     { label: "Name", required: true, field: "name" },
-    { label: "Name (Arabic)", required: false, field: "nameAr" },
     { label: "SKU", required: false, field: "sku" },
     { label: "Barcode", required: false, field: "barcode" },
     { label: "Type (PRODUCT/SERVICE)", required: true, field: "type" },
@@ -34,19 +31,16 @@ const ENTITY_FIELDS: Record<string, { label: string; required: boolean; field: s
   ],
   TaxCode: [
     { label: "Name", required: true, field: "name" },
-    { label: "Name (Arabic)", required: false, field: "nameAr" },
     { label: "Rate (%)", required: true, field: "rate" },
   ],
   Account: [
     { label: "Code", required: true, field: "code" },
     { label: "Name", required: true, field: "name" },
-    { label: "Name (Arabic)", required: false, field: "nameAr" },
     { label: "Type (ASSET/LIABILITY/EQUITY/INCOME/EXPENSE)", required: true, field: "type" },
     { label: "Nature (DEBIT/CREDIT)", required: false, field: "nature" },
   ],
   Warehouse: [
     { label: "Name", required: true, field: "name" },
-    { label: "Name (Arabic)", required: false, field: "nameAr" },
     { label: "Address", required: false, field: "address" },
   ],
 };

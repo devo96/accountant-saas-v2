@@ -22,7 +22,6 @@ async function main() {
     create: {
       id: "demo-org",
       name: "الشركة التجارية",
-      nameAr: "الشركة التجارية",
       email: "info@example.com",
       taxNumber: "300000000000003",
       commercialReg: "1010000000",
@@ -44,9 +43,9 @@ async function main() {
   });
 
   const currencies = [
-    { code: "SAR", name: "Saudi Riyal", nameAr: "ريال سعودي", symbol: "﷼", isBase: true },
-    { code: "USD", name: "US Dollar", nameAr: "دولار أمريكي", symbol: "$" },
-    { code: "EUR", name: "Euro", nameAr: "يورو", symbol: "€" },
+    { code: "SAR", name: "Saudi Riyal", symbol: "﷼", isBase: true },
+    { code: "USD", name: "US Dollar", symbol: "$" },
+    { code: "EUR", name: "Euro", symbol: "€" },
   ];
 
   for (const c of currencies) {
@@ -58,24 +57,24 @@ async function main() {
   }
 
   const accounts = [
-    { code: "1", name: "Assets", nameAr: "الأصول", type: AccountType.ASSET, nature: AccountNature.DEBIT },
-    { code: "1.1", name: "Current Assets", nameAr: "الأصول المتداولة", type: AccountType.ASSET, nature: AccountNature.DEBIT, parentCode: "1" },
-    { code: "1.1.1", name: "Cash", nameAr: "النقدية", type: AccountType.ASSET, nature: AccountNature.DEBIT, parentCode: "1.1" },
-    { code: "1.1.2", name: "Accounts Receivable", nameAr: "حسابات مدينة", type: AccountType.ASSET, nature: AccountNature.DEBIT, parentCode: "1.1" },
-    { code: "1.1.3", name: "Inventory", nameAr: "المخزون", type: AccountType.ASSET, nature: AccountNature.DEBIT, parentCode: "1.1" },
-    { code: "1.2", name: "Fixed Assets", nameAr: "الأصول الثابتة", type: AccountType.ASSET, nature: AccountNature.DEBIT, parentCode: "1" },
-    { code: "2", name: "Liabilities", nameAr: "الخصوم", type: AccountType.LIABILITY, nature: AccountNature.CREDIT },
-    { code: "2.1", name: "Current Liabilities", nameAr: "الخصوم المتداولة", type: AccountType.LIABILITY, nature: AccountNature.CREDIT, parentCode: "2" },
-    { code: "2.1.1", name: "Accounts Payable", nameAr: "حسابات دائنة", type: AccountType.LIABILITY, nature: AccountNature.CREDIT, parentCode: "2.1" },
-    { code: "2.1.2", name: "VAT Payable", nameAr: "ضريبة القيمة المضافة", type: AccountType.LIABILITY, nature: AccountNature.CREDIT, parentCode: "2.1" },
-    { code: "3", name: "Equity", nameAr: "حقوق الملكية", type: AccountType.EQUITY, nature: AccountNature.CREDIT },
-    { code: "3.1", name: "Capital", nameAr: "رأس المال", type: AccountType.EQUITY, nature: AccountNature.CREDIT, parentCode: "3" },
-    { code: "3.2", name: "Retained Earnings", nameAr: "الأرباح المبقاة", type: AccountType.EQUITY, nature: AccountNature.CREDIT, parentCode: "3" },
-    { code: "4", name: "Income", nameAr: "الإيرادات", type: AccountType.INCOME, nature: AccountNature.CREDIT },
-    { code: "4.1", name: "Sales Revenue", nameAr: "إيرادات المبيعات", type: AccountType.INCOME, nature: AccountNature.CREDIT, parentCode: "4" },
-    { code: "5", name: "Expenses", nameAr: "المصروفات", type: AccountType.EXPENSE, nature: AccountNature.DEBIT },
-    { code: "5.1", name: "Cost of Goods Sold", nameAr: "تكلفة البضاعة المباعة", type: AccountType.EXPENSE, nature: AccountNature.DEBIT, parentCode: "5" },
-    { code: "5.2", name: "Operating Expenses", nameAr: "مصروفات تشغيلية", type: AccountType.EXPENSE, nature: AccountNature.DEBIT, parentCode: "5" },
+    { code: "1", name: "Assets", type: AccountType.ASSET, nature: AccountNature.DEBIT },
+    { code: "1.1", name: "Current Assets", type: AccountType.ASSET, nature: AccountNature.DEBIT, parentCode: "1" },
+    { code: "1.1.1", name: "Cash", type: AccountType.ASSET, nature: AccountNature.DEBIT, parentCode: "1.1" },
+    { code: "1.1.2", name: "Accounts Receivable", type: AccountType.ASSET, nature: AccountNature.DEBIT, parentCode: "1.1" },
+    { code: "1.1.3", name: "Inventory", type: AccountType.ASSET, nature: AccountNature.DEBIT, parentCode: "1.1" },
+    { code: "1.2", name: "Fixed Assets", type: AccountType.ASSET, nature: AccountNature.DEBIT, parentCode: "1" },
+    { code: "2", name: "Liabilities", type: AccountType.LIABILITY, nature: AccountNature.CREDIT },
+    { code: "2.1", name: "Current Liabilities", type: AccountType.LIABILITY, nature: AccountNature.CREDIT, parentCode: "2" },
+    { code: "2.1.1", name: "Accounts Payable", type: AccountType.LIABILITY, nature: AccountNature.CREDIT, parentCode: "2.1" },
+    { code: "2.1.2", name: "VAT Payable", type: AccountType.LIABILITY, nature: AccountNature.CREDIT, parentCode: "2.1" },
+    { code: "3", name: "Equity", type: AccountType.EQUITY, nature: AccountNature.CREDIT },
+    { code: "3.1", name: "Capital", type: AccountType.EQUITY, nature: AccountNature.CREDIT, parentCode: "3" },
+    { code: "3.2", name: "Retained Earnings", type: AccountType.EQUITY, nature: AccountNature.CREDIT, parentCode: "3" },
+    { code: "4", name: "Income", type: AccountType.INCOME, nature: AccountNature.CREDIT },
+    { code: "4.1", name: "Sales Revenue", type: AccountType.INCOME, nature: AccountNature.CREDIT, parentCode: "4" },
+    { code: "5", name: "Expenses", type: AccountType.EXPENSE, nature: AccountNature.DEBIT },
+    { code: "5.1", name: "Cost of Goods Sold", type: AccountType.EXPENSE, nature: AccountNature.DEBIT, parentCode: "5" },
+    { code: "5.2", name: "Operating Expenses", type: AccountType.EXPENSE, nature: AccountNature.DEBIT, parentCode: "5" },
   ];
 
   for (const a of accounts) {
@@ -89,7 +88,6 @@ async function main() {
       create: {
         code: a.code,
         name: a.name,
-        nameAr: a.nameAr,
         type: a.type,
         nature: a.nature,
         parentId: parent?.id ?? null,
@@ -104,18 +102,17 @@ async function main() {
     update: {},
     create: {
       name: "VAT 15%",
-      nameAr: "ضريبة القيمة المضافة ١٥٪",
       rate: 15,
       isDefault: true,
       organizationId: org.id,
     },
   });
 
-  const plans: { id: string; name: string; nameAr: string; tier: PlanTier; monthlyPrice: number; maxUsers: number; maxInvoices: number; maxItems: number; sortOrder: number }[] = [
-    { id: "plan-free", name: "Free", nameAr: "مجاني", tier: PlanTier.FREE, monthlyPrice: 0, maxUsers: 1, maxInvoices: 50, maxItems: 50, sortOrder: 1 },
-    { id: "plan-starter", name: "Starter", nameAr: "مبتدئ", tier: PlanTier.STARTER, monthlyPrice: 99, maxUsers: 3, maxInvoices: 500, maxItems: 200, sortOrder: 2 },
-    { id: "plan-professional", name: "Professional", nameAr: "احترافي", tier: PlanTier.PROFESSIONAL, monthlyPrice: 249, maxUsers: 10, maxInvoices: 5000, maxItems: 1000, sortOrder: 3 },
-    { id: "plan-enterprise", name: "Enterprise", nameAr: "مؤسسات", tier: PlanTier.ENTERPRISE, monthlyPrice: 999, maxUsers: 999, maxInvoices: 99999, maxItems: 99999, sortOrder: 4 },
+  const plans: { id: string; name: string; tier: PlanTier; monthlyPrice: number; maxUsers: number; maxInvoices: number; maxItems: number; sortOrder: number }[] = [
+    { id: "plan-free", name: "Free", tier: PlanTier.FREE, monthlyPrice: 0, maxUsers: 1, maxInvoices: 50, maxItems: 50, sortOrder: 1 },
+    { id: "plan-starter", name: "Starter", tier: PlanTier.STARTER, monthlyPrice: 99, maxUsers: 3, maxInvoices: 500, maxItems: 200, sortOrder: 2 },
+    { id: "plan-professional", name: "Professional", tier: PlanTier.PROFESSIONAL, monthlyPrice: 249, maxUsers: 10, maxInvoices: 5000, maxItems: 1000, sortOrder: 3 },
+    { id: "plan-enterprise", name: "Enterprise", tier: PlanTier.ENTERPRISE, monthlyPrice: 999, maxUsers: 999, maxInvoices: 99999, maxItems: 99999, sortOrder: 4 },
   ];
 
   for (const p of plans) {
@@ -173,57 +170,57 @@ async function main() {
   let employee = await prisma.employee.findFirst({ where: { organizationId: org.id } });
   if (!employee) {
     employee = await prisma.employee.create({
-      data: { name: "أحمد محمد", nameAr: "أحمد محمد", email: "ahmed@demo.com", phone: "0501234567", position: "محاسب", basicSalary: 5000, organizationId: org.id },
+      data: { name: "أحمد محمد", email: "ahmed@demo.com", phone: "0501234567", position: "محاسب", basicSalary: 5000, organizationId: org.id },
     });
   }
 
   let customer = await prisma.customer.findFirst({ where: { organizationId: org.id } });
   if (!customer) {
     customer = await prisma.customer.create({
-      data: { name: "شركة الأمل", nameAr: "شركة الأمل", email: "client@demo.com", phone: "0555000001", organizationId: org.id },
+      data: { name: "شركة الأمل", email: "client@demo.com", phone: "0555000001", organizationId: org.id },
     });
   }
 
   let vendor = await prisma.vendor.findFirst({ where: { organizationId: org.id } });
   if (!vendor) {
     vendor = await prisma.vendor.create({
-      data: { name: "مؤسسة التوريدات", nameAr: "مؤسسة التوريدات", email: "supplier@demo.com", phone: "0555000002", organizationId: org.id },
+      data: { name: "مؤسسة التوريدات", email: "supplier@demo.com", phone: "0555000002", organizationId: org.id },
     });
   }
 
   await seedIfEmpty("category", [
-    { name: "Electronics", nameAr: "إلكترونيات", type: "PRODUCT" },
-    { name: "Office Supplies", nameAr: "لوازم مكتبية", type: "EXPENSE" },
-    { name: "Furniture", nameAr: "أثاث", type: "ASSET" },
+    { name: "Electronics", type: "PRODUCT" },
+    { name: "Office Supplies", type: "EXPENSE" },
+    { name: "Furniture", type: "ASSET" },
   ]);
   await seedIfEmpty("unitOfMeasure", [
-    { name: "Piece", nameAr: "قطعة", symbol: "pc", precision: 0 },
-    { name: "Kilogram", nameAr: "كيلو جرام", symbol: "kg", precision: 2 },
-    { name: "Hour", nameAr: "ساعة", symbol: "hr", precision: 1 },
+    { name: "Piece", symbol: "pc", precision: 0 },
+    { name: "Kilogram", symbol: "kg", precision: 2 },
+    { name: "Hour", symbol: "hr", precision: 1 },
   ]);
   await seedIfEmpty("paymentTerm", [
-    { name: "Net 30", nameAr: "30 يوم", dueDays: 30 },
-    { name: "Net 60", nameAr: "60 يوم", dueDays: 60 },
-    { name: "Cash on Delivery", nameAr: "الدفع عند التسليم", dueDays: 0 },
+    { name: "Net 30", dueDays: 30 },
+    { name: "Net 60", dueDays: 60 },
+    { name: "Cash on Delivery", dueDays: 0 },
   ]);
   await seedIfEmpty("branch", [
-    { name: "Main Branch", nameAr: "الفرع الرئيسي", code: "HQ", address: "Riyadh", phone: "0112223333" },
-    { name: "Branch 2", nameAr: "الفرع الثاني", code: "BR2", address: "Jeddah", phone: "0124445555" },
+    { name: "Main Branch", code: "HQ", address: "Riyadh", phone: "0112223333" },
+    { name: "Branch 2", code: "BR2", address: "Jeddah", phone: "0124445555" },
   ]);
   await seedIfEmpty("fixedAsset", [
-    { code: "FIX-001", category: "ASSET", name: "Office Building", nameAr: "مبنى مكتبي", purchaseCost: 500000, salvageValue: 50000, usefulLifeYears: 25, bookValue: 450000, accumulatedDepreciation: 50000, purchaseDate: new Date("2020-01-01"), status: "ACTIVE" },
-    { code: "FIX-002", category: "ASSET", name: "Delivery Van", nameAr: "سيارة توصيل", purchaseCost: 120000, salvageValue: 20000, usefulLifeYears: 5, bookValue: 40000, accumulatedDepreciation: 80000, purchaseDate: new Date("2021-06-15"), status: "ACTIVE" },
-    { code: "FIX-003", category: "ASSET", name: "Old Server", nameAr: "خادم قديم", purchaseCost: 30000, salvageValue: 0, usefulLifeYears: 3, bookValue: 0, accumulatedDepreciation: 30000, purchaseDate: new Date("2019-03-01"), status: "DISPOSED" },
-    { code: "FIX-004", category: "ASSET", name: "Printer (Transferred)", nameAr: "طابعة (منقولة)", purchaseCost: 8000, salvageValue: 500, usefulLifeYears: 4, bookValue: 4500, accumulatedDepreciation: 3500, purchaseDate: new Date("2022-01-01"), status: "TRANSFERRED" },
+    { code: "FIX-001", category: "ASSET", name: "Office Building", purchaseCost: 500000, salvageValue: 50000, usefulLifeYears: 25, bookValue: 450000, accumulatedDepreciation: 50000, purchaseDate: new Date("2020-01-01"), status: "ACTIVE" },
+    { code: "FIX-002", category: "ASSET", name: "Delivery Van", purchaseCost: 120000, salvageValue: 20000, usefulLifeYears: 5, bookValue: 40000, accumulatedDepreciation: 80000, purchaseDate: new Date("2021-06-15"), status: "ACTIVE" },
+    { code: "FIX-003", category: "ASSET", name: "Old Server", purchaseCost: 30000, salvageValue: 0, usefulLifeYears: 3, bookValue: 0, accumulatedDepreciation: 30000, purchaseDate: new Date("2019-03-01"), status: "DISPOSED" },
+    { code: "FIX-004", category: "ASSET", name: "Printer (Transferred)", purchaseCost: 8000, salvageValue: 500, usefulLifeYears: 4, bookValue: 4500, accumulatedDepreciation: 3500, purchaseDate: new Date("2022-01-01"), status: "TRANSFERRED" },
   ]);
 
   if (await prisma.warehouse.count({ where: { organizationId: org.id } }) === 0) {
-    await prisma.warehouse.create({ data: { name: "Main Warehouse", nameAr: "المستودع الرئيسي", organizationId: org.id } });
+    await prisma.warehouse.create({ data: { name: "Main Warehouse", organizationId: org.id } });
   }
   await seedIfEmpty("item", [
-    { name: "Laptop Dell XPS", nameAr: "لابتوب ديل XPS", sku: "LAP-001", sellingPrice: 4500, costPrice: 3800, currentStock: 10, minStock: 3, active: true },
-    { name: "Office Chair", nameAr: "كرسي مكتب", sku: "CHR-001", sellingPrice: 850, costPrice: 600, currentStock: 25, minStock: 5, active: true },
-    { name: "USB Cable", nameAr: "كابل USB", sku: "USB-001", sellingPrice: 25, costPrice: 15, currentStock: 100, minStock: 20, active: true },
+    { name: "Laptop Dell XPS", sku: "LAP-001", sellingPrice: 4500, costPrice: 3800, currentStock: 10, minStock: 3, active: true },
+    { name: "Office Chair", sku: "CHR-001", sellingPrice: 850, costPrice: 600, currentStock: 25, minStock: 5, active: true },
+    { name: "USB Cable", sku: "USB-001", sellingPrice: 25, costPrice: 15, currentStock: 100, minStock: 20, active: true },
   ]);
 
   // Sales Invoice + PaymentReceipt (customer receipt)
@@ -294,10 +291,10 @@ async function main() {
   // Project + Tasks
   if (await prisma.project.count({ where: { organizationId: org.id } }) === 0) {
     const proj1 = await prisma.project.create({
-      data: { name: "ERP Implementation", nameAr: "تنفيذ نظام ERP", description: "Full ERP system rollout for Q4", startDate: new Date("2026-01-01"), endDate: new Date("2026-06-30"), status: "ACTIVE", budget: 50000, progress: 40, organizationId: org.id },
+      data: { name: "ERP Implementation", description: "Full ERP system rollout for Q4", startDate: new Date("2026-01-01"), endDate: new Date("2026-06-30"), status: "ACTIVE", budget: 50000, progress: 40, organizationId: org.id },
     });
     await prisma.project.create({
-      data: { name: "Office Relocation", nameAr: "نقل المكتب", description: "Moving to new headquarters", status: "PLANNING", budget: 15000, progress: 0, organizationId: org.id },
+      data: { name: "Office Relocation", description: "Moving to new headquarters", status: "PLANNING", budget: 15000, progress: 0, organizationId: org.id },
     });
     await prisma.task.create({ data: { title: "Requirements gathering", description: "Collect requirements from all departments", projectId: proj1.id, priority: "HIGH", status: "DONE", estimatedHours: 40, actualHours: 38, organizationId: org.id } });
     await prisma.task.create({ data: { title: "System configuration", description: "Configure ERP modules", projectId: proj1.id, assigneeId: adminUser?.id, priority: "HIGH", status: "IN_PROGRESS", estimatedHours: 80, actualHours: 30, dueDate: new Date("2026-04-01"), organizationId: org.id } });

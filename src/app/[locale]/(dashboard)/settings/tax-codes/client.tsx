@@ -19,7 +19,7 @@ export function TaxCodesClient({ taxCodes }: Props) {
   const router = useRouter();
   const t = useTranslations("taxCodes");
   const [showAdd, setShowAdd] = useState(false);
-  const [form, setForm] = useState({ name: "", nameAr: "", rate: "", isDefault: false });
+  const [form, setForm] = useState({ name: "", rate: "", isDefault: false });
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -62,7 +62,6 @@ export function TaxCodesClient({ taxCodes }: Props) {
       <Dialog open={showAdd} onClose={() => setShowAdd(false)} title={t("dialogTitle")}>
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input label={t("name")} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
-          <Input label={t("nameAr")} value={form.nameAr} onChange={(e) => setForm({ ...form, nameAr: e.target.value })} />
           <Input label={t("ratePct")} type="number" value={form.rate} onChange={(e) => setForm({ ...form, rate: e.target.value })} required />
           <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" checked={form.isDefault} onChange={(e) => setForm({ ...form, isDefault: e.target.checked })} />

@@ -11,7 +11,7 @@ import { Plus, Trash2 } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 
-type Account = { id: string; code: string; name: string; nameAr: string | null };
+type Account = { id: string; code: string; name: string };
 type FiscalYear = { id: string; name: string };
 
 export default function NewJournalEntryClient({ accounts, fiscalYears }: { accounts: Account[]; fiscalYears: FiscalYear[] }) {
@@ -38,7 +38,7 @@ export default function NewJournalEntryClient({ accounts, fiscalYears }: { accou
   const totalCredit = form.lines.reduce((s, l) => s + Number(l.credit), 0);
   const isBalanced = Math.abs(totalDebit - totalCredit) < 0.01;
 
-  const accountOpts = accounts.map((a) => ({ value: a.id, label: `${a.code} - ${a.nameAr ?? a.name}` }));
+  const accountOpts = accounts.map((a) => ({ value: a.id, label: `${a.code} - ${a.name}` }));
   const fiscalYearOpts = fiscalYears.map((fy) => ({ value: fy.id, label: fy.name }));
 
   async function handleSubmit(status: string) {

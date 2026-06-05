@@ -10,7 +10,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   const existing = await prisma.unitOfMeasure.findFirst({ where: { id, organizationId: session.user.organizationId } });
   if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
   const body = await req.json();
-  const unit = await prisma.unitOfMeasure.update({ where: { id }, data: { name: body.name ?? existing.name, nameAr: body.nameAr ?? existing.nameAr, symbol: body.symbol ?? existing.symbol, precision: body.precision ?? existing.precision, active: body.active ?? existing.active } });
+  const unit = await prisma.unitOfMeasure.update({ where: { id }, data: { name: body.name ?? existing.name, symbol: body.symbol ?? existing.symbol, precision: body.precision ?? existing.precision, active: body.active ?? existing.active } });
   return NextResponse.json(unit);
 }
 

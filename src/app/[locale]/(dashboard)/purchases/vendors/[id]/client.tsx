@@ -21,7 +21,6 @@ type PurchaseInvoice = {
 type Vendor = {
   id: string;
   name: string;
-  nameAr: string | null;
   email: string | null;
   phone: string | null;
   mobile: string | null;
@@ -40,7 +39,6 @@ export function VendorDetailClient({ vendor }: Props) {
   const [showEdit, setShowEdit] = useState(false);
   const [form, setForm] = useState({
     name: vendor.name,
-    nameAr: vendor.nameAr ?? "",
     email: vendor.email ?? "",
     phone: vendor.phone ?? "",
     mobile: vendor.mobile ?? "",
@@ -99,12 +97,6 @@ export function VendorDetailClient({ vendor }: Props) {
               <dt className="text-gray-500 dark:text-gray-400">{t("name")}</dt>
               <dd className="font-medium">{vendor.name}</dd>
             </div>
-            {vendor.nameAr && (
-              <div className="flex justify-between">
-                <dt className="text-gray-500 dark:text-gray-400">{t("nameAr")}</dt>
-                <dd className="font-medium">{vendor.nameAr}</dd>
-              </div>
-            )}
             <div className="flex justify-between">
               <dt className="text-gray-500 dark:text-gray-400">{t("email")}</dt>
               <dd className="font-medium">{vendor.email ?? "-"}</dd>
@@ -171,7 +163,6 @@ export function VendorDetailClient({ vendor }: Props) {
       <Dialog open={showEdit} onClose={() => setShowEdit(false)} title={t("editVendor")}>
         <form onSubmit={handleUpdate} className="space-y-4">
           <Input label={t("name")} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
-          <Input label={t("nameAr")} value={form.nameAr} onChange={(e) => setForm({ ...form, nameAr: e.target.value })} />
           <Input label={t("email")} type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
           <Input label={t("phone")} value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
           <Input label={t("mobile")} value={form.mobile} onChange={(e) => setForm({ ...form, mobile: e.target.value })} />

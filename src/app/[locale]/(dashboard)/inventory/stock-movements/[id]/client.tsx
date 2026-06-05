@@ -11,8 +11,8 @@ import { formatCurrency, formatDate } from "@/lib/utils";
 type StockMovement = {
   id: string; type: string; quantity: number; unitCost: number; totalCost: number;
   reference: string | null; description: string | null; createdAt: Date;
-  item: { name: string; nameAr: string | null; sku: string | null };
-  warehouse: { name: string; nameAr: string | null };
+  item: { name: string; sku: string | null };
+  warehouse: { name: string };
   createdBy: { name: string } | null;
 };
 
@@ -42,8 +42,8 @@ export function StockMovementViewClient({ movement }: Props) {
 
       <div className="grid grid-cols-2 gap-6">
         <div className="rounded-lg border p-4 space-y-2 text-sm">
-          <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">{t("item")}</span><span className="font-semibold">{movement.item.nameAr ?? movement.item.name} ({movement.item.sku ?? "-"})</span></div>
-          <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">{t("warehouse")}</span><span>{movement.warehouse.nameAr ?? movement.warehouse.name}</span></div>
+          <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">{t("item")}</span><span className="font-semibold">{movement.item.name} ({movement.item.sku ?? "-"})</span></div>
+          <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">{t("warehouse")}</span><span>{movement.warehouse.name}</span></div>
           <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">{t("date")}</span><span>{formatDate(new Date(movement.createdAt))}</span></div>
         </div>
         <div className="rounded-lg border p-4 space-y-2 text-sm">

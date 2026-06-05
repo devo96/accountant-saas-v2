@@ -22,7 +22,6 @@ export async function POST(req: Request) {
     data: {
       code: body.code,
       name: body.name,
-      nameAr: body.nameAr || null,
       symbol: body.symbol,
       exchangeRate: Number(body.exchangeRate) ?? 1,
       isBase: body.isBase ?? false,

@@ -29,7 +29,6 @@ export async function POST(req: Request) {
   const dimension = await prisma.accountingDimension.create({
     data: {
       name: body.name,
-      nameAr: body.nameAr || null,
       organizationId: session.user.organizationId,
     },
   });

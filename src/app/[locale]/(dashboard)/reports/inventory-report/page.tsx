@@ -20,7 +20,7 @@ export default async function InventoryReportPage() {
     prisma.item.findMany({
       where: { organizationId: orgId, active: true },
       orderBy: { name: "asc" },
-      select: { id: true, name: true, nameAr: true, sku: true, currentStock: true, costPrice: true, unit: true },
+      select: { id: true, name: true, sku: true, currentStock: true, costPrice: true, unit: true },
     }),
     prisma.warehouse.findMany({
       where: { organizationId: orgId, active: true },

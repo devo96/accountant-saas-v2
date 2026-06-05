@@ -60,7 +60,6 @@ enum PaymentMethod {
 model Organization {
   id          String   @id @default(uuid())
   name        String
-  nameAr      String?
   email       String?
   phone       String?
   address     String?
@@ -133,7 +132,6 @@ enum OrgPlanStatus {
 model Plan {
   id          String    @id @default(uuid())
   name        String
-  nameAr      String?
   tier        PlanTier  @default(FREE)
   monthlyPrice Decimal  @default(0)
   yearlyPrice  Decimal  @default(0)
@@ -317,7 +315,6 @@ model Account {
   id             String      @id @default(uuid())
   code           String
   name           String
-  nameAr         String?
   type           AccountType
   nature         AccountNature
   parentId       String?
@@ -345,7 +342,6 @@ model Currency {
   id             String   @id @default(uuid())
   code           String
   name           String
-  nameAr         String?
   symbol         String
   exchangeRate   Decimal  @default(1)
   isBase         Boolean  @default(false)
@@ -364,7 +360,6 @@ model Currency {
 model TaxCode {
   id             String   @id @default(uuid())
   name           String
-  nameAr         String?
   rate           Decimal 
   isDefault      Boolean  @default(false)
   organizationId String
@@ -398,7 +393,6 @@ model FiscalYear {
 model AccountingDimension {
   id             String   @id @default(uuid())
   name           String
-  nameAr         String?
   organizationId String
   createdAt      DateTime @default(now())
 
@@ -464,7 +458,6 @@ model JournalEntryLine {
 model Customer {
   id             String   @id @default(uuid())
   name           String
-  nameAr         String?
   email          String?
   phone          String?
   mobile         String?
@@ -489,7 +482,6 @@ model Customer {
 model Vendor {
   id             String   @id @default(uuid())
   name           String
-  nameAr         String?
   email          String?
   phone          String?
   mobile         String?
@@ -513,7 +505,6 @@ model Vendor {
 model Item {
   id             String   @id @default(uuid())
   name           String
-  nameAr         String?
   sku            String?
   barcode        String?
   type           String   @default("PRODUCT")
@@ -541,7 +532,6 @@ model Item {
 model Warehouse {
   id             String   @id @default(uuid())
   name           String
-  nameAr         String?
   address        String?
   organizationId String
   active         Boolean  @default(true)
@@ -895,7 +885,6 @@ model ExpenseLine {
 model BankAccount {
   id             String   @id @default(uuid())
   name           String
-  nameAr         String?
   accountNumber  String?
   iban           String?
   bankName       String
@@ -948,7 +937,6 @@ model BankReconciliation {
 model Employee {
   id             String   @id @default(uuid())
   name           String
-  nameAr         String?
   email          String?
   phone          String?
   position       String?
@@ -1044,7 +1032,6 @@ model FixedAsset {
   organizationId  String
   code            String
   name            String
-  nameAr          String?
   category        String
   purchaseDate    DateTime
   purchaseCost    Decimal
@@ -1069,7 +1056,6 @@ model Category {
   id             String   @id @default(uuid())
   organizationId String
   name           String
-  nameAr         String?
   type           String   @default("PRODUCT")
   description    String?
   parentId       String?
@@ -1087,7 +1073,6 @@ model UnitOfMeasure {
   id             String   @id @default(uuid())
   organizationId String
   name           String
-  nameAr         String?
   symbol         String   @default("")
   precision      Int      @default(0)
   active         Boolean  @default(true)
@@ -1103,7 +1088,6 @@ model PaymentTerm {
   id                  String   @id @default(uuid())
   organizationId      String
   name                String
-  nameAr              String?
   dueDays             Int      @default(30)
   discountDays        Int      @default(0)
   discountPercent     Decimal  @default(0)
@@ -1122,7 +1106,6 @@ model Branch {
   id             String   @id @default(uuid())
   organizationId String
   name           String
-  nameAr         String?
   code           String   @default("")
   address        String?
   phone          String?
@@ -1201,7 +1184,6 @@ model Project {
   id             String   @id @default(uuid())
   organizationId String
   name           String
-  nameAr         String?
   description    String?
   startDate      DateTime?
   endDate        DateTime?

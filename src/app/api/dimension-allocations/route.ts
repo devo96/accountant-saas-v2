@@ -16,7 +16,7 @@ export async function GET(req: Request) {
   const where: Record<string, string> = { dimensionId: dimensionId ?? "" };
   const allocations = await prisma.dimensionAllocation.findMany({
     where: { ...where, account: { organizationId: session.user.organizationId } },
-    include: { account: { select: { id: true, code: true, name: true, nameAr: true } } },
+    include: { account: { select: { id: true, code: true, name: true } } },
   });
 
   return NextResponse.json(allocations.map((a) => ({ ...a, percentage: Number(a.percentage) })));
@@ -35,7 +35,7 @@ export async function POST(req: Request) {
       dimensionId: body.dimensionId,
       percentage: Number(body.percentage),
     },
-    include: { account: { select: { id: true, code: true, name: true, nameAr: true } } },
+    include: { account: { select: { id: true, code: true, name: true } } },
   });
 
   await createAuditLog({

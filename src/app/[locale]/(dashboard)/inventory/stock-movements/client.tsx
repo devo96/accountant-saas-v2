@@ -16,8 +16,8 @@ import { useState } from "react";
 
 type StockMovement = {
   id: string;
-  item: { name: string; nameAr: string | null; sku: string | null };
-  warehouse: { name: string; nameAr: string | null };
+  item: { name: string; sku: string | null };
+  warehouse: { name: string };
   type: string;
   quantity: number;
   unitCost: number;
@@ -27,8 +27,8 @@ type StockMovement = {
   createdAt: Date;
 };
 
-type Item = { id: string; name: string; nameAr: string | null; sku: string | null };
-type Warehouse = { id: string; name: string; nameAr: string | null };
+type Item = { id: string; name: string; sku: string | null };
+type Warehouse = { id: string; name: string };
 
 type Props = { movements: StockMovement[]; items: Item[]; warehouses: Warehouse[] };
 
@@ -62,8 +62,8 @@ export function StockMovementsClient({ movements, items, warehouses }: Props) {
     }
   }
 
-  const itemOpts = items.map((i) => ({ value: i.id, label: `${i.sku ?? ""} ${i.nameAr ?? i.name}`.trim() }));
-  const warehouseOpts = warehouses.map((w) => ({ value: w.id, label: w.nameAr ?? w.name }));
+  const itemOpts = items.map((i) => ({ value: i.id, label: `${i.sku ?? ""} ${i.name}`.trim() }));
+  const warehouseOpts = warehouses.map((w) => ({ value: w.id, label: w.name }));
   const typeOpts = [
     { value: "PURCHASE_RECEIPT", label: t("typePURCHASE_RECEIPT") },
     { value: "SALES_DELIVERY", label: t("typeSALES_DELIVERY") },
@@ -74,8 +74,8 @@ export function StockMovementsClient({ movements, items, warehouses }: Props) {
 
   const columns = [
     { key: "date", label: t("date"), render: (m: StockMovement) => formatDate(new Date(m.createdAt)) },
-    { key: "item", label: t("item"), render: (m: StockMovement) => `${m.item.nameAr ?? m.item.name} (${m.item.sku ?? "-"})` },
-    { key: "warehouse", label: t("warehouse"), render: (m: StockMovement) => m.warehouse.nameAr ?? m.warehouse.name },
+    { key: "item", label: t("item"), render: (m: StockMovement) => `${m.item.name} (${m.item.sku ?? "-"})` },
+    { key: "warehouse", label: t("warehouse"), render: (m: StockMovement) => m.warehouse.name },
     { key: "type", label: t("type"), render: (m: StockMovement) => <Badge variant={typeColors[m.type] || "outline"}>{t("type" + m.type)}</Badge> },
     { key: "quantity", label: t("quantity") },
     { key: "unitCost", label: t("unitCost"), render: (m: StockMovement) => formatCurrency(m.unitCost) },

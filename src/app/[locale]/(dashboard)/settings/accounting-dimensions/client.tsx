@@ -14,7 +14,6 @@ import { Plus, Percent } from "lucide-react";
 interface Dimension {
   id: string;
   name: string;
-  nameAr: string | null;
   _count: { allocations: number };
 }
 
@@ -22,7 +21,6 @@ interface Account {
   id: string;
   code: string;
   name: string;
-  nameAr: string | null;
 }
 
 interface Allocation {
@@ -30,7 +28,7 @@ interface Allocation {
   accountId: string;
   dimensionId: string;
   percentage: number;
-  account: { id: string; code: string; name: string; nameAr: string | null };
+  account: { id: string; code: string; name: string };
 }
 
 type Props = {
@@ -47,14 +45,14 @@ export function AccountingDimensionsClient({ dimensions: initialDimensions, acco
   const [allocDim, setAllocDim] = useState<Dimension | null>(null);
   const [allocations, setAllocations] = useState<Allocation[]>([]);
 
-  const [form, setForm] = useState({ name: "", nameAr: "" });
+  const [form, setForm] = useState({ name: "" });
   const [saving, setSaving] = useState(false);
 
   const [allocForm, setAllocForm] = useState({ accountId: "", percentage: "" });
   const [allocSaving, setAllocSaving] = useState(false);
 
   const filtered = useMemo(
-    () => dimensions.filter((d) => d.name.toLowerCase().includes(search.toLowerCase()) || (d.nameAr && d.nameAr.includes(search))),
+    () => dimensions.filter((d) => d.name.toLowerCase().includes(search.toLowerCase())),
     [dimensions, search]
   );
 
@@ -69,7 +67,7 @@ export function AccountingDimensionsClient({ dimensions: initialDimensions, acco
     if (res.ok) {
       const created = await res.json();
       setDimensions([...dimensions, { ...created, _count: { allocations: 0 } }]);
-      setForm({ name: "", nameAr: "" });
+      setForm({ name: "" });
       setShowAdd(false);
       router.refresh();
     }
@@ -114,7 +112,6 @@ export function AccountingDimensionsClient({ dimensions: initialDimensions, acco
         searchPlaceholder={t.searchPlaceholder}
         columns={[
           { key: "name", label: t.name },
-          { key: "nameAr", label: t.nameAr, render: (d) => (d as unknown as Dimension).nameAr ?? "—" },
           { key: "allocations", label: t.accountsCount, render: (d) => <Badge variant="outline">{(d as unknown as Dimension)._count.allocations}</Badge> },
           { key: "actions", label: "", render: (d) => <Button variant="ghost" size="sm" onClick={() => openAllocations(d as unknown as Dimension)}><Percent className="h-4 w-4" /></Button> },
         ]}
@@ -125,7 +122,6 @@ export function AccountingDimensionsClient({ dimensions: initialDimensions, acco
       <Dialog open={showAdd} onClose={() => setShowAdd(false)} title={t.dialogTitle}>
         <div className="space-y-4">
           <Input label={t.name} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
-          <Input label={t.nameAr} value={form.nameAr} onChange={(e) => setForm({ ...form, nameAr: e.target.value })} />
           <div className="flex justify-end gap-3 pt-2">
             <Button type="button" variant="outline" onClick={() => setShowAdd(false)}>{t.cancel}</Button>
             <Button onClick={createDimension} disabled={saving}>{saving ? t.saving : t.save}</Button>

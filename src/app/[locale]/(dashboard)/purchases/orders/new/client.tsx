@@ -10,7 +10,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 
-type Vendor = { id: string; name: string; nameAr: string | null };
+type Vendor = { id: string; name: string };
 
 export default function NewPurchaseOrderClient({ vendors }: { vendors: Vendor[] }) {
   const router = useRouter();
@@ -27,7 +27,7 @@ export default function NewPurchaseOrderClient({ vendors }: { vendors: Vendor[] 
     notes: "",
   });
 
-  const vendorOpts = vendors.map((v) => ({ value: v.id, label: v.nameAr ?? v.name }));
+  const vendorOpts = vendors.map((v) => ({ value: v.id, label: v.name }));
 
   async function handleSubmit() {
     setSubmitting(true);

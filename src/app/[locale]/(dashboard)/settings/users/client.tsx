@@ -230,13 +230,15 @@ export function UsersSettingsClient({ users: initialUsers, currentUserId }: Prop
       </Dialog>
 
       <Dialog open={!!deleting} onClose={() => setDeleting(null)} title={t("deleteUser")}>
+        {deleting && (
         <div className="space-y-4">
-          <p className="text-sm text-gray-600">{t("deleteConfirm", { name: deleting!.name })}</p>
+          <p className="text-sm text-gray-600">{t("deleteConfirm", { name: deleting.name })}</p>
           <div className="flex justify-end gap-3 pt-2">
             <Button type="button" variant="outline" onClick={() => setDeleting(null)}>{t("cancel")}</Button>
             <Button className="bg-red-600 hover:bg-red-700" onClick={deleteUser}>{t("delete")}</Button>
           </div>
         </div>
+        )}
       </Dialog>
     </div>
     </FadeIn>

@@ -14,7 +14,6 @@ import { useTranslations } from "next-intl";
 type Customer = {
   id: string;
   name: string;
-  nameAr: string | null;
   email: string | null;
   phone: string | null;
   mobile: string | null;
@@ -30,7 +29,7 @@ export function CustomersClient({ customers }: Props) {
   const router = useRouter();
   const t = useTranslations("customers");
   const [showAdd, setShowAdd] = useState(false);
-  const [form, setForm] = useState({ name: "", nameAr: "", email: "", phone: "", mobile: "", address: "", taxNumber: "", creditLimit: "" });
+  const [form, setForm] = useState({ name: "", email: "", phone: "", mobile: "", address: "", taxNumber: "", creditLimit: "" });
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -75,7 +74,6 @@ export function CustomersClient({ customers }: Props) {
       <Dialog open={showAdd} onClose={() => setShowAdd(false)} title={t("dialogTitle")}>
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input label={t("name")} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
-          <Input label={t("nameAr")} value={form.nameAr} onChange={(e) => setForm({ ...form, nameAr: e.target.value })} />
           <Input label={t("email")} type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
           <Input label={t("phone")} value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
           <Input label={t("mobile")} value={form.mobile} onChange={(e) => setForm({ ...form, mobile: e.target.value })} />

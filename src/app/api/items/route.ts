@@ -28,7 +28,6 @@ export async function POST(req: Request) {
   const item = await prisma.item.create({
     data: {
       name: body.name,
-      nameAr: body.nameAr || null,
       sku: body.sku || null,
       barcode: body.barcode || null,
       type: body.type ?? "PRODUCT",
