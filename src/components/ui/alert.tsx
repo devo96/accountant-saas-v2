@@ -30,7 +30,7 @@ export function Alert({ variant = "info", title, children, dismissible, onDismis
         <div className="text-sm opacity-90">{children}</div>
       </div>
       {dismissible && (
-        <button onClick={onDismiss} className="flex-shrink-0 opacity-60 hover:opacity-100 transition-opacity self-start">
+        <button onClick={onDismiss} aria-label="Dismiss alert" className="flex-shrink-0 opacity-60 hover:opacity-100 transition-opacity self-start">
           <X className="h-4 w-4" />
         </button>
       )}

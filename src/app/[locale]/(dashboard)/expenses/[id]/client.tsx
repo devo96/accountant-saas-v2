@@ -11,6 +11,7 @@ import { useRouter } from "@/i18n/navigation";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Dialog } from "@/components/ui/dialog";
+import { formatCurrency } from "@/lib/utils";
 
 type ExpenseLine = { id: string; amount: number; account: { code: string; name: string }; taxCode: { name: string; rate: number } | null };
 type Expense = {
@@ -95,7 +96,7 @@ export function ExpenseViewClient({ expense: initial }: Props) {
           <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">{t("date")}</span><span>{new Date(initial.date).toLocaleDateString()}</span></div>
           <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">{t("description")}</span><span>{initial.description}</span></div>
           <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">{t("category")}</span><span>{initial.category ?? "-"}</span></div>
-          <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">{t("amount")}</span><span className="font-bold">﷼ {initial.amount.toLocaleString()}</span></div>
+          <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">{t("amount")}</span><span className="font-bold">{formatCurrency(initial.amount)}</span></div>
           <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">{t("paymentMethod")}</span><span>{t(paymentMethodLabels[initial.paymentMethod] || initial.paymentMethod)}</span></div>
         </div>
         <div className="rounded-lg border p-4 space-y-2 text-sm">
@@ -118,7 +119,7 @@ export function ExpenseViewClient({ expense: initial }: Props) {
               {initial.lines.map((line) => (
                 <TableRow key={line.id}>
                   <TableCell className="text-sm">{line.account.code} - {line.account.name}</TableCell>
-                  <TableCell className="text-right font-mono">﷼ {line.amount.toFixed(2)}</TableCell>
+                  <TableCell className="text-right font-mono">{formatCurrency(line.amount)}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

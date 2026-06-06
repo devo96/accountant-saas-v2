@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "./button";
+import { useTranslations } from "next-intl";
 
 type PaginationProps = {
   page: number;
@@ -13,11 +14,12 @@ type PaginationProps = {
 };
 
 export function Pagination({ page, pages, onChange, total, className }: PaginationProps) {
+  const t = useTranslations("common");
   if (pages <= 1) return null;
 
   return (
     <div className={cn("flex items-center justify-between", className)}>
-      {total !== undefined && <span className="text-sm text-gray-500 dark:text-gray-400">{total} records</span>}
+      {total !== undefined && <span className="text-sm text-gray-500 dark:text-gray-400">{t("records", { count: total })}</span>}
       <div className="flex gap-1">
         <Button variant="outline" size="sm" disabled={page === 0} onClick={() => onChange(page - 1)}>
           <ChevronRight className="h-4 w-4" />

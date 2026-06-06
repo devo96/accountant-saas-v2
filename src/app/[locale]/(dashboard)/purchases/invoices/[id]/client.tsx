@@ -10,6 +10,7 @@ import { ArrowLeft, Edit2, Plus, Trash2, Upload } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
 import { useState, useMemo } from "react";
 import { useTranslations } from "next-intl";
+import { formatCurrency } from "@/lib/utils";
 import { ZatcaBadge, ZatcaQrCode } from "@/components/zatca";
 
 type Line = {
@@ -126,7 +127,7 @@ export function PurchaseInvoiceViewClient({ invoice: initial, vendors, items, ta
 
   if (editing) {
     const vendorOpts = vendors.map((v) => ({ value: v.id, label: v.name }));
-    const itemOpts = items.filter((i) => i.type === "PRODUCT" || i.type === "SERVICE").map((i) => ({ value: i.id, label: `${i.name} - ﷼${i.costPrice}` }));
+    const itemOpts = items.filter((i) => i.type === "PRODUCT" || i.type === "SERVICE").map((i) => ({ value: i.id, label: `${i.name} - ${formatCurrency(i.costPrice)}` }));
     const taxOpts = taxCodes.map((t) => ({ value: t.id, label: `${t.name} (${t.rate}%)` }));
 
     return (
@@ -155,16 +156,16 @@ export function PurchaseInvoiceViewClient({ invoice: initial, vendors, items, ta
                 <Input type="number" placeholder={t("price")} className="w-24" value={line.unitPrice} onChange={(e) => updateLine(line.key!, "unitPrice", Number(e.target.value))} />
                 <Input type="number" placeholder={t("discPct")} className="w-20" value={line.discountPercent} onChange={(e) => updateLine(line.key!, "discountPercent", Number(e.target.value))} />
                 <div className="w-28"><Select placeholder={t("tax")} options={taxOpts} value={line.taxCodeId ?? ""} onChange={(e) => updateLine(line.key!, "taxCodeId", e.target.value)} /></div>
-                <div className="w-24 text-right pt-2 font-mono text-sm">﷼ {(line.quantity * line.unitPrice - line.quantity * line.unitPrice * line.discountPercent / 100 + (line.quantity * line.unitPrice - line.quantity * line.unitPrice * line.discountPercent / 100) * line.taxRate / 100).toFixed(2)}</div>
+                <div className="w-24 text-right pt-2 font-mono text-sm">{formatCurrency(line.quantity * line.unitPrice - line.quantity * line.unitPrice * line.discountPercent / 100 + (line.quantity * line.unitPrice - line.quantity * line.unitPrice * line.discountPercent / 100) * line.taxRate / 100)}</div>
                 <Button type="button" variant="ghost" onClick={() => removeLine(line.key!)} className="text-red-500 mt-1"><Trash2 className="h-4 w-4" /></Button>
               </div>
             ))}
           </div>
           <div className="p-4 border-t dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 space-y-1 text-sm">
-            <div className="flex justify-between"><span>{t("subtotal")}</span><span className="font-mono">﷼ {calcSubtotal.toFixed(2)}</span></div>
-            {calcDiscount > 0 && <div className="flex justify-between text-red-600"><span>{t("discount")}</span><span className="font-mono">-﷼ {calcDiscount.toFixed(2)}</span></div>}
-            <div className="flex justify-between"><span>{t("tax")}</span><span className="font-mono">﷼ {calcTax.toFixed(2)}</span></div>
-            <div className="flex justify-between font-bold text-lg border-t dark:border-gray-700 pt-1"><span>{t("total")}</span><span className="font-mono">﷼ {calcTotal.toFixed(2)}</span></div>
+            <div className="flex justify-between"><span>{t("subtotal")}</span><span className="font-mono">{formatCurrency(calcSubtotal)}</span></div>
+            {calcDiscount > 0 && <div className="flex justify-between text-red-600"><span>{t("discount")}</span><span className="font-mono">{formatCurrency(-calcDiscount)}</span></div>}
+            <div className="flex justify-between"><span>{t("tax")}</span><span className="font-mono">{formatCurrency(calcTax)}</span></div>
+            <div className="flex justify-between font-bold text-lg border-t dark:border-gray-700 pt-1"><span>{t("total")}</span><span className="font-mono">{formatCurrency(calcTotal)}</span></div>
           </div>
         </div>
         <Input label={t("notes")} value={notes} onChange={(e) => setNotes(e.target.value)} />
@@ -205,9 +206,9 @@ export function PurchaseInvoiceViewClient({ invoice: initial, vendors, items, ta
         <div className="rounded-lg border p-4 space-y-1 text-sm">
           <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">{t("invoiceDate")}</span><span>{new Date(inv.invoiceDate).toLocaleDateString()}</span></div>
           {inv.dueDate && <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">{t("dueDate")}</span><span>{new Date(inv.dueDate).toLocaleDateString()}</span></div>}
-          <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">{t("total")}</span><span className="font-bold">﷼ {inv.total.toLocaleString()}</span></div>
-          <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">{t("paid")}</span><span className="font-semibold text-green-600">﷼ {inv.paidAmount.toLocaleString()}</span></div>
-          {inv.total - inv.paidAmount > 0 && <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">{t("balance")}</span><span className="font-semibold text-red-600">﷼ {(inv.total - inv.paidAmount).toLocaleString()}</span></div>}
+          <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">{t("total")}</span><span className="font-bold">{formatCurrency(inv.total)}</span></div>
+          <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">{t("paid")}</span><span className="font-semibold text-green-600">{formatCurrency(inv.paidAmount)}</span></div>
+          {inv.total - inv.paidAmount > 0 && <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">{t("balance")}</span><span className="font-semibold text-red-600">{formatCurrency(inv.total - inv.paidAmount)}</span></div>}
         </div>
         {inv.status !== "DRAFT" && inv.status !== "CANCELLED" && (
           <div className="rounded-lg border p-4">
@@ -244,20 +245,20 @@ export function PurchaseInvoiceViewClient({ invoice: initial, vendors, items, ta
                 <TableCell className="text-sm">{line.itemId ? items.find((i) => i.id === line.itemId)?.name ?? "-" : "-"}</TableCell>
                 <TableCell className="text-sm">{line.description}</TableCell>
                 <TableCell className="text-right font-mono">{line.quantity}</TableCell>
-                <TableCell className="text-right font-mono">﷼ {line.unitPrice.toFixed(2)}</TableCell>
+                <TableCell className="text-right font-mono">{formatCurrency(line.unitPrice)}</TableCell>
                 <TableCell className="text-right font-mono">{line.discountPercent > 0 ? `${line.discountPercent}%` : "-"}</TableCell>
                 <TableCell className="text-right font-mono">{line.taxRate > 0 ? `${line.taxRate}%` : "-"}</TableCell>
-                <TableCell className="text-right font-mono">﷼ {line.lineTotal.toFixed(2)}</TableCell>
+                <TableCell className="text-right font-mono">{formatCurrency(line.lineTotal)}</TableCell>
               </TableRow>
             ))}
             <TableRow className="font-bold border-t-2">
-              <TableCell colSpan={4} /><TableCell colSpan={2} className="text-right">{t("subtotal")}</TableCell><TableCell className="text-right">﷼ {inv.subtotal.toFixed(2)}</TableCell>
+              <TableCell colSpan={4} /><TableCell colSpan={2} className="text-right">{t("subtotal")}</TableCell><TableCell className="text-right">{formatCurrency(inv.subtotal)}</TableCell>
             </TableRow>
             {inv.discountAmount > 0 && (
-              <TableRow><TableCell colSpan={4} /><TableCell colSpan={2} className="text-right text-red-600">{t("discount")}</TableCell><TableCell className="text-right text-red-600">-﷼ {inv.discountAmount.toFixed(2)}</TableCell></TableRow>
+              <TableRow><TableCell colSpan={4} /><TableCell colSpan={2} className="text-right text-red-600">{t("discount")}</TableCell><TableCell className="text-right text-red-600">{formatCurrency(-inv.discountAmount)}</TableCell></TableRow>
             )}
-            <TableRow><TableCell colSpan={4} /><TableCell colSpan={2} className="text-right">{t("tax")}</TableCell><TableCell className="text-right">﷼ {inv.taxAmount.toFixed(2)}</TableCell></TableRow>
-            <TableRow className="font-bold text-lg border-t-2"><TableCell colSpan={4} /><TableCell colSpan={2} className="text-right">{t("total")}</TableCell><TableCell className="text-right">﷼ {inv.total.toFixed(2)}</TableCell></TableRow>
+            <TableRow><TableCell colSpan={4} /><TableCell colSpan={2} className="text-right">{t("tax")}</TableCell><TableCell className="text-right">{formatCurrency(inv.taxAmount)}</TableCell></TableRow>
+            <TableRow className="font-bold text-lg border-t-2"><TableCell colSpan={4} /><TableCell colSpan={2} className="text-right">{t("total")}</TableCell><TableCell className="text-right">{formatCurrency(inv.total)}</TableCell></TableRow>
           </TableBody>
         </Table>
       </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { Dialog } from "@/components/ui/dialog";
 import { DropdownMenu } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,16 +8,18 @@ import { Select } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { FadeIn } from "@/components/transitions";
-import { ArrowLeft, FileText, MoreHorizontal, Edit } from "lucide-react";
+import { ArrowLeft, FileText, MoreHorizontal, Edit, Download, SendHorizontal } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { formatDate, formatCurrency, generateNumber } from "@/lib/utils";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 type QuoteLine = { id: string; description: string; quantity: number; unitPrice: number; discountPercent: number; taxRate: number; lineTotal: number; item: { name: string } | null };
 type SalesQuote = {
   id: string; number: number; quoteDate: Date; expiryDate: Date | null; status: string;
-  customer: { name: string };
+  customer: { name: string; email: string | null };
   subtotal: number; discountAmount: number; taxAmount: number; total: number;
   notes: string | null;
   lines: QuoteLine[];
@@ -33,7 +36,14 @@ export function SalesQuoteViewClient({ quote: initial }: Props) {
   const router = useRouter();
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [showConvertDialog, setShowConvertDialog] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState("CASH");
+  const [converting, setConverting] = useState(false);
   const [form, setForm] = useState({ status: initial.status, notes: initial.notes ?? "", expiryDate: initial.expiryDate ? new Date(initial.expiryDate).toISOString().split("T")[0] : "" });
+  const [sendingEmail, setSendingEmail] = useState(false);
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [emailSuccess, setEmailSuccess] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   const statusLabels: Record<string, string> = { DRAFT: "draft", CONFIRMED: "confirmed", ACCEPTED: "accepted", REJECTED: "rejected" };
   const statusOpts = Object.entries(statusLabels).map(([value, label]) => ({ value, label: s(label) }));
@@ -51,8 +61,64 @@ export function SalesQuoteViewClient({ quote: initial }: Props) {
   }
 
   async function convertToInvoice() {
-    const res = await fetch(`/api/sales-quotes/${initial.id}/convert`, { method: "POST" });
-    if (res.ok) { router.push("/sales/invoices"); router.refresh(); }
+    setConverting(true);
+    try {
+      const res = await fetch(`/api/sales-quotes/${initial.id}/convert`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ paymentMethod }),
+      });
+      if (res.ok) { router.push("/sales/invoices"); router.refresh(); }
+    } finally { setConverting(false); }
+  }
+
+  async function downloadPdf() {
+    const element = contentRef.current;
+    if (!element) return;
+    const canvas = await html2canvas(element);
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF("p", "mm", "a4");
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+    pdf.save(`Quote-${initial.number}.pdf`);
+  }
+
+  function buildEmailHtml() {
+    const linesHtml = initial.lines
+      .map(
+        (l) =>
+          `<tr><td style="padding:8px;border-bottom:1px solid #eee;">${l.item?.name ?? ""}</td><td style="padding:8px;border-bottom:1px solid #eee;">${l.description}</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">${l.quantity}</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">${formatCurrency(l.unitPrice)}</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">${formatCurrency(l.lineTotal)}</td></tr>`
+      )
+      .join("");
+    return `<!DOCTYPE html><html dir="${document.dir || "ltr"}"><head><meta charset="utf-8"></head><body style="font-family:Arial,sans-serif;margin:0;padding:0;"><div style="max-width:600px;margin:auto;padding:20px;"><h2>Quote #${generateNumber("Q", initial.number)}</h2><p>Dear ${initial.customer.name},</p><p>Please find your quote details below:</p><table style="width:100%;border-collapse:collapse;"><tr><td style="padding:8px;border-bottom:1px solid #ddd;">Date</td><td style="padding:8px;border-bottom:1px solid #ddd;">${formatDate(new Date(initial.quoteDate))}</td></tr><tr><td style="padding:8px;border-bottom:1px solid #ddd;">Total</td><td style="padding:8px;border-bottom:1px solid #ddd;">${formatCurrency(initial.total)}</td></tr>${initial.expiryDate ? `<tr><td style="padding:8px;border-bottom:1px solid #ddd;">Expiry</td><td style="padding:8px;border-bottom:1px solid #ddd;">${formatDate(new Date(initial.expiryDate))}</td></tr>` : ""}</table><table style="width:100%;border-collapse:collapse;margin-top:16px;"><thead><tr style="background:#f3f4f6;"><th style="padding:8px;text-align:left;">Item</th><th style="padding:8px;text-align:left;">Description</th><th style="padding:8px;text-align:right;">Qty</th><th style="padding:8px;text-align:right;">Price</th><th style="padding:8px;text-align:right;">Total</th></tr></thead><tbody>${linesHtml}</tbody></table>${initial.notes ? `<p style="margin-top:16px;color:#6b7280;">${initial.notes}</p>` : ""}<p style="margin-top:24px;color:#9ca3af;font-size:12px;">Thank you for your business.</p></div></body></html>`;
+  }
+
+  async function handleSendEmail() {
+    if (!initial.customer.email) return;
+    setSendingEmail(true);
+    setEmailError(null);
+    setEmailSuccess(false);
+    try {
+      const res = await fetch("/api/send-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          to: initial.customer.email,
+          subject: `Quote #${generateNumber("Q", initial.number)}`,
+          html: buildEmailHtml(),
+        }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to send");
+      }
+      setEmailSuccess(true);
+    } catch (err) {
+      setEmailError((err as Error).message);
+    } finally {
+      setSendingEmail(false);
+    }
   }
 
   if (editing) {
@@ -79,7 +145,9 @@ export function SalesQuoteViewClient({ quote: initial }: Props) {
 
   return (
     <FadeIn>
-    <div className="space-y-6">
+    <div ref={contentRef} className="space-y-6">
+      {emailSuccess && <div className="rounded-lg bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 p-3 text-sm text-green-700 dark:text-green-300">{t("emailSent")}</div>}
+      {emailError && <div className="rounded-lg bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 p-3 text-sm text-red-700 dark:text-red-300">{t("emailFailed")}: {emailError}</div>}
       <div className="flex items-center gap-4">
         <Button variant="ghost" onClick={() => router.push("/sales/quotes")}><ArrowLeft className="h-5 w-5 rtl:scale-x-[-1]" /></Button>
         <div className="flex-1">
@@ -97,12 +165,37 @@ export function SalesQuoteViewClient({ quote: initial }: Props) {
               </Button>
             }
             items={[
-              ...(initial.status === "ACCEPTED" ? [{ label: t("convertToInvoice"), icon: <FileText className="h-4 w-4" />, onClick: convertToInvoice }] : []),
+              { label: t("downloadPdf"), icon: <Download className="h-4 w-4" />, onClick: downloadPdf },
+              ...(initial.customer.email ? [{ label: t("sendEmail"), icon: <SendHorizontal className="h-4 w-4" />, onClick: handleSendEmail }] : []),
+              ...(initial.status === "ACCEPTED" ? [{ label: t("convertToInvoice"), icon: <FileText className="h-4 w-4" />, onClick: () => setShowConvertDialog(true) }] : []),
               { label: t("edit"), icon: <Edit className="h-4 w-4" />, onClick: () => setEditing(true) },
             ]}
           />
         </div>
       </div>
+
+      <Dialog open={showConvertDialog} onClose={() => setShowConvertDialog(false)} title={t("convertToInvoice")}>
+        <div className="space-y-4">
+          <Select
+            label="Payment Method"
+            options={[
+              { value: "CASH", label: "Cash" },
+              { value: "BANK_TRANSFER", label: "Bank Transfer" },
+              { value: "CHECK", label: "Check" },
+              { value: "CREDIT_CARD", label: "Credit Card" },
+              { value: "OTHER", label: "Other" },
+            ]}
+            value={paymentMethod}
+            onChange={(e) => setPaymentMethod(e.target.value)}
+          />
+          <div className="flex justify-end gap-3">
+            <Button variant="outline" onClick={() => setShowConvertDialog(false)}>Cancel</Button>
+            <Button onClick={convertToInvoice} disabled={converting}>
+              {converting ? "Converting..." : t("convertToInvoice")}
+            </Button>
+          </div>
+        </div>
+      </Dialog>
 
       <div className="grid grid-cols-2 gap-6">
         <div className="rounded-lg border p-4 space-y-2 text-sm">

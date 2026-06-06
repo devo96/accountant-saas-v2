@@ -9,6 +9,7 @@ import { ArrowLeft, Edit, Plus } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { formatCurrency } from "@/lib/utils";
 
 type SalesInvoice = {
   id: string;
@@ -25,6 +26,13 @@ type Customer = {
   phone: string | null;
   mobile: string | null;
   address: string | null;
+  crNumber: string | null;
+  street: string | null;
+  city: string | null;
+  district: string | null;
+  region: string | null;
+  country: string | null;
+  postalCode: string | null;
   taxNumber: string | null;
   creditLimit: number;
   balance: number;
@@ -44,6 +52,13 @@ export function CustomerDetailClient({ customer }: Props) {
     phone: customer.phone ?? "",
     mobile: customer.mobile ?? "",
     address: customer.address ?? "",
+    crNumber: customer.crNumber ?? "",
+    street: customer.street ?? "",
+    city: customer.city ?? "",
+    district: customer.district ?? "",
+    region: customer.region ?? "",
+    country: customer.country ?? "",
+    postalCode: customer.postalCode ?? "",
     taxNumber: customer.taxNumber ?? "",
     creditLimit: String(customer.creditLimit),
   });
@@ -117,16 +132,44 @@ export function CustomerDetailClient({ customer }: Props) {
               <dd className="font-medium">{customer.address ?? "-"}</dd>
             </div>
             <div className="flex justify-between">
+              <dt className="text-gray-500 dark:text-gray-400">{t("crNumber")}</dt>
+              <dd className="font-medium">{customer.crNumber ?? "-"}</dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-gray-500 dark:text-gray-400">{t("street")}</dt>
+              <dd className="font-medium">{customer.street ?? "-"}</dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-gray-500 dark:text-gray-400">{t("city")}</dt>
+              <dd className="font-medium">{customer.city ?? "-"}</dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-gray-500 dark:text-gray-400">{t("district")}</dt>
+              <dd className="font-medium">{customer.district ?? "-"}</dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-gray-500 dark:text-gray-400">{t("region")}</dt>
+              <dd className="font-medium">{customer.region ?? "-"}</dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-gray-500 dark:text-gray-400">{t("country")}</dt>
+              <dd className="font-medium">{customer.country ?? "-"}</dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-gray-500 dark:text-gray-400">{t("postalCode")}</dt>
+              <dd className="font-medium">{customer.postalCode ?? "-"}</dd>
+            </div>
+            <div className="flex justify-between">
               <dt className="text-gray-500 dark:text-gray-400">{t("taxNumber")}</dt>
               <dd className="font-medium">{customer.taxNumber ?? "-"}</dd>
             </div>
             <div className="flex justify-between">
               <dt className="text-gray-500 dark:text-gray-400">{t("creditLimit")}</dt>
-              <dd className="font-medium">﷼ {customer.creditLimit.toLocaleString()}</dd>
+              <dd className="font-medium">{formatCurrency(customer.creditLimit)}</dd>
             </div>
             <div className="flex justify-between">
               <dt className="text-gray-500 dark:text-gray-400">{t("balance")}</dt>
-              <dd className="font-medium">﷼ {customer.balance.toLocaleString()}</dd>
+              <dd className="font-medium">{formatCurrency(customer.balance)}</dd>
             </div>
           </dl>
         </div>
@@ -148,7 +191,7 @@ export function CustomerDetailClient({ customer }: Props) {
                     <div className="text-xs text-gray-500 dark:text-gray-400">{new Date(inv.invoiceDate).toLocaleDateString()}</div>
                   </div>
                   <div className="text-right">
-                    <div className="font-medium">﷼ {Number(inv.total).toLocaleString()}</div>
+                    <div className="font-medium">{formatCurrency(Number(inv.total))}</div>
                     <div className={`text-xs px-2 py-0.5 rounded-full inline-block ${
                       inv.status === "CONFIRMED" ? "bg-green-100 text-green-700" :
                       inv.status === "PAID" ? "bg-blue-100 text-blue-700" :
@@ -174,6 +217,15 @@ export function CustomerDetailClient({ customer }: Props) {
           <Input label={t("phone")} value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
           <Input label={t("mobile")} value={form.mobile} onChange={(e) => setForm({ ...form, mobile: e.target.value })} />
           <Input label={t("address")} value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
+          <Input label={t("crNumber")} value={form.crNumber} onChange={(e) => setForm({ ...form, crNumber: e.target.value })} />
+          <div className="grid grid-cols-2 gap-2">
+            <Input label={t("street")} value={form.street} onChange={(e) => setForm({ ...form, street: e.target.value })} />
+            <Input label={t("city")} value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} />
+            <Input label={t("district")} value={form.district} onChange={(e) => setForm({ ...form, district: e.target.value })} />
+            <Input label={t("region")} value={form.region} onChange={(e) => setForm({ ...form, region: e.target.value })} />
+            <Input label={t("country")} value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} />
+            <Input label={t("postalCode")} value={form.postalCode} onChange={(e) => setForm({ ...form, postalCode: e.target.value })} />
+          </div>
           <Input label={t("taxNumber")} value={form.taxNumber} onChange={(e) => setForm({ ...form, taxNumber: e.target.value })} />
           <Input label={t("creditLimit")} type="number" value={form.creditLimit} onChange={(e) => setForm({ ...form, creditLimit: e.target.value })} />
           <div className="flex justify-end gap-3 pt-2">

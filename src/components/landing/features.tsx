@@ -1,18 +1,24 @@
-const features = [
-  { title: "الفوترة الإلكترونية", desc: "إصدار فواتير إلكترونية متوافقة مع متطلبات ZATCA (المرحلة الثانية) مع رمز QR وتوقيع إلكتروني.", icon: "📋" },
-  { title: "إدارة المخزون والمستودعات", desc: "تتبع المنتجات، تنبيهات نفاد المخزون، جرد آلي للمستودعات وتقارير حركة المخزون.", icon: "📦" },
-  { title: "قيود اليومية والمحاسبة العامة", desc: "شجرة حسابات متكاملة، قيود سهلة، مراكز تكلفة، وأستاذ عام لجميع الحركات المالية.", icon: "📊" },
-  { title: "التقارير المالية والقرارات", desc: "الميزانية العمومية، قائمة الأرباح والخسائر، التدفقات النقدية، تقارير ذكية لاتخاذ القرارات.", icon: "📈" },
-  { title: "إدارة العملاء والموردين", desc: "سجل متكامل للعملاء والموردين، إدارة حساباتهم، ومتابعة الذمم المدينة والدائنة.", icon: "🤝" },
-];
+"use client";
+
+import { useTranslations } from "next-intl";
 
 export function LandingFeatures() {
+  const t = useTranslations("landing");
+
+  const features = [
+    { title: t("feat1Title"), desc: t("feat1Desc"), icon: "📋" },
+    { title: t("feat2Title"), desc: t("feat2Desc"), icon: "📦" },
+    { title: t("feat3Title"), desc: t("feat3Desc"), icon: "📊" },
+    { title: t("feat4Title"), desc: t("feat4Desc"), icon: "📈" },
+    { title: t("feat5Title"), desc: t("feat5Desc"), icon: "🤝" },
+  ];
+
   return (
     <section id="features" className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-14">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">منتجات ومميزات متكاملة</h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">كل ما تحتاجه لإدارة محاسبة شركتك في مكان واحد</p>
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{t("featuresTitle")}</h2>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">{t("featuresSubtitle")}</p>
         </div>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {features.map((f, i) => (

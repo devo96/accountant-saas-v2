@@ -2,7 +2,7 @@
 
 import { DropdownMenu } from "@/components/ui/dropdown-menu";
 import { Avatar } from "@/components/ui/avatar";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { signOut, useSession } from "next-auth/react";
 import { Bell, LogOut, Globe, Search, X, Moon, Sun, Menu } from "lucide-react";
@@ -16,6 +16,7 @@ export function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
   const pathname = usePathname();
   const router = useRouter();
   const { data: session } = useSession();
+  const locale = useLocale();
   const { theme, toggle: toggleTheme } = useTheme();
   const { notifications, unreadCount, markRead } = useNotifications();
   const [showNotif, setShowNotif] = useState(false);
@@ -97,7 +98,7 @@ export function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
             </div>
           }
           items={[
-            { label: "Sign out", icon: <LogOut className="h-4 w-4" />, onClick: () => signOut({ callbackUrl: "/en/login" }), variant: "danger" },
+            { label: t("auth.logout"), icon: <LogOut className="h-4 w-4" />, onClick: () => signOut({ callbackUrl: `/${locale}/login` }), variant: "danger" },
           ]}
         />
       </div>

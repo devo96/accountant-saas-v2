@@ -11,7 +11,7 @@ import { FadeIn } from "@/components/transitions";
 import { PageHeader } from "@/components/ui/page-header";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 type Entry = {
   id: string;
@@ -24,11 +24,11 @@ type Entry = {
 };
 
 type Account = { id: string; code: string; name: string };
-type FiscalYear = { id: string; name: string };
+type Project = { id: string; name: string };
 
-type Props = { entries: Entry[]; accounts: Account[]; fiscalYears: FiscalYear[] };
+type Props = { entries: Entry[]; accounts: Account[]; projects: Project[] };
 
-export function JournalEntriesClient({ entries, accounts, fiscalYears }: Props) {
+export function JournalEntriesClient({ entries, accounts, projects }: Props) {
   const t = useTranslations("journalEntries");
   const s = useTranslations("common");
   const statusLabels: Record<string, string> = { DRAFT: "draft", POSTED: "posted" };
@@ -39,9 +39,11 @@ export function JournalEntriesClient({ entries, accounts, fiscalYears }: Props) 
     date: new Date().toISOString().split("T")[0],
     description: "",
     reference: "",
-    fiscalYearId: "",
     lines: [{ accountId: "", debit: "", credit: "" }],
   });
+  const [projectId, setProjectId] = useState("");
+  const [attachments, setAttachments] = useState<File[]>([]);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   function addLine() {
     setForm({ ...form, lines: [...form.lines, { accountId: "", debit: "", credit: "" }] });
@@ -65,7 +67,8 @@ export function JournalEntriesClient({ entries, accounts, fiscalYears }: Props) 
         date: new Date(form.date).toISOString(),
         description: form.description,
         reference: form.reference || undefined,
-        fiscalYearId: form.fiscalYearId || undefined,
+        projectId: projectId || undefined,
+        attachments: attachments.length > 0 ? JSON.stringify(attachments.map(f => f.name)) : undefined,
         status,
         lines: form.lines.map((l) => ({
           accountId: l.accountId,
@@ -87,7 +90,7 @@ export function JournalEntriesClient({ entries, accounts, fiscalYears }: Props) 
   const totalCredit = form.lines.reduce((s, l) => s + Number(l.credit), 0);
   const isBalanced = Math.abs(totalDebit - totalCredit) < 0.01;
 
-  const fiscalYearOpts = fiscalYears.map((fy) => ({ value: fy.id, label: fy.name }));
+  const projectOpts = projects.map((p) => ({ value: p.id, label: p.name }));
   const accountOpts = accounts.map((a) => ({
     value: a.id,
     label: `${a.code} - ${a.name}`,
@@ -139,7 +142,8 @@ export function JournalEntriesClient({ entries, accounts, fiscalYears }: Props) 
             <Input label={t("reference")} value={form.reference} onChange={(e) => setForm({ ...form, reference: e.target.value })} />
           </div>
           <Input label={t("description")} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} required />
-          <Select label={t("fiscalYear")} options={fiscalYearOpts} placeholder={t("selectFiscalYear")} value={form.fiscalYearId} onChange={(e) => setForm({ ...form, fiscalYearId: e.target.value })} />
+          <Select label={t("project")} options={projectOpts} placeholder={t("selectProject")} value={projectId} onChange={(e) => setProjectId(e.target.value)} />
+          <Input label={t("attachments")} type="file" ref={fileRef} multiple onChange={(e) => setAttachments(Array.from(e.target.files || []))} />
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">

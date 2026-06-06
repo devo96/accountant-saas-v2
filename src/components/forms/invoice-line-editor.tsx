@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Trash2, Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export type LineItem = {
   id: string;
@@ -48,6 +49,8 @@ function createEmptyLine(items: { id: string; name: string }[], taxCodes: { id: 
 }
 
 export function InvoiceLineEditor({ items, taxCodes, lines, onChange }: InvoiceLineEditorProps) {
+  const t = useTranslations("common");
+
   const updateLine = (index: number, field: keyof LineItem, value: string | number) => {
     const updated = lines.map((line, i) => {
       if (i !== index) return line;
@@ -92,13 +95,13 @@ export function InvoiceLineEditor({ items, taxCodes, lines, onChange }: InvoiceL
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Item</TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead className="text-right w-20">Qty</TableHead>
-              <TableHead className="text-right w-28">Price</TableHead>
-              <TableHead className="text-right w-20">Disc %</TableHead>
-              <TableHead className="text-right w-28">Tax</TableHead>
-              <TableHead className="text-right w-28">Total</TableHead>
+              <TableHead>{t("item")}</TableHead>
+              <TableHead>{t("description")}</TableHead>
+              <TableHead className="text-right w-20">{t("qty")}</TableHead>
+              <TableHead className="text-right w-28">{t("price")}</TableHead>
+              <TableHead className="text-right w-20">{t("discPercent")}</TableHead>
+              <TableHead className="text-right w-28">{t("tax")}</TableHead>
+              <TableHead className="text-right w-28">{t("total")}</TableHead>
               <TableHead className="w-10"></TableHead>
             </TableRow>
           </TableHeader>
@@ -163,14 +166,14 @@ export function InvoiceLineEditor({ items, taxCodes, lines, onChange }: InvoiceL
         </Table>
       </div>
       <Button variant="outline" size="sm" onClick={addLine}>
-        <Plus className="h-4 w-4 ms-1" /> Add Line
+        <Plus className="h-4 w-4 ms-1" /> {t("addLine")}
       </Button>
       <div className="flex justify-end">
         <div className="w-72 space-y-1 text-sm">
-          <div className="flex justify-between"><span>Subtotal</span><span className="font-mono">{subtotal.toFixed(2)}</span></div>
-          <div className="flex justify-between"><span>Discount</span><span className="font-mono">-{discountTotal.toFixed(2)}</span></div>
-          <div className="flex justify-between"><span>Tax</span><span className="font-mono">{taxTotal.toFixed(2)}</span></div>
-          <div className="flex justify-between font-bold text-base border-t pt-1"><span>Total</span><span className="font-mono">{grandTotal.toFixed(2)}</span></div>
+          <div className="flex justify-between"><span>{t("subtotal")}</span><span className="font-mono">{subtotal.toFixed(2)}</span></div>
+          <div className="flex justify-between"><span>{t("discount")}</span><span className="font-mono">-{discountTotal.toFixed(2)}</span></div>
+          <div className="flex justify-between"><span>{t("tax")}</span><span className="font-mono">{taxTotal.toFixed(2)}</span></div>
+          <div className="flex justify-between font-bold text-base border-t pt-1"><span>{t("total")}</span><span className="font-mono">{grandTotal.toFixed(2)}</span></div>
         </div>
       </div>
     </div>

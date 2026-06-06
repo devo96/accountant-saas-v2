@@ -1,4 +1,4 @@
-"use client"; import { useTranslations } from "next-intl"; import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"; import { Button } from "@/components/ui/button"; import { Dialog } from "@/components/ui/dialog"; import { Plus, Edit3, Trash2, CreditCard } from "lucide-react"; import { useState, useCallback } from "react"; import { CouponForm } from "../_forms";
+"use client"; import { useTranslations } from "next-intl"; import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"; import { Button } from "@/components/ui/button"; import { Dialog } from "@/components/ui/dialog"; import { Plus, Edit3, Trash2, CreditCard } from "lucide-react"; import { useState, useCallback } from "react"; import { formatCurrency } from "@/lib/utils"; import { CouponForm } from "../_forms";
 type CouponInfo = { id: string; code: string; discountType: string; discountValue: number; maxUses: number; usedCount: number; minAmount: number; planId: string | null; expiresAt: string | null; active: boolean };
 export function BillingClient({ coupons: initialCoupons }: { coupons: CouponInfo[] }) {
   const t = useTranslations("ownerPanel");
@@ -18,8 +18,8 @@ export function BillingClient({ coupons: initialCoupons }: { coupons: CouponInfo
               <tbody>{coupons.length === 0 ? <tr><td colSpan={8} className="p-6 text-center text-gray-400">{t("noCoupons")}</td></tr> : coupons.map((c) => (
                 <tr key={c.id} className="border-b hover:bg-gray-50">
                   <td className="p-3 font-mono font-bold">{c.code}</td>
-                  <td className="p-3">{c.discountType === "PERCENTAGE" ? "%" : "﷼"}</td>
-                  <td className="p-3">{c.discountType === "PERCENTAGE" ? `${c.discountValue}%` : `﷼${c.discountValue}`}</td>
+                  <td className="p-3">{c.discountType === "PERCENTAGE" ? "%" : formatCurrency(0).replace(/[\d,.\s]/g, '')}</td>
+                  <td className="p-3">{c.discountType === "PERCENTAGE" ? `${c.discountValue}%` : formatCurrency(c.discountValue)}</td>
                   <td className="p-3">{c.usedCount}</td>
                   <td className="p-3">{c.maxUses || "∞"}</td>
                   <td className="p-3 text-gray-500">{c.expiresAt ? new Date(c.expiresAt).toLocaleDateString() : t("noPlan")}</td>

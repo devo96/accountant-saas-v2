@@ -10,12 +10,13 @@ export default async function NewPurchaseInvoicePage() {
 
   const orgId = session.user.organizationId;
 
-  const [vendors, items, taxCodes, paymentTerms, branches] = await Promise.all([
+  const [vendors, items, taxCodes, paymentTerms, branches, projects] = await Promise.all([
     prisma.vendor.findMany({ where: { organizationId: orgId }, orderBy: { name: "asc" } }),
     prisma.item.findMany({ where: { organizationId: orgId }, orderBy: { name: "asc" } }),
     prisma.taxCode.findMany({ where: { organizationId: orgId }, orderBy: { name: "asc" } }),
     prisma.paymentTerm.findMany({ where: { organizationId: orgId }, orderBy: { name: "asc" } }),
     prisma.branch.findMany({ where: { organizationId: orgId }, orderBy: { name: "asc" } }),
+    prisma.project.findMany({ where: { organizationId: orgId }, orderBy: { name: "asc" } }),
   ]);
 
   return (
@@ -25,6 +26,7 @@ export default async function NewPurchaseInvoicePage() {
       taxCodes={taxCodes.map((t) => ({ id: t.id, name: t.name, rate: Number(t.rate) }))}
       paymentTerms={paymentTerms.map((p) => ({ id: p.id, name: p.name, dueDays: p.dueDays }))}
       branches={branches.map((b) => ({ id: b.id, name: b.name }))}
+      projects={projects.map((p) => ({ id: p.id, name: p.name }))}
     />
   );
 }

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useTranslations } from "next-intl";
-import { useRouter } from "@/i18n/navigation";
+import { useRouter, Link } from "@/i18n/navigation";
 import { useState } from "react";
 import { FadeIn } from "@/components/transitions";
 
@@ -115,9 +115,9 @@ export default function RegisterPage() {
             </form>
             <p className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
               {t("alreadyHaveAccount")}{" "}
-              <a href="/login" className="text-primary-800 dark:text-primary-400 hover:underline font-medium">
+               <Link href="/login" className="text-primary-800 dark:text-primary-400 hover:underline font-medium">
                 {t("loginLink")}
-              </a>
+              </Link>
             </p>
           </CardContent>
         </Card>

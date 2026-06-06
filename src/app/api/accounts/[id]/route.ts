@@ -48,6 +48,11 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
   const existing = await prisma.account.findFirst({ where: { id, organizationId: session.user.organizationId } });
   if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
+  const journalLinesCount = await prisma.journalEntryLine.count({ where: { accountId: id } });
+  if (journalLinesCount > 0) {
+    return NextResponse.json({ error: "Cannot delete account with journal entries. Only editing is allowed." }, { status: 400 });
+  }
+
   await prisma.account.delete({ where: { id } });
 
   await createAuditLog({

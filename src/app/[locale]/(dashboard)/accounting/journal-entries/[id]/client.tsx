@@ -9,6 +9,7 @@ import { ArrowLeft, Edit2 } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { formatCurrency } from "@/lib/utils";
 
 type EntryLine = { id: string; account: { code: string; name: string }; debit: number; credit: number };
 type Entry = {
@@ -100,8 +101,8 @@ export function JournalEntryViewClient({ entry: initial }: Props) {
             {initial.lines.map((line) => (
               <TableRow key={line.id}>
                 <TableCell className="text-sm">{line.account.code} - {line.account.name}</TableCell>
-                <TableCell className="text-right font-mono">{line.debit > 0 ? `﷼ ${line.debit.toFixed(2)}` : "-"}</TableCell>
-                <TableCell className="text-right font-mono">{line.credit > 0 ? `﷼ ${line.credit.toFixed(2)}` : "-"}</TableCell>
+                <TableCell className="text-right font-mono">{line.debit > 0 ? formatCurrency(line.debit) : "-"}</TableCell>
+                <TableCell className="text-right font-mono">{line.credit > 0 ? formatCurrency(line.credit) : "-"}</TableCell>
               </TableRow>
             ))}
             <TableRow className="font-bold border-t-2">

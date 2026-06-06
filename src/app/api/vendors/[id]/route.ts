@@ -43,6 +43,13 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       phone: body.phone ?? null,
       mobile: body.mobile ?? null,
       address: body.address ?? null,
+      crNumber: body.crNumber ?? null,
+      street: body.street ?? null,
+      city: body.city ?? null,
+      district: body.district ?? null,
+      region: body.region ?? null,
+      country: body.country ?? null,
+      postalCode: body.postalCode ?? null,
       taxNumber: body.taxNumber ?? null,
     },
   });

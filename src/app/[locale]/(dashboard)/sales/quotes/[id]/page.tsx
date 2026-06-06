@@ -13,7 +13,7 @@ export default async function SalesQuoteViewPage(props: { params: Promise<{ id: 
   const raw = await prisma.salesQuote.findFirst({
     where: { id, organizationId: session.user.organizationId },
     include: {
-      customer: { select: { name: true } },
+      customer: { select: { name: true, email: true } },
       lines: { include: { item: { select: { name: true } }, taxCode: { select: { name: true, rate: true } } } },
       createdBy: { select: { name: true } },
     },
@@ -35,5 +35,5 @@ export default async function SalesQuoteViewPage(props: { params: Promise<{ id: 
     })),
   };
 
-  return <SalesQuoteViewClient quote={quote as unknown as typeof quote} />;
+  return <SalesQuoteViewClient quote={quote as any} />;
 }

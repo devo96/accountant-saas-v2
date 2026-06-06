@@ -383,12 +383,15 @@ model JournalEntry {
   status         JournalEntryStatus @default(DRAFT)
   organizationId String
   fiscalYearId   String?
+  projectId      String?
+  attachments    String?
   createdById    String
   createdAt      DateTime           @default(now())
   updatedAt      DateTime           @updatedAt
 
   organization Organization         @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   fiscalYear   FiscalYear?          @relation(fields: [fiscalYearId], references: [id])
+  project      Project?             @relation(fields: [projectId], references: [id])
   createdBy    User                 @relation(fields: [createdById], references: [id])
   lines        JournalEntryLine[]
 
@@ -421,6 +424,13 @@ model Customer {
   phone          String?
   mobile         String?
   address        String?
+  crNumber       String?
+  street         String?
+  city            String?
+  district       String?
+  region         String?
+  country        String?
+  postalCode     String?
   taxNumber      String?
   creditLimit    Decimal  @default(0)
   balance        Decimal  @default(0)
@@ -445,6 +455,13 @@ model Vendor {
   phone          String?
   mobile         String?
   address        String?
+  crNumber       String?
+  street         String?
+  city            String?
+  district       String?
+  region         String?
+  country        String?
+  postalCode     String?
   taxNumber      String?
   balance        Decimal  @default(0)
   organizationId String
@@ -554,6 +571,7 @@ model SalesInvoice {
   description     String?
   paymentTermId   String?
   branchId        String?
+  projectId       String?
   subtotal        Decimal       @default(0)
   discountAmount Decimal       @default(0)
   taxAmount      Decimal       @default(0)
@@ -578,6 +596,7 @@ model SalesInvoice {
   currency     Currency?           @relation(fields: [currencyId], references: [id])
   paymentTerm  PaymentTerm?        @relation(fields: [paymentTermId], references: [id])
   branch       Branch?             @relation(fields: [branchId], references: [id])
+  project      Project?            @relation(fields: [projectId], references: [id])
   organization Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   createdBy    User                @relation(fields: [createdById], references: [id])
   lines        SalesInvoiceLine[]
@@ -612,6 +631,9 @@ model SalesQuote {
   expiryDate     DateTime?
   status         InvoiceStatus @default(DRAFT)
   customerId     String
+  paymentTermId  String?
+  branchId       String?
+  projectId      String?
   subtotal       Decimal       @default(0)
   discountAmount Decimal       @default(0)
   taxAmount      Decimal       @default(0)
@@ -623,6 +645,9 @@ model SalesQuote {
   updatedAt      DateTime      @updatedAt
 
   customer     Customer         @relation(fields: [customerId], references: [id])
+  paymentTerm  PaymentTerm?     @relation(fields: [paymentTermId], references: [id])
+  branch       Branch?          @relation(fields: [branchId], references: [id])
+  project      Project?         @relation(fields: [projectId], references: [id])
   organization Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   createdBy    User             @relation(fields: [createdById], references: [id])
   lines        SalesQuoteLine[]
@@ -682,6 +707,7 @@ model PurchaseInvoice {
   description     String?
   paymentTermId   String?
   branchId        String?
+  projectId       String?
   subtotal       Decimal       @default(0)
   discountAmount Decimal       @default(0)
   taxAmount      Decimal       @default(0)
@@ -706,6 +732,7 @@ model PurchaseInvoice {
   currency     Currency?             @relation(fields: [currencyId], references: [id])
   paymentTerm  PaymentTerm?          @relation(fields: [paymentTermId], references: [id])
   branch       Branch?               @relation(fields: [branchId], references: [id])
+  project      Project?              @relation(fields: [projectId], references: [id])
   organization Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   createdBy    User                  @relation(fields: [createdById], references: [id])
   lines        PurchaseInvoiceLine[]
@@ -1057,6 +1084,7 @@ model PaymentTerm {
   organization   Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   salesInvoices   SalesInvoice[]
   purchaseInvoices PurchaseInvoice[]
+  salesQuotes     SalesQuote[]
 
   @@unique([organizationId, name])
 }
@@ -1075,6 +1103,7 @@ model Branch {
   organization   Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   salesInvoices   SalesInvoice[]
   purchaseInvoices PurchaseInvoice[]
+  salesQuotes     SalesQuote[]
 
   @@unique([organizationId, code])
 }
@@ -1157,7 +1186,11 @@ model Project {
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   customer     Customer?  @relation(fields: [customerId], references: [id])
   manager      User?      @relation("ProjectManager", fields: [managerId], references: [id])
-  tasks        Task[]
+  tasks           Task[]
+  salesInvoices   SalesInvoice[]
+  purchaseInvoices PurchaseInvoice[]
+  journalEntries  JournalEntry[]
+  salesQuotes     SalesQuote[]
 
   @@index([organizationId, status])
 }

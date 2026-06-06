@@ -6,6 +6,7 @@ import { Dialog } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { formatCurrency } from "@/lib/utils";
 import { FadeIn } from "@/components/transitions";
 import { PageHeader } from "@/components/ui/page-header";
 import { Plus, Pencil, Trash2, Wallet } from "lucide-react";
@@ -61,15 +62,15 @@ export function AdvancesClient({ advances }: Props) {
         <PageHeader title={t("title")} description={t("description")}
           actions={<Button onClick={() => { setEditingId(null); setForm({ employeeId: "", amount: 0, date: new Date().toISOString().split("T")[0], description: "", status: "PENDING", repaidAmount: 0, installments: 1 }); setShowAdd(true); }}><Plus className="h-4 w-4 ms-1" /> {t("add")}</Button>} />
         <div className="grid grid-cols-3 gap-4">
-          <Card><CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-gray-500">{t("totalAdvances")}</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">﷼{totalAmount.toFixed(2)}</p></CardContent></Card>
+          <Card><CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-gray-500">{t("totalAdvances")}</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">{formatCurrency(totalAmount)}</p></CardContent></Card>
           <Card><CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-gray-500">{t("pendingApprovals")}</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">{pendingCount}</p></CardContent></Card>
-          <Card><CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-gray-500">{t("totalRepaid")}</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">﷼{totalRepaid.toFixed(2)}</p></CardContent></Card>
+          <Card><CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-gray-500">{t("totalRepaid")}</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">{formatCurrency(totalRepaid)}</p></CardContent></Card>
         </div>
         <DataTable searchable columns={[
           { key: "employee", label: t("employee"), render: (c) => (c as Advance).employee?.name },
-          { key: "amount", label: t("amount"), render: (c) => `﷼${(c as Advance).amount.toFixed(2)}` },
+          { key: "amount", label: t("amount"), render: (c) => formatCurrency((c as Advance).amount) },
           { key: "status", label: t("status"), render: (c) => <Badge variant={(c as Advance).status === "PAID" ? "success" : (c as Advance).status === "PENDING" ? "warning" : "info"}>{(c as Advance).status}</Badge> },
-          { key: "repaidAmount", label: t("repaid"), render: (c) => `﷼${(c as Advance).repaidAmount.toFixed(2)}` },
+          { key: "repaidAmount", label: t("repaid"), render: (c) => formatCurrency((c as Advance).repaidAmount) },
           { key: "installments", label: t("installments") },
           { key: "actions", label: "", render: (c) => { const cur = c as Advance; return (<div className="flex gap-1"><Button variant="ghost" size="sm" onClick={() => startEdit(cur)} className="h-8 w-8 p-0 text-gray-400 hover:text-primary-600"><Pencil className="h-4 w-4" /></Button><Button variant="ghost" size="sm" onClick={() => setDeletingId(cur.id)} className="h-8 w-8 p-0 text-gray-400 hover:text-red-600"><Trash2 className="h-4 w-4" /></Button></div>); }},
         ]} data={advances as unknown as Record<string, unknown>[]} />

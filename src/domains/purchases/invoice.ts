@@ -24,6 +24,7 @@ export async function createPurchaseInvoice(data: {
   description?: string | null;
   paymentTermId?: string | null;
   branchId?: string | null;
+  projectId?: string | null;
   subtotal: number;
   discountAmount?: number;
   taxAmount: number;
@@ -91,6 +92,7 @@ export async function createPurchaseInvoice(data: {
       description: data.description ?? null,
       paymentTermId: data.paymentTermId ?? null,
       branchId: data.branchId ?? null,
+      projectId: data.projectId ?? null,
       subtotal: data.subtotal,
       discountAmount: data.discountAmount ?? 0,
       taxAmount: data.taxAmount,

@@ -9,6 +9,7 @@ import { ArrowLeft, Edit } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { formatCurrency } from "@/lib/utils";
 
 type Item = {
   id: string; name: string; sku: string | null;
@@ -102,11 +103,11 @@ export function ItemDetailClient({ item }: Props) {
           </div>
           <div className="flex justify-between">
             <dt className="text-gray-500 dark:text-gray-400">{t("sellPrice")}</dt>
-            <dd className="font-medium">﷼ {item.sellingPrice.toLocaleString()}</dd>
+              <dd className="font-medium">{formatCurrency(item.sellingPrice)}</dd>
           </div>
           <div className="flex justify-between">
             <dt className="text-gray-500 dark:text-gray-400">{t("costPrice")}</dt>
-            <dd className="font-medium">﷼ {item.costPrice.toLocaleString()}</dd>
+              <dd className="font-medium">{formatCurrency(item.costPrice)}</dd>
           </div>
           {item.description && (
             <div className="flex justify-between">

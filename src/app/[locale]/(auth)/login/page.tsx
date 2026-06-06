@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useTranslations } from "next-intl";
 import { signIn } from "next-auth/react";
-import { useRouter } from "@/i18n/navigation";
+import { useRouter, Link } from "@/i18n/navigation";
 import { useState } from "react";
 import { BarChart3 } from "lucide-react";
 
@@ -75,9 +75,9 @@ export default function LoginPage() {
           </form>
           <p className="mt-4 text-center text-xs text-gray-500 dark:text-gray-400">
             {t("noAccount")}{" "}
-            <a href="/register" className="text-primary-600 dark:text-primary-400 hover:underline font-medium">
-              {t("createAccount")}
-            </a>
+             <Link href="/register" className="text-primary-600 dark:text-primary-400 hover:underline font-medium">
+               {t("createAccount")}
+            </Link>
           </p>
         </CardContent>
       </Card>

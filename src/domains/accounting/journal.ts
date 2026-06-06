@@ -8,6 +8,8 @@ export const JournalEntrySchema = z.object({
   descriptionAr: z.string().optional(),
   reference: z.string().optional(),
   fiscalYearId: z.string().uuid().optional(),
+  projectId: z.string().uuid().optional(),
+  attachments: z.string().optional(),
   lines: z
     .array(
       z.object({
@@ -51,6 +53,8 @@ export async function createJournalEntry(
       descriptionAr: data.descriptionAr,
       reference: data.reference,
       fiscalYearId: data.fiscalYearId,
+      projectId: data.projectId,
+      attachments: data.attachments,
       organizationId,
       createdById: userId,
       status: input.status === "DRAFT" ? "DRAFT" : "POSTED",

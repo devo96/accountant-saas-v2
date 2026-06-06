@@ -8,6 +8,7 @@ import { ArrowLeft, Edit } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { formatCurrency } from "@/lib/utils";
 
 type BankAccount = {
   id: string; name: string; accountNumber: string | null;
@@ -83,11 +84,11 @@ export function BankAccountDetailClient({ bankAccount }: Props) {
           </div>
           <div className="flex justify-between">
             <dt className="text-gray-500 dark:text-gray-400">{t("openingBalance")}</dt>
-            <dd className="font-medium">﷼ {bankAccount.openingBalance.toLocaleString()}</dd>
+            <dd className="font-medium">{formatCurrency(bankAccount.openingBalance)}</dd>
           </div>
           <div className="flex justify-between">
             <dt className="text-gray-500 dark:text-gray-400">{t("balance")}</dt>
-            <dd className="font-medium">﷼ {bankAccount.currentBalance.toLocaleString()}</dd>
+            <dd className="font-medium">{formatCurrency(bankAccount.currentBalance)}</dd>
           </div>
         </dl>
       </div>

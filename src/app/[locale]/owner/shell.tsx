@@ -22,6 +22,7 @@ const navItems = [
 
 export function OwnerShell({ children }: { children: ReactNode }) {
   const t = useTranslations("nav");
+  const ot = useTranslations("ownerPanel");
   const pathname = usePathname();
   const { data: session } = useSession();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -83,7 +84,7 @@ export function OwnerShell({ children }: { children: ReactNode }) {
               {desktopOpen ? <PanelLeftClose className="h-4 w-4" /> : <PanelLeft className="h-4 w-4" />}
             </button>
           </div>
-          <Link href="/dashboard" className="text-xs text-gray-400 hover:text-primary-600 transition-colors">← الرجوع للتطبيق</Link>
+          <Link href="/dashboard" className="text-xs text-gray-400 hover:text-primary-600 transition-colors">{ot("backToApp")}</Link>
         </header>
         <main className="flex-1 overflow-y-auto">
           <div className="p-4 md:p-6 animate-fade-in">

@@ -9,7 +9,7 @@ import {
   LayoutDashboard, ShoppingCart, ShoppingBag, Receipt, Banknote, Package, BookOpen, BarChart3,
   Users, Settings, ChevronDown, ChevronLeft, FileText, UserCircle, Building2, Warehouse, Wallet,
   PiggyBank, Calculator, FileSpreadsheet, Calendar, Layout, Activity, QrCode, Mail, Upload,
-  Handshake, ArrowRightLeft, UserPlus, ShieldCheck, HandCoins, Truck, CheckCheck,
+  Handshake, ArrowRightLeft, ShieldCheck, HandCoins, Truck,
   ClipboardList, FolderTree, Ruler, BriefcaseBusiness, CircleDollarSign,
   Network,
 } from "lucide-react";
@@ -119,6 +119,7 @@ const navItems: NavItem[] = [
     key: "reports",
     icon: BarChart3,
     children: [
+      { key: "reportsDashboard", href: "/reports", icon: BarChart3 },
       { key: "balanceSheet", href: "/reports/balance-sheet", icon: FileText },
       { key: "incomeStatement", href: "/reports/income-statement", icon: FileText },
       { key: "cashFlow", href: "/reports/cash-flow", icon: FileText },

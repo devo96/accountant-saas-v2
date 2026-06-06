@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
@@ -12,9 +12,9 @@ import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 
 type Account = { id: string; code: string; name: string };
-type FiscalYear = { id: string; name: string };
+type Project = { id: string; name: string };
 
-export default function NewJournalEntryClient({ accounts, fiscalYears }: { accounts: Account[]; fiscalYears: FiscalYear[] }) {
+export default function NewJournalEntryClient({ accounts, projects }: { accounts: Account[]; projects: Project[] }) {
   const router = useRouter();
   const t = useTranslations("journalEntries");
   const [submitting, setSubmitting] = useState(false);
@@ -22,9 +22,11 @@ export default function NewJournalEntryClient({ accounts, fiscalYears }: { accou
     date: new Date().toISOString().split("T")[0],
     description: "",
     reference: "",
-    fiscalYearId: "",
     lines: [{ accountId: "", debit: "", credit: "" }],
   });
+  const [projectId, setProjectId] = useState("");
+  const [attachments, setAttachments] = useState<File[]>([]);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   function addLine() { setForm({ ...form, lines: [...form.lines, { accountId: "", debit: "", credit: "" }] }); }
   function removeLine(i: number) { setForm({ ...form, lines: form.lines.filter((_, idx) => idx !== i) }); }
@@ -39,7 +41,7 @@ export default function NewJournalEntryClient({ accounts, fiscalYears }: { accou
   const isBalanced = Math.abs(totalDebit - totalCredit) < 0.01;
 
   const accountOpts = accounts.map((a) => ({ value: a.id, label: `${a.code} - ${a.name}` }));
-  const fiscalYearOpts = fiscalYears.map((fy) => ({ value: fy.id, label: fy.name }));
+  const projectOpts = projects.map((p) => ({ value: p.id, label: p.name }));
 
   async function handleSubmit(status: string) {
     setSubmitting(true);
@@ -47,14 +49,15 @@ export default function NewJournalEntryClient({ accounts, fiscalYears }: { accou
       const res = await fetch("/api/journal-entries", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          date: new Date(form.date).toISOString(),
-          description: form.description,
-          reference: form.reference || undefined,
-          fiscalYearId: form.fiscalYearId || undefined,
-          status,
-          lines: form.lines.filter((l) => l.accountId).map((l) => ({ accountId: l.accountId, debit: Number(l.debit), credit: Number(l.credit) })),
-        }),
+          body: JSON.stringify({
+            date: new Date(form.date).toISOString(),
+            description: form.description,
+            reference: form.reference || undefined,
+            projectId: projectId || undefined,
+            attachments: attachments.length > 0 ? JSON.stringify(attachments.map(f => f.name)) : undefined,
+            status,
+            lines: form.lines.filter((l) => l.accountId).map((l) => ({ accountId: l.accountId, debit: Number(l.debit), credit: Number(l.credit) })),
+          }),
       });
       if (res.ok) router.push("/accounting/journal-entries");
     } finally { setSubmitting(false); }
@@ -79,8 +82,9 @@ export default function NewJournalEntryClient({ accounts, fiscalYears }: { accou
         <CardContent className="grid grid-cols-3 gap-4">
           <Input label={t("date")} type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} />
           <Input label={t("reference")} value={form.reference} onChange={(e) => setForm({ ...form, reference: e.target.value })} />
-          <Select label={t("fiscalYear")} options={fiscalYearOpts} placeholder={t("selectFiscalYear")} value={form.fiscalYearId} onChange={(e) => setForm({ ...form, fiscalYearId: e.target.value })} />
+          <Select label={t("project")} options={projectOpts} placeholder={t("selectProject")} value={projectId} onChange={(e) => setProjectId(e.target.value)} />
           <div className="col-span-3"><Input label={t("description")} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
+          <div className="col-span-3"><Input label={t("attachments")} type="file" ref={fileRef} multiple onChange={(e) => setAttachments(Array.from(e.target.files || []))} /></div>
         </CardContent>
       </Card>
 

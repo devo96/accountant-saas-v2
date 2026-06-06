@@ -2,12 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { getTranslations } from "next-intl/server";
-import { FadeIn } from "@/components/transitions";
-import { PageHeader } from "@/components/ui/page-header";
-import { Badge } from "@/components/ui/badge";
-import { FolderTree } from "lucide-react";
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
+import { CostCentersClient } from "./client";
 
 export default async function CostCentersPage() {
   const session = await getServerSession(authOptions);
@@ -19,46 +14,11 @@ export default async function CostCentersPage() {
     include: { _count: { select: { allocations: true } } },
   });
 
-  const tnav = await getTranslations("nav");
-  const td = await getTranslations("accountingDimensions");
+  const data = dimensions.map((d) => ({
+    id: d.id,
+    name: d.name,
+    accountsCount: d._count.allocations,
+  }));
 
-  return (
-    <FadeIn>
-      <PageHeader
-        title={tnav("costCenters")}
-        description={`${dimensions.length} cost centers`}
-      />
-      <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>{td("name")}</TableHead>
-              <TableHead>{td("accountsCount")}</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {dimensions.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={2} className="py-12 text-center text-gray-500">
-                  <div className="flex flex-col items-center gap-2">
-                    <FolderTree className="h-8 w-8 text-gray-400" />
-                    <span>{td("noResults")}</span>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ) : (
-              dimensions.map((d) => (
-                <TableRow key={d.id}>
-                  <TableCell className="font-medium">{d.name}</TableCell>
-                  <TableCell>
-                    <Badge variant="outline">{d._count.allocations}</Badge>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
-    </FadeIn>
-  );
+  return <CostCentersClient dimensions={data} />;
 }

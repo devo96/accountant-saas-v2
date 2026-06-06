@@ -32,7 +32,7 @@ export function Tabs({ tabs, activeTab, onChange, className }: TabsProps) {
           {activeTab === tab.key && (
             <motion.div
               layoutId="tab-indicator"
-              className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-600 dark:bg-primary-400 rounded-full"
+              className="absolute bottom-0 inset-x-0 h-0.5 bg-primary-600 dark:bg-primary-400 rounded-full"
             />
           )}
         </button>

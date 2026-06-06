@@ -33,6 +33,9 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
   } as unknown as {
     id: string; name: string; email: string | null;
     phone: string | null; mobile: string | null; address: string | null;
+    crNumber: string | null; street: string | null; city: string | null;
+    district: string | null; region: string | null; country: string | null;
+    postalCode: string | null;
     taxNumber: string | null; creditLimit: number; balance: number;
     active: boolean; createdAt: Date; updatedAt: Date; organizationId: string;
     salesInvoices: { id: string; number: number; invoiceDate: string; status: string; total: number }[];

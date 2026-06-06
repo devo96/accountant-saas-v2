@@ -42,6 +42,7 @@ export async function POST(req: Request) {
     description: body.description ?? null,
     paymentTermId: body.paymentTermId ?? null,
     branchId: body.branchId ?? null,
+    projectId: body.projectId ?? null,
     subtotal: body.subtotal,
     discountAmount: body.discountAmount ?? 0,
     taxAmount: body.taxAmount,

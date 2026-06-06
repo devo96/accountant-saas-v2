@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { NextResponse } from "next/server";
 
+const DEFAULT_CURRENCY = "SAR";
+
 export async function GET() {
   const session = await getServerSession(authOptions);
   if (session?.user?.role !== "OWNER") return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
@@ -24,7 +26,7 @@ export async function POST(req: Request) {
       organizationId: json.organizationId,
       planId: json.planId,
       amount: json.amount ?? 0,
-      currency: json.currency ?? "SAR",
+      currency: json.currency ?? DEFAULT_CURRENCY,
       type: json.type ?? "MANUAL_ACTIVATION",
       status: json.status ?? "SUCCESS",
       paymentMethod: json.paymentMethod ?? null,

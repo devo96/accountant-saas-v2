@@ -3,6 +3,7 @@
 import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
 import { ImpersonationBanner } from "@/components/layout/impersonation-banner";
+import { AiChat } from "@/components/ai/ai-chat";
 import { Providers } from "@/components/providers";
 import { ThemeProvider } from "@/components/theme-provider";
 import { NotificationProvider } from "@/components/notification-provider";
@@ -34,6 +35,7 @@ export default function DashboardLayout({
                 </main>
               </div>
             </div>
+            <AiChat />
           </NotificationProvider>
         </ToastProvider>
       </ThemeProvider>

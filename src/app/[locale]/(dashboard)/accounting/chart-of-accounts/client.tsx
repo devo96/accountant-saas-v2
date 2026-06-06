@@ -61,8 +61,9 @@ export function ChartOfAccountsClient({ accounts, parentAccounts, currencies }: 
   const [showAdd, setShowAdd] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [form, setForm] = useState({ code: "", name: "", type: "EXPENSE", nature: "DEBIT", parentId: "", currencyId: "" });
+  const [form, setForm] = useState({ code: "", name: "", type: "EXPENSE", parentId: "", currencyId: "" });
 
   useEffect(() => {
     if (showAdd && !editingId) {
@@ -115,21 +116,26 @@ export function ChartOfAccountsClient({ accounts, parentAccounts, currencies }: 
   async function handleDelete() {
     if (!deletingId) return;
     setLoading(true);
+    setDeleteError("");
     try {
       const res = await fetch(`/api/accounts/${deletingId}`, { method: "DELETE" });
       if (res.ok) { setDeletingId(null); router.refresh(); }
+      else {
+        const data = await res.json().catch(() => ({}));
+        setDeleteError(data.error || "Failed to delete account");
+      }
     } finally {
       setLoading(false);
     }
   }
 
   function startEdit(account: Account) {
-    setForm({ code: account.code, name: account.name, type: account.type, nature: account.nature, parentId: account.parentId ?? "", currencyId: "" });
+    setForm({ code: account.code, name: account.name, type: account.type, parentId: account.parentId ?? "", currencyId: "" });
     setEditingId(account.id);
     setShowAdd(true);
   }
 
-  const parentOpts = parentAccounts.map((a) => ({ value: a.id, label: `${a.code} - ${a.name}` }));
+  const parentOpts = accounts.map((a) => ({ value: a.id, label: `${a.code} - ${a.name}` }));
   const currencyOpts = currencies.map((c) => ({ value: c.id, label: `${c.code} - ${c.name}` }));
   const typeOpts = [
     { value: "ASSET", label: t("typeASSET") },
@@ -138,10 +144,7 @@ export function ChartOfAccountsClient({ accounts, parentAccounts, currencies }: 
     { value: "INCOME", label: t("typeINCOME") },
     { value: "EXPENSE", label: t("typeEXPENSE") },
   ];
-  const natureOpts = [
-    { value: "DEBIT", label: t("natureDebit") },
-    { value: "CREDIT", label: t("natureCredit") },
-  ];
+
 
   return (
     <FadeIn>
@@ -161,7 +164,6 @@ export function ChartOfAccountsClient({ accounts, parentAccounts, currencies }: 
               <TableHead>{t("code")}</TableHead>
               <TableHead>{t("name")}</TableHead>
               <TableHead>{t("type")}</TableHead>
-              <TableHead>{t("nature")}</TableHead>
               <TableHead className="text-right">{t("balance")}</TableHead>
               <TableHead className="w-24"></TableHead>
             </TableRow>
@@ -184,7 +186,6 @@ export function ChartOfAccountsClient({ accounts, parentAccounts, currencies }: 
                   </TableCell>
                   <TableCell className="font-medium">{account.name}</TableCell>
                   <TableCell><Badge variant={typeColors[account.type] ?? "default"}>{t("type" + account.type)}</Badge></TableCell>
-                  <TableCell>{account.nature === "DEBIT" ? t("natureDebit") : t("natureCredit")}</TableCell>
                   <TableCell className="text-right font-mono">﷼ {account.balance.toLocaleString()}</TableCell>
                   <TableCell>
                     <div className="flex gap-1">
@@ -210,7 +211,7 @@ export function ChartOfAccountsClient({ accounts, parentAccounts, currencies }: 
             <Input label={t("name")} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
           </div>
           <Select label={t("type")} options={typeOpts} value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} required />
-          <Select label={t("nature")} options={natureOpts} value={form.nature} onChange={(e) => setForm({ ...form, nature: e.target.value })} required />
+
           <Select label={t("parentAccount")} options={parentOpts} placeholder={t("noParent")} value={form.parentId} onChange={(e) => setForm({ ...form, parentId: e.target.value })} />
           <Select label={t("currency")} options={currencyOpts} placeholder={t("noCurrency")} value={form.currencyId} onChange={(e) => setForm({ ...form, currencyId: e.target.value })} />
           <div className="flex justify-end gap-3 pt-2">
@@ -221,6 +222,9 @@ export function ChartOfAccountsClient({ accounts, parentAccounts, currencies }: 
       </Dialog>
 
       <Dialog open={!!deletingId} onClose={() => setDeletingId(null)} title={t("deleteTitle")}>
+        {deleteError && (
+          <p className="text-sm text-red-600 dark:text-red-400 mb-4">{deleteError}</p>
+        )}
         <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">{t("deleteConfirm")}</p>
         <div className="flex justify-end gap-3">
           <Button type="button" variant="outline" onClick={() => setDeletingId(null)}>{t("cancel")}</Button>

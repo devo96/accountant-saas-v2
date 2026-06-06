@@ -11,14 +11,14 @@ import { useRouter } from "@/i18n/navigation";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 
-type Vendor = { id: string; name: string; email: string | null; phone: string | null; mobile: string | null; address: string | null; taxNumber: string | null; balance: number };
+type Vendor = { id: string; name: string; email: string | null; phone: string | null; mobile: string | null; address: string | null; crNumber: string | null; street: string | null; city: string | null; district: string | null; region: string | null; country: string | null; postalCode: string | null; taxNumber: string | null; balance: number };
 type Props = { vendors: Vendor[] };
 
 export function VendorsClient({ vendors }: Props) {
   const t = useTranslations("vendors");
   const router = useRouter();
   const [showAdd, setShowAdd] = useState(false);
-  const [form, setForm] = useState({ name: "", email: "", phone: "", mobile: "", address: "", taxNumber: "" });
+  const [form, setForm] = useState({ name: "", email: "", phone: "", mobile: "", address: "", crNumber: "", street: "", city: "", district: "", region: "", country: "", postalCode: "", taxNumber: "" });
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -67,6 +67,15 @@ export function VendorsClient({ vendors }: Props) {
           <Input label={t("phone")} value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
           <Input label={t("mobile")} value={form.mobile} onChange={(e) => setForm({ ...form, mobile: e.target.value })} />
           <Input label={t("address")} value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
+          <Input label={t("crNumber")} value={form.crNumber} onChange={(e) => setForm({ ...form, crNumber: e.target.value })} />
+          <div className="grid grid-cols-2 gap-2">
+            <Input label={t("street")} value={form.street} onChange={(e) => setForm({ ...form, street: e.target.value })} />
+            <Input label={t("city")} value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} />
+            <Input label={t("district")} value={form.district} onChange={(e) => setForm({ ...form, district: e.target.value })} />
+            <Input label={t("region")} value={form.region} onChange={(e) => setForm({ ...form, region: e.target.value })} />
+            <Input label={t("country")} value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} />
+            <Input label={t("postalCode")} value={form.postalCode} onChange={(e) => setForm({ ...form, postalCode: e.target.value })} />
+          </div>
           <Input label={t("taxNumber")} value={form.taxNumber} onChange={(e) => setForm({ ...form, taxNumber: e.target.value })} />
           <div className="flex justify-end gap-3 pt-2">
             <Button type="button" variant="outline" onClick={() => setShowAdd(false)}>{t("cancel")}</Button>

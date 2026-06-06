@@ -1,7 +1,7 @@
 # PROJECT_MAP — accountant-saas-v2
 
 > **Generated:** 2026-06-03 23:50 UTC+3  
-> **Last Build:** 2026-06-04 02:20 UTC+3 — ✅ **Build Succeeded (209 pages)**  
+> **Last Build:** 2026-06-05 03:10 UTC+3 — ✅ **Build Succeeded (244 pages)**  
 > **Last Deploy:** 2026-06-04 02:25 UTC+3 — ✅ **Vercel (schema auto-synced, all pages live)**  
 > **Seed:** All models populated with demo data (employee, customer, vendor, categories, units, payment terms, branches, fixed assets, items, invoices, receipts, journal entries, projects, tasks, advances, deductions, social insurance)  
 > **Target:** 100% feature parity with Qoyod (https://app.qoyod.com)  
@@ -401,6 +401,28 @@ export const logger = pino({
 - [ ] Payroll run engine (salary calculation)
 - [ ] Email notifications + PDF generation
 - [ ] Dark mode toggle
+
+---
+
+## LANDING PAGE ENHANCEMENTS
+
+| Item                          | Status      | Notes                                          |
+| ----------------------------- | ----------- | ---------------------------------------------- |
+| Mega Menu (Products)          | ✅ DONE    | 4-column grid: Sales, Purchases, Accounting, Products. Hover + click. framer-motion. i18n. RTL-aware arrows |
+| Resources Dropdown            | ✅ DONE    | FAQ, Blog, Help Center                        |
+| i18n for Header               | ✅ DONE    | `landing` namespace added to ar.json/en.json   |
+| Testimonials / Social Proof   | 🔲 NOT YET | G2/Capterra-style badges, customer logos       |
+| Trust Badges                  | 🔲 NOT YET | Saudi payment gateways, data center certs      |
+| SEO Meta Tags                 | 🔲 NOT YET | Per-section meta, Open Graph, structured data  |
+| App Store Links               | 🔲 NOT YET | iOS/Android app badges                         |
+| Blog Section                  | 🔲 NOT YET | Latest articles / resources                    |
+| Hero Stats (counters)         | 🔲 NOT YET | "100K+ users", "99.9% uptime", etc.           |
+
+**Relevant files:**
+- `src/components/landing/mega-menu.tsx` — ProductsMegaMenu + ResourcesDropdown
+- `src/components/landing/header.tsx` — Updated to use mega menu + i18n
+- `src/messages/ar.json` — `landing` namespace (13 keys)
+- `src/messages/en.json` — `landing` namespace (13 keys)
 
 ---
 

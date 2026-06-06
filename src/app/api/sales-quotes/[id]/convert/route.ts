@@ -11,6 +11,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const { id } = await params;
+  const body = await req.json().catch(() => ({}));
 
   const quote = await prisma.salesQuote.findFirst({
     where: { id, organizationId: session.user.organizationId },
@@ -49,13 +50,32 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     })),
   });
 
+  if (body.paymentMethod) {
+    const lastReceipt = await prisma.paymentReceipt.findFirst({
+      where: { organizationId: session.user.organizationId },
+      orderBy: { number: "desc" },
+      select: { number: true },
+    });
+    await prisma.paymentReceipt.create({
+      data: {
+        number: (lastReceipt?.number ?? 0) + 1,
+        date: new Date(),
+        amount: Number(quote.total),
+        method: body.paymentMethod,
+        salesInvoiceId: invoice.id,
+        organizationId: session.user.organizationId,
+        createdById: session.user.id,
+      },
+    });
+  }
+
   await createAuditLog({
     organizationId: session.user.organizationId,
     userId: session.user.id,
     action: "CONVERT",
     entity: "SalesQuote",
     entityId: id,
-    newValue: { convertedToInvoiceId: invoice.id },
+    newValue: { convertedToInvoiceId: invoice.id, paymentMethod: body.paymentMethod },
   });
 
   return NextResponse.json(invoice);

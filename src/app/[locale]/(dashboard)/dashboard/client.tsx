@@ -10,6 +10,8 @@ import {
   TrendingUp, TrendingDown, DollarSign, Users, ShoppingCart, Package,
   ArrowUpRight, ArrowDownRight, Calendar, ChevronLeft, Filter, Download,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { formatCurrency } from "@/lib/utils";
 
 type RecentInvoice = { id: string; number: string; customerName: string; total: number; status: string };
 type RecentPayment = { id: string; number: string; amount: number; method: string };
@@ -36,13 +38,6 @@ function cn(...classes: (string | false | undefined | null)[]) {
   return classes.filter(Boolean).join(" ");
 }
 
-function getMonths(locale: string): string[] {
-  if (locale === "ar") {
-    return ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
-  }
-  return ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-}
-
 export default function DashboardClient({
   locale,
   revenue, totalCosts, profit, profitMargin, customers, vendors,
@@ -60,32 +55,12 @@ export default function DashboardClient({
   const fromDate = `${year - 1}-${month}-${day}`;
   const toDate = `${year}-${month}-${day}`;
 
-  const months = getMonths(locale);
+  const months = Array.from({ length: 12 }, (_, i) =>
+    new Intl.DateTimeFormat(locale === "ar" ? "ar-SA" : "en-US", { month: "short" }).format(new Date(2024, i, 1))
+  );
   const monthIndex = today.getMonth();
 
-  const t = (key: string) => {
-    const dict: Record<string, Record<string, string>> = {
-      dashboard: { ar: "لوحة المتابعة", en: "Dashboard" },
-      home: { ar: "الرئيسية", en: "Home" },
-      revenue: { ar: "الإيرادات", en: "Revenue" },
-      expenses: { ar: "المصروفات", en: "Expenses" },
-      netProfit: { ar: "صافي الربح", en: "Net Profit" },
-      customers: { ar: "العملاء", en: "Customers" },
-      vendors: { ar: "الموردين", en: "Vendors" },
-      profitMargin: { ar: "هامش الربح", en: "Profit Margin" },
-      totalCosts: { ar: "إجمالي التكاليف", en: "Total Costs" },
-      from: { ar: "من تاريخ", en: "From Date" },
-      to: { ar: "إلى تاريخ", en: "To Date" },
-      filter: { ar: "تصفية", en: "Filter" },
-      export: { ar: "تصدير", en: "Export" },
-      vsExpenses: { ar: "الإيرادات vs المصروفات", en: "Revenue vs Expenses" },
-      recentInvoices: { ar: "آخر الفواتير", en: "Recent Invoices" },
-      recentPayments: { ar: "آخر المدفوعات", en: "Recent Payments" },
-      noData: { ar: "لا توجد بيانات", en: "No data available" },
-      subtitle: { ar: "نظرة عامة على أداء منشأتك المالي", en: "A financial overview of your organization" },
-    };
-    return dict[key]?.[locale === "ar" ? "ar" : "en"] ?? key;
-  };
+  const t = useTranslations("common");
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -101,7 +76,7 @@ export default function DashboardClient({
     {
       label: t("revenue"),
       value: revenue,
-      prefix: "﷼",
+      currency: true,
       icon: TrendingUp,
       color: "#1D97E0",
       bg: "rgba(29,151,224,0.08)",
@@ -111,7 +86,7 @@ export default function DashboardClient({
     {
       label: t("expenses"),
       value: totalCosts,
-      prefix: "﷼",
+      currency: true,
       icon: TrendingDown,
       color: "#FD9A00",
       bg: "rgba(253,154,0,0.08)",
@@ -121,7 +96,7 @@ export default function DashboardClient({
     {
       label: t("netProfit"),
       value: profit,
-      prefix: "﷼",
+      currency: true,
       icon: DollarSign,
       color: "#49CC6F",
       bg: "rgba(73,204,111,0.08)",
@@ -131,7 +106,6 @@ export default function DashboardClient({
     {
       label: t("customers"),
       value: customers,
-      prefix: "",
       icon: Users,
       color: "#576487",
       bg: "rgba(87,100,135,0.08)",
@@ -140,7 +114,6 @@ export default function DashboardClient({
     },
   ];
 
-  const formatCurrency = (n: number) => n.toLocaleString(locale === "ar" ? "ar-SA" : "en-US");
 
   const gridColor = isDark ? "#2d2d3a" : "#e5e7eb";
   const textColor = isDark ? "#9ca3af" : "#6b7280";
@@ -231,8 +204,7 @@ export default function DashboardClient({
                   {stat.label}
                 </p>
                 <p className="text-xl font-bold text-gray-900 dark:text-gray-100">
-                  {stat.prefix && <span className="text-gray-400 dark:text-gray-500 text-sm font-normal ml-0.5">{stat.prefix}</span>}
-                  {formatCurrency(stat.value)}
+                  {stat.currency ? formatCurrency(stat.value) : stat.value.toLocaleString(locale === "ar" ? "ar-SA" : "en-US")}
                 </p>
                 <p className={cn(
                   "text-xs flex items-center gap-1",
@@ -369,7 +341,7 @@ export default function DashboardClient({
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
                       <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                        ﷼ {inv.total.toLocaleString()}
+                        {formatCurrency(inv.total)}
                       </span>
                       <span className={cn(
                         "text-[10px] px-1.5 py-0.5 rounded font-medium",
@@ -422,7 +394,7 @@ export default function DashboardClient({
                       </div>
                     </div>
                     <span className="text-sm font-semibold text-gray-900 dark:text-gray-100 flex-shrink-0">
-                      ﷼ {pmt.amount.toLocaleString()}
+                      {formatCurrency(pmt.amount)}
                     </span>
                   </div>
                 ))}

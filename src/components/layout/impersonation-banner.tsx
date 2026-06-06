@@ -3,8 +3,10 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export function ImpersonationBanner() {
+  const t = useTranslations("ownerPanel");
   const [orgName, setOrgName] = useState<string | null>(null);
 
   useEffect(() => {
@@ -23,7 +25,7 @@ export function ImpersonationBanner() {
 
   return (
     <div className="bg-amber-50 border-b border-amber-200 px-4 py-2 text-sm text-amber-800 flex items-center justify-between">
-      <span>أنت تتصفح الآن كمسؤول نظام باسم <strong>{orgName}</strong></span>
+      <span>{t("impersonating")} <strong>{orgName}</strong></span>
       <Button
         size="sm"
         variant="outline"
@@ -37,7 +39,7 @@ export function ImpersonationBanner() {
         }}
       >
         <LogOut className="h-3 w-3 ms-1" />
-        إنهاء الجلسة والعودة
+        {t("exitImpersonation")}
       </Button>
     </div>
   );

@@ -1,4 +1,4 @@
-"use client"; import { useTranslations } from "next-intl"; import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"; import { TrendingUp, Calendar, Percent, Activity, BarChart3 } from "lucide-react"; import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+"use client"; import { useTranslations } from "next-intl"; import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"; import { TrendingUp, Calendar, Percent, Activity, BarChart3 } from "lucide-react"; import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"; import { formatCurrency } from "@/lib/utils";
 type ChartData = { month: string; revenue: number };
 export function OwnerOverviewClient({ totalOrgs, totalUsers, mrr, arr, churnRate, liveOps, activeOrgs, trialingOrgs, expiredOrgs, cancelledOrgs, orgsThisMonth, newUsersThisMonth, unassignedOrgs, chartData }: {
   totalOrgs: number; totalUsers: number; mrr: number; arr: number; churnRate: string; liveOps: { journals: number; invoices: number };
@@ -8,8 +8,8 @@ export function OwnerOverviewClient({ totalOrgs, totalUsers, mrr, arr, churnRate
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <Card><CardContent className="p-4"><div className="flex items-center gap-3"><div className="p-2 rounded-md bg-green-50"><TrendingUp className="h-5 w-5 text-green-600" /></div><div><p className="text-xs text-gray-500">{t("mrr")}</p><p className="text-lg font-bold">﷼ {mrr.toLocaleString()}</p></div></div></CardContent></Card>
-        <Card><CardContent className="p-4"><div className="flex items-center gap-3"><div className="p-2 rounded-md bg-blue-50"><Calendar className="h-5 w-5 text-blue-600" /></div><div><p className="text-xs text-gray-500">{t("arr")}</p><p className="text-lg font-bold">﷼ {arr.toLocaleString()}</p></div></div></CardContent></Card>
+        <Card><CardContent className="p-4"><div className="flex items-center gap-3"><div className="p-2 rounded-md bg-green-50"><TrendingUp className="h-5 w-5 text-green-600" /></div><div><p className="text-xs text-gray-500">{t("mrr")}</p><p className="text-lg font-bold">{formatCurrency(mrr)}</p></div></div></CardContent></Card>
+        <Card><CardContent className="p-4"><div className="flex items-center gap-3"><div className="p-2 rounded-md bg-blue-50"><Calendar className="h-5 w-5 text-blue-600" /></div><div><p className="text-xs text-gray-500">{t("arr")}</p><p className="text-lg font-bold">{formatCurrency(arr)}</p></div></div></CardContent></Card>
         <Card><CardContent className="p-4"><div className="flex items-center gap-3"><div className="p-2 rounded-md bg-red-50"><Percent className="h-5 w-5 text-red-500" /></div><div><p className="text-xs text-gray-500">{t("churnRate")}</p><p className="text-lg font-bold">{churnRate}%</p></div></div></CardContent></Card>
         <Card><CardContent className="p-4"><div className="flex items-center gap-3"><div className="p-2 rounded-md bg-purple-50"><Activity className="h-5 w-5 text-purple-500" /></div><div><p className="text-xs text-gray-500">{t("liveOps")}</p><p className="text-lg font-bold">{liveOps.journals + liveOps.invoices}</p></div></div></CardContent></Card>
       </div>

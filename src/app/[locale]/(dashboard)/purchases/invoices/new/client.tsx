@@ -6,18 +6,21 @@ import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { FadeIn } from "@/components/transitions";
 import { PageHeader } from "@/components/ui/page-header";
+import { formatCurrency } from "@/lib/utils";
 import { Trash2, Plus, ArrowLeft, Upload, CreditCard } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
 import { useState, useMemo, useRef } from "react";
 import { useTranslations } from "next-intl";
+import { QuickCreateDialog } from "@/components/forms/quick-create-dialog";
 
 type Vendor = { id: string; name: string };
 type Item = { id: string; name: string; costPrice: number; type: string };
 type TaxCode = { id: string; name: string; rate: number };
 type PaymentTerm = { id: string; name: string; dueDays: number };
 type Branch = { id: string; name: string };
+type Project = { id: string; name: string };
 
-type Props = { vendors: Vendor[]; items: Item[]; taxCodes: TaxCode[]; paymentTerms: PaymentTerm[]; branches: Branch[] };
+type Props = { vendors: Vendor[]; items: Item[]; taxCodes: TaxCode[]; paymentTerms: PaymentTerm[]; branches: Branch[]; projects: Project[] };
 
 type Line = {
   key: number;
@@ -32,14 +35,18 @@ type Line = {
 
 let nextKey = 1;
 
-function calcLineTotal(l: Line) {
-  const net = l.quantity * l.unitPrice * (1 - l.discountPercent / 100);
-  return net + net * l.taxRate / 100;
+function calcLineNet(l: Line) {
+  return l.quantity * l.unitPrice * (1 - l.discountPercent / 100);
 }
 
-export function NewPurchaseInvoiceClient({ vendors, items, taxCodes, paymentTerms, branches }: Props) {
+function calcLineTotal(l: Line) {
+  return calcLineNet(l) + calcLineNet(l) * l.taxRate / 100;
+}
+
+export function NewPurchaseInvoiceClient({ vendors: initialVendors, items: initialItems, taxCodes, paymentTerms, branches, projects: initialProjects }: Props) {
   const router = useRouter();
   const t = useTranslations("purchaseInvoiceNew");
+  const tc = useTranslations("common");
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [dueDate, setDueDate] = useState("");
   const [referenceNumber, setReferenceNumber] = useState("");
@@ -47,11 +54,19 @@ export function NewPurchaseInvoiceClient({ vendors, items, taxCodes, paymentTerm
   const [vendorId, setVendorId] = useState("");
   const [paymentTermId, setPaymentTermId] = useState("");
   const [branchId, setBranchId] = useState("");
+  const [projectId, setProjectId] = useState("");
   const [notes, setNotes] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [lines, setLines] = useState<Line[]>([{ key: nextKey++, itemId: "", description: "", quantity: 1, unitPrice: 0, discountPercent: 0, taxCodeId: "", taxRate: 0 }]);
   const [attachments, setAttachments] = useState<File[]>([]);
   const fileRef = useRef<HTMLInputElement>(null);
+  const [vendors, setVendors] = useState<Vendor[]>(initialVendors);
+  const [items, setItems] = useState<Item[]>(initialItems);
+  const [projects, setProjects] = useState<Project[]>(initialProjects);
+
+  const [discountType, setDiscountType] = useState<"PERCENTAGE" | "FIXED">("PERCENTAGE");
+  const [discountValue, setDiscountValue] = useState(0);
 
   function addLine() {
     setLines([...lines, { key: nextKey++, itemId: "", description: "", quantity: 1, unitPrice: 0, discountPercent: 0, taxCodeId: "", taxRate: 0 }]);
@@ -81,12 +96,22 @@ export function NewPurchaseInvoiceClient({ vendors, items, taxCodes, paymentTerm
   }
 
   const subtotal = useMemo(() => lines.reduce((s, l) => s + l.quantity * l.unitPrice, 0), [lines]);
-  const discountTotal = useMemo(() => lines.reduce((s, l) => s + (l.quantity * l.unitPrice * l.discountPercent / 100), 0), [lines]);
-  const taxableAmount = subtotal - discountTotal;
-  const taxAmount = useMemo(() => lines.reduce((s, l) => s + ((l.quantity * l.unitPrice - l.quantity * l.unitPrice * l.discountPercent / 100) * l.taxRate / 100), 0), [lines]);
+  const lineDiscount = useMemo(() => lines.reduce((s, l) => s + l.quantity * l.unitPrice * l.discountPercent / 100, 0), [lines]);
+  const globalDiscount = useMemo(() => {
+    if (discountType === "PERCENTAGE") return subtotal * (discountValue / 100);
+    return discountValue;
+  }, [subtotal, discountType, discountValue]);
+  const taxableAmount = subtotal - lineDiscount - globalDiscount;
+  const taxAmount = useMemo(() => lines.reduce((s, l) => s + calcLineNet(l) * l.taxRate / 100, 0), [lines]);
   const total = taxableAmount + taxAmount;
 
   async function handleSubmit(status: "DRAFT" | "CONFIRMED") {
+    setErrorMessage("");
+    if (lines.some((l) => !l.itemId)) {
+      setErrorMessage(tc("errorItemRequired"));
+      setSubmitting(false);
+      return;
+    }
     setSubmitting(true);
     try {
       const res = await fetch("/api/purchase-invoices", {
@@ -100,10 +125,13 @@ export function NewPurchaseInvoiceClient({ vendors, items, taxCodes, paymentTerm
           description: description || null,
           paymentTermId: paymentTermId || null,
           branchId: branchId || null,
+          projectId: projectId || null,
           vendorId,
           notes,
           subtotal,
-          discountAmount: discountTotal,
+          discountAmount: lineDiscount + globalDiscount,
+          discountType,
+          discountValue: discountValue,
           taxAmount,
           total,
           lines: lines.map((l) => ({
@@ -127,13 +155,26 @@ export function NewPurchaseInvoiceClient({ vendors, items, taxCodes, paymentTerm
     }
   }
 
+  const handleVendorCreated = (entity: { id: string; name: string }) => {
+    setVendors([...vendors, { id: entity.id, name: entity.name }]);
+    setVendorId(entity.id);
+  };
+
+  const handleItemCreated = (entity: { id: string; name: string; costPrice?: number }) => {
+    setItems([...items, { id: entity.id, name: entity.name, costPrice: entity.costPrice ?? 0, type: "PRODUCT" }]);
+  };
+
+  const handleProjectCreated = (entity: { id: string; name: string }) => {
+    setProjects([...projects, { id: entity.id, name: entity.name }]);
+    setProjectId(entity.id);
+  };
+
   const vendorOpts = vendors.map((v) => ({ value: v.id, label: v.name }));
-  const itemOpts = items.filter((i) => i.type === "PRODUCT" || i.type === "SERVICE").map((i) => ({ value: i.id, label: `${i.name} - ﷼${i.costPrice}` }));
+  const itemOpts = items.filter((i) => i.type === "PRODUCT" || i.type === "SERVICE").map((i) => ({ value: i.id, label: `${i.name} - ${formatCurrency(i.costPrice)}` }));
   const taxOpts = taxCodes.map((t) => ({ value: t.id, label: `${t.name} (${t.rate}%)` }));
   const termOpts = paymentTerms.map((p) => ({ value: p.id, label: p.name }));
   const branchOpts = branches.map((b) => ({ value: b.id, label: b.name }));
-
-  const selectedTerm = paymentTerms.find((p) => p.id === paymentTermId);
+  const projectOpts = projects.map((p) => ({ value: p.id, label: p.name }));
 
   return (
     <FadeIn>
@@ -149,6 +190,11 @@ export function NewPurchaseInvoiceClient({ vendors, items, taxCodes, paymentTerm
         />
 
         <form onSubmit={(e) => { e.preventDefault(); handleSubmit("CONFIRMED"); }} className="space-y-5">
+          {errorMessage && (
+            <div className="rounded-lg border border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700 p-4 text-sm text-red-700 dark:text-red-400">
+              {errorMessage}
+            </div>
+          )}
           {/* ─── Invoice Details Card ─── */}
           <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-sm">
             <div className="p-6 space-y-5">
@@ -167,16 +213,7 @@ export function NewPurchaseInvoiceClient({ vendors, items, taxCodes, paymentTerm
                       required
                     />
                   </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => router.push("/purchases/vendors/new")}
-                    className="whitespace-nowrap shrink-0"
-                  >
-                    <Plus className="h-4 w-4 ms-1" />
-                    {t("addVendor")}
-                  </Button>
+                  <QuickCreateDialog type="vendor" onCreated={handleVendorCreated} />
                 </div>
               </div>
 
@@ -228,6 +265,19 @@ export function NewPurchaseInvoiceClient({ vendors, items, taxCodes, paymentTerm
                 onChange={(e) => setBranchId(e.target.value)}
                 placeholder={t("selectBranch")}
               />
+              {/* Project */}
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <Select
+                    label="Project"
+                    options={projectOpts}
+                    value={projectId}
+                    onChange={(e) => setProjectId(e.target.value)}
+                    placeholder="Select project"
+                  />
+                </div>
+                <QuickCreateDialog type="project" onCreated={handleProjectCreated} />
+              </div>
             </div>
           </div>
 
@@ -235,9 +285,12 @@ export function NewPurchaseInvoiceClient({ vendors, items, taxCodes, paymentTerm
           <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-sm overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-gray-50/50 dark:bg-gray-800/30">
               <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">{t("invoiceLines")}</h3>
-              <Button type="button" variant="outline" size="sm" onClick={addLine}>
-                <Plus className="h-4 w-4 ms-1" /> {t("addLine")}
-              </Button>
+              <div className="flex gap-2">
+                <QuickCreateDialog type="item" onCreated={handleItemCreated} />
+                <Button type="button" variant="outline" size="sm" onClick={addLine}>
+                  <Plus className="h-4 w-4 ms-1" /> {t("addLine")}
+                </Button>
+              </div>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
@@ -314,7 +367,7 @@ export function NewPurchaseInvoiceClient({ vendors, items, taxCodes, paymentTerm
                         />
                       </td>
                       <td className="p-2 text-left font-mono text-sm align-middle text-gray-900 dark:text-gray-100">
-                        ﷼ {calcLineTotal(line).toFixed(2)}
+                        {formatCurrency(calcLineTotal(line))}
                       </td>
                       <td className="p-2">
                         <Button type="button" variant="ghost" onClick={() => removeLine(line.key)} className="text-red-400 hover:text-red-600 h-8 w-8 p-0">
@@ -328,7 +381,7 @@ export function NewPurchaseInvoiceClient({ vendors, items, taxCodes, paymentTerm
             </div>
           </div>
 
-          {/* ─── Notes + Bonds + Attachments ─── */}
+          {/* ─── Notes + Discount + Attachments ─── */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {/* Notes */}
             <div className="md:col-span-1 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-sm p-5">
@@ -373,21 +426,57 @@ export function NewPurchaseInvoiceClient({ vendors, items, taxCodes, paymentTerm
               <div className="w-full max-w-xs space-y-2 text-sm">
                 <div className="flex justify-between text-gray-500 dark:text-gray-400">
                   <span>{t("subtotal")}</span>
-                  <span className="font-mono">﷼ {subtotal.toFixed(2)}</span>
+                  <span className="font-mono">{formatCurrency(subtotal)}</span>
                 </div>
-                {discountTotal > 0 && (
+                {lineDiscount > 0 && (
                   <div className="flex justify-between text-red-500">
-                    <span>{t("discount")}</span>
-                    <span className="font-mono">-﷼ {discountTotal.toFixed(2)}</span>
+                    <span>{t("lineDiscount")}</span>
+                    <span className="font-mono">{formatCurrency(lineDiscount)}</span>
                   </div>
                 )}
+                <div className="flex justify-between items-center text-gray-500">
+                  <div className="flex items-center gap-1">
+                    <span>{t("globalDiscount")}</span>
+                    <select
+                      className="text-xs border rounded px-1 py-0.5 bg-background"
+                      value={discountType}
+                      onChange={(e) => setDiscountType(e.target.value as "PERCENTAGE" | "FIXED")}
+                    >
+                      <option value="PERCENTAGE">%</option>
+                      <option value="FIXED">{t("fixed")}</option>
+                    </select>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    {discountType === "PERCENTAGE" ? (
+                      <Input
+                        type="number"
+                        min={0}
+                        max={100}
+                        step={0.1}
+                        className="w-16 text-xs h-6"
+                        value={discountValue}
+                        onChange={(e) => setDiscountValue(parseFloat(e.target.value) || 0)}
+                      />
+                    ) : (
+                      <Input
+                        type="number"
+                        min={0}
+                        step={0.01}
+                        className="w-20 text-xs h-6"
+                        value={discountValue}
+                        onChange={(e) => setDiscountValue(parseFloat(e.target.value) || 0)}
+                      />
+                    )}
+                    <span className="font-mono text-red-500">-{formatCurrency(globalDiscount)}</span>
+                  </div>
+                </div>
                 <div className="flex justify-between text-gray-500 dark:text-gray-400">
                   <span>{t("taxLabel")}</span>
-                  <span className="font-mono">﷼ {taxAmount.toFixed(2)}</span>
+                  <span className="font-mono">{formatCurrency(taxAmount)}</span>
                 </div>
                 <div className="border-t border-gray-200 dark:border-gray-700 pt-2 flex justify-between font-bold text-base text-gray-900 dark:text-gray-100">
                   <span>{t("total")}</span>
-                  <span className="font-mono text-qoyod">﷼ {total.toFixed(2)}</span>
+                  <span className="font-mono text-qoyod">{formatCurrency(total)}</span>
                 </div>
               </div>
             </div>
@@ -401,14 +490,14 @@ export function NewPurchaseInvoiceClient({ vendors, items, taxCodes, paymentTerm
             <Button
               type="button"
               variant="outline"
-              disabled={submitting || !vendorId || lines.length === 0}
+              disabled={submitting || !vendorId || lines.length === 0 || lines.some((l) => !l.itemId)}
               onClick={() => handleSubmit("DRAFT")}
             >
               {submitting ? t("creating") : t("saveDraft")}
             </Button>
             <Button
               type="submit"
-              disabled={submitting || !vendorId || lines.length === 0}
+              disabled={submitting || !vendorId || lines.length === 0 || lines.some((l) => !l.itemId)}
               className="bg-qoyod text-white hover:bg-qoyod-dark dark:bg-qoyod dark:hover:opacity-90"
             >
               {submitting ? t("creating") : t("createInvoice")}

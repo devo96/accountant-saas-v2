@@ -21,11 +21,11 @@ export default async function JournalEntriesPage() {
     where: { organizationId: session.user.organizationId, isMaster: false },
     select: { id: true, code: true, name: true },
   }));
-  const fiscalYears = await prisma.fiscalYear.findMany({
+  const projects = await prisma.project.findMany({
     where: { organizationId: session.user.organizationId },
     select: { id: true, name: true },
-    orderBy: { startDate: "desc" },
+    orderBy: { name: "asc" },
   });
 
-  return <JournalEntriesClient entries={entries} accounts={accounts} fiscalYears={fiscalYears} />;
+  return <JournalEntriesClient entries={entries} accounts={accounts} projects={projects} />;
 }

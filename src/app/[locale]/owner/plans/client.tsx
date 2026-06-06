@@ -1,4 +1,4 @@
-"use client"; import { useTranslations } from "next-intl"; import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"; import { Button } from "@/components/ui/button"; import { Dialog } from "@/components/ui/dialog"; import { Plus, Edit3, Trash2, Crown } from "lucide-react"; import { useState, useCallback } from "react"; import { PlanForm } from "../_forms";
+"use client"; import { useTranslations } from "next-intl"; import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"; import { Button } from "@/components/ui/button"; import { Dialog } from "@/components/ui/dialog"; import { Plus, Edit3, Trash2, Crown } from "lucide-react"; import { useState, useCallback } from "react"; import { formatCurrency } from "@/lib/utils"; import { PlanForm } from "../_forms";
 type PlanExt = { id: string; name: string; tier: string; monthlyPrice: number; yearlyPrice: number; maxUsers: number; maxInvoices: number; active: boolean; orgCount: number; };
 const tierColors: Record<string, string> = { FREE: "text-gray-500 bg-gray-100", STARTER: "text-blue-600 bg-blue-50", PROFESSIONAL: "text-purple-600 bg-purple-50", ENTERPRISE: "text-amber-600 bg-amber-50" };
 export function PlansClient({ plans: initialPlans }: { plans: PlanExt[] }) {
@@ -18,8 +18,8 @@ export function PlansClient({ plans: initialPlans }: { plans: PlanExt[] }) {
             <CardContent className="space-y-2">
               <p className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${tc}`}>{plan.tier}</p>
               <div className="flex gap-3">
-                <p className="text-lg font-bold">﷼ {plan.monthlyPrice}<span className="text-xs font-normal text-gray-400">{t("perMonth")}</span></p>
-                <p className="text-lg font-bold text-gray-500">﷼ {plan.yearlyPrice}<span className="text-xs font-normal text-gray-400">{t("perYear")}</span></p>
+                <p className="text-lg font-bold">{formatCurrency(plan.monthlyPrice)}<span className="text-xs font-normal text-gray-400">{t("perMonth")}</span></p>
+                <p className="text-lg font-bold text-gray-500">{formatCurrency(plan.yearlyPrice)}<span className="text-xs font-normal text-gray-400">{t("perYear")}</span></p>
               </div>
               <div className="space-y-1 text-xs">
                 <p className="flex justify-between"><span className="text-gray-400">{t("maxUsers")}</span><span>{plan.maxUsers}</span></p>

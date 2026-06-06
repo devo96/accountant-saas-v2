@@ -8,6 +8,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Link } from "@/i18n/navigation";
 import { Calculator, ArrowRightLeft, FileText, DollarSign, ShoppingCart, Receipt, Landmark } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
@@ -43,19 +44,21 @@ export default async function EasyEntriesPage() {
       />
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
         {templates.map((t) => (
-          <Card key={t.label} className="cursor-pointer hover:border-primary/50 transition-colors">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-lg bg-gray-100 dark:bg-gray-700 ${t.color}`}>
-                  <t.icon className="h-5 w-5" />
+          <Link key={t.label} href="/accounting/journal-entries/new" className="block">
+            <Card className="cursor-pointer hover:border-primary/50 transition-colors">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className={`p-2 rounded-lg bg-gray-100 dark:bg-gray-700 ${t.color}`}>
+                    <t.icon className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-sm">{t.label}</p>
+                    <p className="text-xs text-gray-500">{t.description}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-semibold text-sm">{t.label}</p>
-                  <p className="text-xs text-gray-500">{t.description}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </Link>
         ))}
       </div>
       <Card>

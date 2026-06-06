@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { cn } from "@/lib/utils";
-import { ChevronLeft, ChevronRight, Download, Search, Trash2, Inbox } from "lucide-react";
+import { ChevronLeft, ChevronRight, Download, Search, Inbox } from "lucide-react";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { exportToCsv } from "@/lib/export";
@@ -117,7 +117,7 @@ export function DataTable<T extends Record<string, unknown>>({
             onClick={() => exportToCsv(filtered as Record<string, unknown>[], exportFilename, columns)}
           >
             <Download className="h-4 w-4 ms-1" />
-            Export CSV
+            {t("exportCsv")}
           </Button>
         )}
       </div>
@@ -152,7 +152,7 @@ export function DataTable<T extends Record<string, unknown>>({
 
       {selected.size > 0 && bulkActions && bulkActions.length > 0 && (
         <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-primary-50 dark:bg-primary-950/50">
-          <span className="text-sm font-medium text-primary-800 dark:text-primary-300">{selected.size} selected</span>
+          <span className="text-sm font-medium text-primary-800 dark:text-primary-300">{t("selected", { count: selected.size })}</span>
           {bulkActions.map((action) => (
             <Button
               key={action.label}
@@ -182,7 +182,7 @@ export function DataTable<T extends Record<string, unknown>>({
               {columns.map((col) => (
                 <TableHead key={col.key}>{col.label}</TableHead>
               ))}
-              {(onEdit || onDelete) && <TableHead className="w-28">Actions</TableHead>}
+              {(onEdit || onDelete) && <TableHead className="w-28">{t("actions")}</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -218,10 +218,10 @@ export function DataTable<T extends Record<string, unknown>>({
                     <TableCell>
                       <div className="flex gap-1">
                         {onEdit && (
-                          <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); onEdit(item); }}>Edit</Button>
+                          <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); onEdit(item); }}>{t("edit")}</Button>
                         )}
                         {onDelete && (
-                          <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); onDelete(item); }} className="text-red-600">Del</Button>
+                          <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); onDelete(item); }} className="text-red-600">{t("delete")}</Button>
                         )}
                       </div>
                     </TableCell>
@@ -234,7 +234,7 @@ export function DataTable<T extends Record<string, unknown>>({
       </div>
 
       <div className="flex items-center justify-between">
-        <span className="text-sm text-gray-500 dark:text-gray-400">{filtered.length} records</span>
+        <span className="text-sm text-gray-500 dark:text-gray-400">{t("records", { count: filtered.length })}</span>
         <div className="flex gap-1">
           <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage(page - 1)}>
             <ChevronRight className="h-4 w-4" />

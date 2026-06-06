@@ -11,6 +11,7 @@ import { Plus, Pencil, Trash2 } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { formatCurrency } from "@/lib/utils";
 import { useToast } from "@/components/ui/toast";
 
 type Item = { id: string; name: string; sku: string | null; barcode: string | null; type: string; unit: string; sellingPrice: number; costPrice: number; currentStock: number; minStock: number; description: string | null };
@@ -79,8 +80,8 @@ export function ItemsClient({ items }: Props) {
           { key: "sku", label: t("sku"), render: (i) => (i as Item).sku ?? "-" },
           { key: "type", label: t("type") },
           { key: "currentStock", label: t("stock"), render: (i) => Number((i as Item).currentStock).toLocaleString() },
-          { key: "sellingPrice", label: t("sellPrice"), render: (i) => `﷼ ${Number((i as Item).sellingPrice).toLocaleString()}` },
-          { key: "costPrice", label: t("costPrice"), render: (i) => `﷼ ${Number((i as Item).costPrice).toLocaleString()}` },
+          { key: "sellingPrice", label: t("sellPrice"), render: (i) => formatCurrency(Number((i as Item).sellingPrice)) },
+          { key: "costPrice", label: t("costPrice"), render: (i) => formatCurrency(Number((i as Item).costPrice)) },
           { key: "actions", label: "", render: (i) => (
             <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
               <Button size="sm" variant="ghost" title={t("edit")} onClick={() => openEdit(i as Item)}><Pencil className="h-3 w-3" /></Button>

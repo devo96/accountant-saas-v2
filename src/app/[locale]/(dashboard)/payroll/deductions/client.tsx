@@ -6,6 +6,7 @@ import { Dialog } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { formatCurrency } from "@/lib/utils";
 import { FadeIn } from "@/components/transitions";
 import { PageHeader } from "@/components/ui/page-header";
 import { Plus, Pencil, Trash2 } from "lucide-react";
@@ -61,14 +62,14 @@ export function DeductionsClient({ deductions }: Props) {
           actions={<Button onClick={() => { setEditingId(null); setForm({ employeeId: "", amount: 0, date: new Date().toISOString().split("T")[0], type: "OTHER", description: "", recurring: false }); setShowAdd(true); }}><Plus className="h-4 w-4 ms-1" /> {t("add")}</Button>} />
         <div className="grid grid-cols-4 gap-4">
           {Object.entries(byType).map(([type, amt]) => (
-            <Card key={type}><CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-gray-500">{type}</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">﷼{amt.toFixed(2)}</p></CardContent></Card>
+            <Card key={type}><CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-gray-500">{type}</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">{formatCurrency(amt)}</p></CardContent></Card>
           ))}
-          <Card><CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-gray-500">{t("total")}</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">﷼{totalAmount.toFixed(2)}</p></CardContent></Card>
+          <Card><CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-gray-500">{t("total")}</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">{formatCurrency(totalAmount)}</p></CardContent></Card>
         </div>
         <DataTable searchable columns={[
           { key: "employee", label: t("employee"), render: (c) => (c as Deduction).employee?.name },
           { key: "type", label: t("type"), render: (c) => <Badge variant="outline">{(c as Deduction).type}</Badge> },
-          { key: "amount", label: t("amount"), render: (c) => `﷼${(c as Deduction).amount.toFixed(2)}` },
+          { key: "amount", label: t("amount"), render: (c) => formatCurrency((c as Deduction).amount) },
           { key: "recurring", label: t("recurring"), render: (c) => (c as Deduction).recurring ? t("yes") : t("no") },
           { key: "actions", label: "", render: (c) => { const cur = c as Deduction; return (<div className="flex gap-1"><Button variant="ghost" size="sm" onClick={() => startEdit(cur)} className="h-8 w-8 p-0 text-gray-400 hover:text-primary-600"><Pencil className="h-4 w-4" /></Button><Button variant="ghost" size="sm" onClick={() => setDeletingId(cur.id)} className="h-8 w-8 p-0 text-gray-400 hover:text-red-600"><Trash2 className="h-4 w-4" /></Button></div>); }},
         ]} data={deductions as unknown as Record<string, unknown>[]} />

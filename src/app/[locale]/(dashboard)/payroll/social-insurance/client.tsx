@@ -6,6 +6,7 @@ import { Dialog } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { formatCurrency } from "@/lib/utils";
 import { FadeIn } from "@/components/transitions";
 import { PageHeader } from "@/components/ui/page-header";
 import { Plus, Pencil, Trash2 } from "lucide-react";
@@ -61,16 +62,16 @@ export function SocialInsuranceClient({ records }: Props) {
         <PageHeader title={t("title")} description={t("description")}
           actions={<Button onClick={() => { setEditingId(null); setForm({ employeeId: "", period: "", employeeShare: 0, employerShare: 0, salary: 0, status: "PENDING" }); setShowAdd(true); }}><Plus className="h-4 w-4 ms-1" /> {t("add")}</Button>} />
         <div className="grid grid-cols-3 gap-4">
-          <Card><CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-gray-500">{t("employeeShare")}</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">﷼{totalEmployeeShare.toFixed(2)}</p></CardContent></Card>
-          <Card><CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-gray-500">{t("employerShare")}</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">﷼{totalEmployerShare.toFixed(2)}</p></CardContent></Card>
-          <Card><CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-gray-500">{t("totalContributions")}</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">﷼{totalContributions.toFixed(2)}</p></CardContent></Card>
+          <Card><CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-gray-500">{t("employeeShare")}</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">{formatCurrency(totalEmployeeShare)}</p></CardContent></Card>
+          <Card><CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-gray-500">{t("employerShare")}</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">{formatCurrency(totalEmployerShare)}</p></CardContent></Card>
+          <Card><CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-gray-500">{t("totalContributions")}</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">{formatCurrency(totalContributions)}</p></CardContent></Card>
         </div>
         <DataTable searchable columns={[
           { key: "employee", label: t("employee"), render: (c) => (c as InsuranceRec).employee?.name },
           { key: "period", label: t("period") },
-          { key: "salary", label: t("salary"), render: (c) => `﷼${(c as InsuranceRec).salary.toFixed(2)}` },
-          { key: "employeeShare", label: t("employeeShare"), render: (c) => `﷼${(c as InsuranceRec).employeeShare.toFixed(2)}` },
-          { key: "employerShare", label: t("employerShare"), render: (c) => `﷼${(c as InsuranceRec).employerShare.toFixed(2)}` },
+          { key: "salary", label: t("salary"), render: (c) => formatCurrency((c as InsuranceRec).salary) },
+          { key: "employeeShare", label: t("employeeShare"), render: (c) => formatCurrency((c as InsuranceRec).employeeShare) },
+          { key: "employerShare", label: t("employerShare"), render: (c) => formatCurrency((c as InsuranceRec).employerShare) },
           { key: "status", label: t("status"), render: (c) => <Badge variant={(c as InsuranceRec).status === "PAID" ? "success" : "warning"}>{(c as InsuranceRec).status}</Badge> },
           { key: "actions", label: "", render: (c) => { const cur = c as InsuranceRec; return (<div className="flex gap-1"><Button variant="ghost" size="sm" onClick={() => startEdit(cur)} className="h-8 w-8 p-0 text-gray-400 hover:text-primary-600"><Pencil className="h-4 w-4" /></Button><Button variant="ghost" size="sm" onClick={() => setDeletingId(cur.id)} className="h-8 w-8 p-0 text-gray-400 hover:text-red-600"><Trash2 className="h-4 w-4" /></Button></div>); }},
         ]} data={records as unknown as Record<string, unknown>[]} />

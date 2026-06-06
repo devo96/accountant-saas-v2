@@ -50,6 +50,7 @@ export function Dialog({ open, onClose, title, children, className }: DialogProp
               <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{title}</h2>
               <button
                 onClick={onClose}
+                aria-label="Close dialog"
                 className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
               >
                 <X className="h-5 w-5" />

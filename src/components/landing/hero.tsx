@@ -1,22 +1,45 @@
+"use client";
+
+import { useTranslations } from "next-intl";
+import { useLocale } from "next-intl";
+import { formatCurrency } from "@/lib/utils";
+
 export function LandingHero() {
+  const t = useTranslations("landing");
+  const locale = useLocale();
+  const fmtLocale = locale === "en" ? "en-US" : "ar-SA";
+
+  const invoices = [
+    { label: t("heroInv1"), amount: formatCurrency(12500, "SAR", fmtLocale), status: t("paid") },
+    { label: t("heroInv2"), amount: formatCurrency(8750, "SAR", fmtLocale), status: t("paid") },
+    { label: t("heroInv3"), amount: formatCurrency(15200, "SAR", fmtLocale), status: t("pending") },
+  ];
+
+  const transactions = [
+    { label: t("heroTx1"), time: t("heroTime1") },
+    { label: t("heroTx2"), time: t("heroTime2") },
+    { label: t("heroTx3"), time: t("heroTime3") },
+    { label: t("heroTx4"), time: t("heroTime4") },
+  ];
+
   return (
     <section className="pt-32 pb-20 md:pt-40 md:pb-28 bg-gradient-to-b from-primary-50/50 to-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-4xl mx-auto">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-6">
-            أدر حركاتك المالية ومحاسبة شركتك<br />
-            <span className="text-primary-600">بكل سهولة وأمان</span>
+            {t("heroTitle")}<br />
+            <span className="text-primary-600">{t("heroTitleHighlight")}</span>
           </h1>
           <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto mb-10 leading-relaxed">
-            برنامج محاسبي سحابي متكامل يغنيك عن الدفاتر المعقدة، متوافق تماماً مع متطلبات هيئة الزكاة والضريبة والجمارك &quot;زاتكا&quot;
+            {t("heroDesc")}
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <a href="/ar/register" className="inline-flex items-center px-8 py-3.5 text-base font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-xl shadow-lg shadow-primary-600/25 transition-all hover:shadow-xl hover:shadow-primary-600/30">
-              ابدأ تجربتك المجانية الآن
-              <span className="mr-2 text-primary-200 text-sm">(بدون بطاقة ائتمانية)</span>
+            <a href={`/${locale}/register`} className="inline-flex items-center px-8 py-3.5 text-base font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-xl shadow-lg shadow-primary-600/25 transition-all hover:shadow-xl hover:shadow-primary-600/30">
+              {t("heroCtaTrial")}
+              <span className="mr-2 text-primary-200 text-sm">{t("heroNoCreditCard")}</span>
             </a>
             <a href="#demo" className="inline-flex items-center px-8 py-3.5 text-base font-medium text-primary-600 bg-white border-2 border-primary-200 hover:border-primary-300 rounded-xl transition-all">
-              احجز عرض توضيحي
+              {t("heroCtaDemo")}
             </a>
           </div>
         </div>
@@ -33,32 +56,28 @@ export function LandingHero() {
               <div className="grid grid-cols-3 gap-4 mb-4">
                 <div className="col-span-2 bg-gray-50 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-sm font-semibold text-gray-700">الفواتير الصادرة</h3>
-                    <span className="text-xs text-green-600 bg-green-50 px-2 py-0.5 rounded-full">+12.5%</span>
+                    <h3 className="text-sm font-semibold text-gray-700">{t("heroInvoicesTitle")}</h3>
+                    <span className="text-xs text-green-600 bg-green-50 px-2 py-0.5 rounded-full">{t("heroGrowth")}</span>
                   </div>
                   <div className="space-y-2">
-                    {[
-                      { label: "فاتورة # INV-00123", amount: "12,500 ريال", status: "مدفوعة" },
-                      { label: "فاتورة # INV-00124", amount: "8,750 ريال", status: "مدفوعة" },
-                      { label: "فاتورة # INV-00125", amount: "15,200 ريال", status: "معلقة" },
-                    ].map((inv, i) => (
+                    {invoices.map((inv, i) => (
                       <div key={i} className="flex items-center justify-between py-1.5">
                         <span className="text-xs text-gray-600">{inv.label}</span>
                         <div className="flex items-center gap-3">
                           <span className="text-xs font-medium text-gray-800">{inv.amount}</span>
-                          <span className={`text-[10px] px-1.5 py-0.5 rounded ${inv.status === "مدفوعة" ? "text-green-700 bg-green-50" : "text-amber-700 bg-amber-50"}`}>{inv.status}</span>
+                          <span className={`text-[10px] px-1.5 py-0.5 rounded ${inv.status === t("paid") ? "text-green-700 bg-green-50" : "text-amber-700 bg-amber-50"}`}>{inv.status}</span>
                         </div>
                       </div>
                     ))}
                   </div>
                 </div>
                 <div className="bg-gray-50 rounded-lg p-4">
-                  <h3 className="text-sm font-semibold text-gray-700 mb-3">الأرباح / الخسائر</h3>
+                  <h3 className="text-sm font-semibold text-gray-700 mb-3">{t("heroProfitLoss")}</h3>
                   <div className="flex items-end justify-between h-24 gap-1">
                     {[65, 45, 80, 55, 70, 90].map((h, i) => (
                       <div key={i} className="flex-1 flex flex-col items-center gap-1">
                         <div className="w-full rounded-t" style={{ height: `${h}%`, backgroundColor: i === 5 ? "#7259ff" : "#c7bdff" }} />
-                        <span className="text-[9px] text-gray-400">شهر{i + 1}</span>
+                        <span className="text-[9px] text-gray-400">M{i + 1}</span>
                       </div>
                     ))}
                   </div>
@@ -66,14 +85,14 @@ export function LandingHero() {
               </div>
               <div className="bg-gray-50 rounded-lg p-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-500">آخر المعاملات</span>
-                  <span className="text-xs text-primary-600 font-medium">عرض الكل</span>
+                  <span className="text-xs text-gray-500">{t("heroRecentTx")}</span>
+                  <span className="text-xs text-primary-600 font-medium">{t("heroViewAll")}</span>
                 </div>
                 <div className="mt-2 space-y-1.5">
-                  {["حركة بنكية", "فاتورة مشتريات", "قيد يومية", "مردود مبيعات"].map((tx, i) => (
+                  {transactions.map((tx, i) => (
                     <div key={i} className="flex items-center justify-between py-1">
-                      <span className="text-xs text-gray-600">{tx}</span>
-                      <span className="text-xs text-gray-400">منذ {["ساعة", "ساعتين", "5 ساعات", "يوم"][i]}</span>
+                      <span className="text-xs text-gray-600">{tx.label}</span>
+                      <span className="text-xs text-gray-400">{tx.time}</span>
                     </div>
                   ))}
                 </div>

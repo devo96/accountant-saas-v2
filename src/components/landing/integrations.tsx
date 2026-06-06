@@ -1,26 +1,30 @@
-const integrations = [
-  { name: "سلة", desc: "ربط الفواتير مع متجر سلة الإلكتروني" },
-  { name: "زيد", desc: "مزامنة المخزون مع منصة زيد" },
-  { name: "مدفوعات", desc: "بوابة دفع إلكترونية متكاملة" },
-  { name: "نقاط البيع", desc: "ربط مع أنظمة نقاط البيع" },
-];
+"use client";
+
+import { useTranslations } from "next-intl";
 
 export function LandingIntegrations() {
+  const t = useTranslations("landing");
+
+  const integrations = [
+    { name: t("intSallaName"), desc: t("intSallaDesc"), icon: "🛍️" },
+    { name: t("intZidName"), desc: t("intZidDesc"), icon: "🛒" },
+    { name: t("intPaymentsName"), desc: t("intPaymentsDesc"), icon: "💳" },
+    { name: t("intPosName"), desc: t("intPosDesc"), icon: "🏪" },
+  ];
+
   return (
     <section id="integrations" className="py-20 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-14">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">تكاملات وربط</h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">اربط برنامج المحاسبة مع أدواتك المفضلة</p>
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{t("integrationsTitle")}</h2>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">{t("integrationsSubtitle")}</p>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {integrations.map((item, i) => (
-            <div key={i} className="p-6 bg-white rounded-xl border border-gray-200 hover:border-primary-200 hover:shadow-md transition-all text-center">
-              <div className="w-14 h-14 bg-primary-50 rounded-xl flex items-center justify-center mx-auto mb-3">
-                <span className="text-primary-600 font-bold text-lg">{item.name[0]}</span>
-              </div>
-              <h4 className="text-sm font-bold text-gray-800 mb-1">{item.name}</h4>
-              <p className="text-xs text-gray-500">{item.desc}</p>
+        <div className="grid md:grid-cols-4 gap-6">
+          {integrations.map((int, i) => (
+            <div key={i} className="text-center p-6 bg-white rounded-2xl border border-gray-200 hover:border-primary-200 transition-all hover:shadow-lg">
+              <span className="text-4xl mb-3 block">{int.icon}</span>
+              <h3 className="text-base font-bold text-gray-900 mb-2">{int.name}</h3>
+              <p className="text-sm text-gray-600">{int.desc}</p>
             </div>
           ))}
         </div>

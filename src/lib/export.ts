@@ -29,3 +29,23 @@ export function exportToJson(data: Record<string, unknown>[], filename: string) 
   a.click();
   URL.revokeObjectURL(url);
 }
+
+import ExcelJS from "exceljs";
+
+export async function exportToExcel(data: Record<string, unknown>[], filename: string, columns: { key: string; label: string }[]) {
+  const wb = new ExcelJS.Workbook();
+  wb.creator = "Qoyod";
+  wb.created = new Date();
+  const ws = wb.addWorksheet("Sheet1");
+  ws.columns = columns.map((c) => ({ header: c.label, key: c.key, width: Math.max(c.label.length + 2, 12) }));
+  ws.addRows(data);
+  ws.getRow(1).font = { bold: true };
+  const buf = await wb.xlsx.writeBuffer();
+  const blob = new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${filename}.xlsx`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
