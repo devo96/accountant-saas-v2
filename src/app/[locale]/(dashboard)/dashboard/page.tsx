@@ -14,7 +14,7 @@ export default async function DashboardPage({ params }: Props) {
 
   const orgId = session.user.organizationId;
 
-  const [totalInvoices, totalPurchases, totalExpenses, customers, vendors, recentInvoices, recentPayments, allInvoices, allExpenses] =
+  const [totalInvoices, totalPurchases, totalExpenses, customers, vendors, recentInvoices, recentPayments, allInvoices, allExpenses, preAlerts] =
     await Promise.all([
       prisma.salesInvoice.aggregate({ where: { organizationId: orgId, status: "PAID" }, _sum: { total: true } }),
       prisma.purchaseInvoice.aggregate({ where: { organizationId: orgId, status: "PAID" }, _sum: { total: true } }),
@@ -41,6 +41,11 @@ export default async function DashboardPage({ params }: Props) {
         where: { organizationId: orgId },
         select: { amount: true, date: true },
         orderBy: { date: "asc" },
+      }),
+      prisma.aiProactiveAlert.findMany({
+        where: { organizationId: orgId, dismissed: false },
+        orderBy: [{ severity: "desc" }, { createdAt: "desc" }],
+        take: 20,
       }),
     ]);
 
@@ -80,6 +85,15 @@ export default async function DashboardPage({ params }: Props) {
     method: pmt.method,
   }));
 
+  const initialAlerts = preAlerts.map((a) => ({
+    id: a.id,
+    title: a.title,
+    message: a.message,
+    severity: a.severity as "INFO" | "WARNING" | "CRITICAL",
+    category: a.category,
+    createdAt: a.createdAt.toISOString(),
+  }));
+
   return (
     <DashboardClient
       locale={locale}
@@ -94,6 +108,7 @@ export default async function DashboardPage({ params }: Props) {
       recentInvoices={recentInvoicesData}
       recentPayments={recentPaymentsData}
       monthlyData={monthlyData}
+      initialAlerts={initialAlerts}
     />
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -7,7 +8,7 @@ import {
 } from "recharts";
 import { useTheme } from "@/components/theme-provider";
 import {
-  TrendingUp, TrendingDown, DollarSign, Users, ShoppingCart, Package,
+  TrendingUp, TrendingDown, DollarSign, Users, ShoppingCart, Package, AlertTriangle, AlertCircle, Info, X,
   ArrowUpRight, ArrowDownRight, Calendar, ChevronLeft, Filter, Download,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -16,6 +17,7 @@ import { formatCurrency } from "@/lib/utils";
 type RecentInvoice = { id: string; number: string; customerName: string; total: number; status: string };
 type RecentPayment = { id: string; number: string; amount: number; method: string };
 type MonthlyData = { month: string; revenue: number; expenses: number };
+type AlertData = { id: string; title: string; message: string; severity: "INFO" | "WARNING" | "CRITICAL"; category: string; createdAt: string };
 
 interface DashboardClientProps {
   locale: string;
@@ -30,6 +32,7 @@ interface DashboardClientProps {
   recentInvoices: RecentInvoice[];
   recentPayments: RecentPayment[];
   monthlyData: MonthlyData[];
+  initialAlerts: AlertData[];
 }
 
 const barColors = ["#1D97E0", "#49CC6F", "#FD9A00", "#576487", "#0070F2", "#14293C"];
@@ -41,11 +44,48 @@ function cn(...classes: (string | false | undefined | null)[]) {
 export default function DashboardClient({
   locale,
   revenue, totalCosts, profit, profitMargin, customers, vendors,
-  recentInvoices, recentPayments, monthlyData,
+  recentInvoices, recentPayments, monthlyData, initialAlerts,
 }: DashboardClientProps) {
   const isRtl = locale === "ar";
   const { theme } = useTheme();
   const isDark = theme === "dark";
+
+  const [alerts, setAlerts] = useState<AlertData[]>(initialAlerts);
+  const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set());
+
+  const runAnalysis = useCallback(async () => {
+    try {
+      const res = await fetch("/api/ai/proactive-alerts", { method: "POST" });
+      if (res.ok) {
+        const { count } = await res.json();
+        if (count > 0) {
+          const getRes = await fetch("/api/ai/proactive-alerts");
+          if (getRes.ok) {
+            const data = await getRes.json();
+            setAlerts((prev) => {
+              const existingIds = new Set(prev.map((a) => a.id));
+              const merged = [...prev, ...data.alerts.filter((a: AlertData) => !existingIds.has(a.id))];
+              return merged;
+            });
+          }
+        }
+      }
+    } catch { /* ignore */ }
+  }, []);
+
+  const dismissAlert = useCallback(async (id: string) => {
+    try {
+      await fetch(`/api/ai/proactive-alerts/${id}`, { method: "PATCH" });
+    } catch { /* ignore */ }
+    setDismissedIds((prev) => new Set(prev).add(id));
+    setTimeout(() => setAlerts((prev) => prev.filter((a) => a.id !== id)), 300);
+  }, []);
+
+  useEffect(() => {
+    runAnalysis();
+  }, [runAnalysis]);
+
+  const visibleAlerts = alerts.filter((a) => !dismissedIds.has(a.id));
 
   const today = new Date();
   const year = today.getFullYear();
@@ -228,6 +268,63 @@ export default function DashboardClient({
           </div>
         ))}
       </motion.div>
+
+      {/* Proactive Alerts */}
+      {visibleAlerts.length > 0 && (
+        <motion.div variants={itemVariants} className="space-y-2">
+          {visibleAlerts.map((alert) => (
+            <div
+              key={alert.id}
+              className={cn(
+                "rounded-xl border p-4 flex items-start gap-3 transition-all",
+                alert.severity === "CRITICAL"
+                  ? "border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/30"
+                  : alert.severity === "WARNING"
+                    ? "border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30"
+                    : "border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/30"
+              )}
+            >
+              <div className="flex-shrink-0 mt-0.5">
+                {alert.severity === "CRITICAL" ? (
+                  <AlertCircle className="h-5 w-5 text-red-500" />
+                ) : alert.severity === "WARNING" ? (
+                  <AlertTriangle className="h-5 w-5 text-amber-500" />
+                ) : (
+                  <Info className="h-5 w-5 text-blue-500" />
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className={cn(
+                  "text-sm font-semibold",
+                  alert.severity === "CRITICAL"
+                    ? "text-red-800 dark:text-red-200"
+                    : alert.severity === "WARNING"
+                      ? "text-amber-800 dark:text-amber-200"
+                      : "text-blue-800 dark:text-blue-200"
+                )}>
+                  {alert.title}
+                </p>
+                <p className={cn(
+                  "text-xs mt-0.5",
+                  alert.severity === "CRITICAL"
+                    ? "text-red-600 dark:text-red-300"
+                    : alert.severity === "WARNING"
+                      ? "text-amber-600 dark:text-amber-300"
+                      : "text-blue-600 dark:text-blue-300"
+                )}>
+                  {alert.message}
+                </p>
+              </div>
+              <button
+                onClick={() => dismissAlert(alert.id)}
+                className="flex-shrink-0 p-1 rounded hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+              >
+                <X className="h-4 w-4 text-gray-400" />
+              </button>
+            </div>
+          ))}
+        </motion.div>
+      )}
 
       {/* Chart */}
       <motion.div variants={itemVariants}>
