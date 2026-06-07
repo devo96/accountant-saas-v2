@@ -1,21 +1,28 @@
+import { Resend } from "resend";
 import { prisma } from "./prisma";
+
+const resend = process.env.RESEND_API_KEY
+  ? new Resend(process.env.RESEND_API_KEY)
+  : null;
+
+const DEFAULT_FROM = process.env.EMAIL_FROM ?? "noreply@accountant-saas.com";
 
 const DEFAULT_TEMPLATES: Record<string, { subject: string; body: string }> = {
   "invoice.created": {
     subject: "New Invoice #{number}",
-    body: "Dear {customerName},\n\nInvoice #{number} for {amount} has been created.\n\nThank you.",
+    body: "<p>Dear {customerName},</p><p>Invoice #{number} for {amount} has been created.</p><p>Thank you.</p>",
   },
   "invoice.paid": {
     subject: "Invoice #{number} - Payment Received",
-    body: "Dear {customerName},\n\nPayment of {amount} for Invoice #{number} has been received.\n\nThank you.",
+    body: "<p>Dear {customerName},</p><p>Payment of {amount} for Invoice #{number} has been received.</p><p>Thank you.</p>",
   },
   "quote.accepted": {
     subject: "Quote #{number} - Accepted",
-    body: "Dear {customerName},\n\nQuote #{number} for {amount} has been accepted.\n\nThank you.",
+    body: "<p>Dear {customerName},</p><p>Quote #{number} for {amount} has been accepted.</p><p>Thank you.</p>",
   },
   "expense.approved": {
     subject: "Expense Approved",
-    body: "Your expense of {amount} has been approved.\n\nThank you.",
+    body: "<p>Your expense of {amount} has been approved.</p><p>Thank you.</p>",
   },
 };
 
@@ -31,9 +38,12 @@ export function renderTemplate(template: string, vars: Record<string, string | n
   return template.replace(/\{(\w+)\}/g, (_, key) => String(vars[key] ?? `{${key}}`));
 }
 
-export async function sendEmail(_to: string, _subject: string, _body: string): Promise<void> {
-  // Placeholder — integrate with SMTP / SendGrid / SES here
-  console.log(`[EMAIL] To: ${_to}, Subject: ${_subject}`);
+export async function sendEmail(to: string, subject: string, html: string): Promise<void> {
+  if (!resend) {
+    console.log(`[EMAIL] To: ${to}, Subject: ${subject}`);
+    return;
+  }
+  await resend.emails.send({ from: DEFAULT_FROM, to, subject, html });
 }
 
 export async function sendTemplateEmail(
