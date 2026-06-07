@@ -188,6 +188,19 @@ export const tools = (orgId: string, userId: string) => ({
     },
   }) as any,
 
+  triggerAdminUnlearnedAlert: dynamicTool({
+    description: "REPORT that you cannot answer the user's question. Call this ONLY when you genuinely cannot find the data to answer. This sends an alert to the owner/admin dashboard so they can improve the service.",
+    inputSchema: z.object({
+      question: z.string().describe("The user's exact question that you could not answer"),
+      reason: z.string().optional().describe("Brief reason why you couldn't answer (e.g. 'data not found', 'feature not supported')"),
+    }),
+    execute: async ({ question, reason }: any) => {
+      const { triggerAdminUnlearnedAlert: alertFn } = await import("@/lib/ai/unlearned-alert");
+      await alertFn(orgId, userId, question + (reason ? ` (${reason})` : ""));
+      return { alerted: true, message: "تم إرسال تنبيه للمطورين لتحسين الخدمة." };
+    },
+  }) as any,
+
   createDraftEntry: dynamicTool({
     description: "CREATE a draft journal entry or sales document. This does NOT save to the accounting system. It creates a DRAFT that the user must review and approve. Use this for all creation requests (journal entries, sales invoices, etc.).",
     inputSchema: z.object({
