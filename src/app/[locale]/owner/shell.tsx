@@ -6,7 +6,7 @@ import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
-import { LayoutDashboard, Building2, Package, Users, CreditCard, Shield, Ticket, Bot, PanelLeftClose, PanelLeft, Crown, LogOut, Menu, X } from "lucide-react";
+import { LayoutDashboard, Building2, Package, Users, CreditCard, Shield, Ticket, Bot, BarChart3, PanelLeftClose, PanelLeft, Crown, LogOut, Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const navItems = [
@@ -19,6 +19,7 @@ const navItems = [
   { key: "security", href: "/owner/security", icon: Shield },
   { key: "support", href: "/owner/support", icon: Ticket },
   { key: "aiSettings", href: "/owner/ai-settings", icon: Bot },
+  { key: "aiUsage", href: "/owner/ai-usage", icon: BarChart3 },
 ];
 
 export function OwnerShell({ children }: { children: ReactNode }) {

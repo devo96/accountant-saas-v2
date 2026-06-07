@@ -111,7 +111,8 @@
   "billing": "الفواتير",
   "security": "الأمان",
   "support": "الدعم",
-  "aiSettings": "إعدادات الذكاء الاصطناعي"
+  "aiSettings": "إعدادات الذكاء الاصطناعي",
+  "aiUsage": "استخدام الذكاء الاصطناعي"
   },
   "ownerPanel": {
     "title": "لوحة المالك",
@@ -422,6 +423,22 @@
     "aiAddonPriceHint": "المبلغ الذي يدفعه العميل عند تجاوز الحد الشهري",
     "aiTotalTokens": "إجمالي التوكنز المستهلكة هذا الشهر",
     "aiTotalQueries": "إجمالي عدد الاستعلامات الذكية للعملاء",
+    "aiUsageTitle": "استخدام الذكاء الاصطناعي",
+    "aiUsageSubtitle": "سجل وتحليل استهلاك الذكاء الاصطناعي لجميع المؤسسات",
+    "aiUsageTotalTokens": "إجمالي التوكنز المستهلكة",
+    "aiUsageTotalSpend": "إجمالي المصروفات (يونيو)",
+    "aiUsageTotalQueries": "إجمالي الاستعلامات الذكية",
+    "aiUsageImagesProcessed": "الفواتير والصور المعالجة",
+    "aiUsageLogTitle": "سجل الاستخدام التفصيلي",
+    "aiUsageColSession": "رقم الجلسة",
+    "aiUsageColType": "نوع العملية",
+    "aiUsageColModel": "النموذج",
+    "aiUsageColPrompt": "توكنز الإدخال",
+    "aiUsageColCompletion": "توكنز الإخراج",
+    "aiUsageColTotal": "إجمالي التوكنز",
+    "aiUsageColCost": "التكلفة ($)",
+    "aiUsageColDate": "التاريخ",
+    "aiUsageNoData": "لا توجد بيانات استخدام بعد",
     "plan": "الباقة"
   },
   "dashboard": {

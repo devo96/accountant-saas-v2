@@ -9,12 +9,6 @@ export const tools = (orgId: string, userId: string) => ({
     description: "Get the full chart of accounts tree with codes, names, types (ASSET/LIABILITY/EQUITY/INCOME/EXPENSE), natures (DEBIT/CREDIT), and current balances.",
     inputSchema: z.object({}),
     execute: async () => {
-      await prisma.aiUsage.upsert({
-        where: { organizationId_userId_month: { organizationId: orgId, userId, month: new Date().toISOString().slice(0, 7).replace("-", "") } },
-        update: { queryCount: { increment: 1 } },
-        create: { organizationId: orgId, userId, month: new Date().toISOString().slice(0, 7).replace("-", "") },
-      });
-
       const accounts = await prisma.account.findMany({
         where: { organizationId: orgId },
         orderBy: { code: "asc" },
@@ -40,12 +34,6 @@ export const tools = (orgId: string, userId: string) => ({
       accountId: z.string().optional().describe("Filter by account ID to get expenses for a specific account"),
     }),
     execute: async ({ keyword, fromDate, toDate, accountId }: any) => {
-      await prisma.aiUsage.upsert({
-        where: { organizationId_userId_month: { organizationId: orgId, userId, month: new Date().toISOString().slice(0, 7).replace("-", "") } },
-        update: { queryCount: { increment: 1 } },
-        create: { organizationId: orgId, userId, month: new Date().toISOString().slice(0, 7).replace("-", "") },
-      });
-
       const where: Record<string, unknown> = { organizationId: orgId };
       if (keyword) where.description = { contains: keyword };
       if (fromDate || toDate) {
@@ -87,12 +75,6 @@ export const tools = (orgId: string, userId: string) => ({
       customerId: z.string().optional(),
     }),
     execute: async ({ fromDate, toDate, customerId }: any) => {
-      await prisma.aiUsage.upsert({
-        where: { organizationId_userId_month: { organizationId: orgId, userId, month: new Date().toISOString().slice(0, 7).replace("-", "") } },
-        update: { queryCount: { increment: 1 } },
-        create: { organizationId: orgId, userId, month: new Date().toISOString().slice(0, 7).replace("-", "") },
-      });
-
       const where: Record<string, unknown> = { organizationId: orgId };
       if (customerId) where.customerId = customerId;
       if (fromDate || toDate) {
@@ -128,12 +110,6 @@ export const tools = (orgId: string, userId: string) => ({
       limit: z.number().optional().default(20),
     }),
     execute: async ({ fromDate, toDate, accountId, limit }: any) => {
-      await prisma.aiUsage.upsert({
-        where: { organizationId_userId_month: { organizationId: orgId, userId, month: new Date().toISOString().slice(0, 7).replace("-", "") } },
-        update: { queryCount: { increment: 1 } },
-        create: { organizationId: orgId, userId, month: new Date().toISOString().slice(0, 7).replace("-", "") },
-      });
-
       const where: Record<string, unknown> = { organizationId: orgId };
       if (fromDate || toDate) {
         (where as any).date = {};
@@ -169,12 +145,6 @@ export const tools = (orgId: string, userId: string) => ({
       accountName: z.string().describe("Account name or code to search for"),
     }),
     execute: async ({ accountName }: any) => {
-      await prisma.aiUsage.upsert({
-        where: { organizationId_userId_month: { organizationId: orgId, userId, month: new Date().toISOString().slice(0, 7).replace("-", "") } },
-        update: { queryCount: { increment: 1 } },
-        create: { organizationId: orgId, userId, month: new Date().toISOString().slice(0, 7).replace("-", "") },
-      });
-
       const account = await prisma.account.findFirst({
         where: { organizationId: orgId, OR: [{ name: { contains: accountName } }, { code: accountName } as any] },
       });

@@ -114,6 +114,7 @@ model Organization {
   paymentTransactions PaymentTransaction[]
   aiActionDrafts AiActionDraft[]
   aiUsage AiUsage[]
+  aiUsageLogs AiUsageLog[]
   aiProactiveAlerts AiProactiveAlert[]
 }
 
@@ -1287,17 +1288,39 @@ model AiActionDraft {
 }
 
 model AiUsage {
-  id             String   @id @default(uuid())
-  organizationId String
-  userId         String
-  month          String   // YYYYMM format
-  queryCount     Int      @default(1)
-  createdAt      DateTime @default(now())
+  id               String   @id @default(uuid())
+  organizationId   String
+  userId           String
+  month            String   // YYYYMM format
+  queryCount       Int      @default(1)
+  promptTokens     Int      @default(0)
+  completionTokens Int      @default(0)
+  totalTokens      Int      @default(0)
+  costUsd          Float    @default(0)
+  createdAt        DateTime @default(now())
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@unique([organizationId, userId, month])
   @@index([organizationId, month])
+}
+
+model AiUsageLog {
+  id               String   @id @default(uuid())
+  organizationId   String
+  userId           String
+  operationType    String   // "text_query", "image_processing", "function_calling"
+  modelName        String   // "gpt-4o-mini", "gpt-4o"
+  promptTokens     Int      @default(0)
+  completionTokens Int      @default(0)
+  totalTokens      Int      @default(0)
+  costUsd          Float    @default(0)
+  createdAt        DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, createdAt])
+  @@index([organizationId, userId, createdAt])
 }
 
 model AiProactiveAlert {

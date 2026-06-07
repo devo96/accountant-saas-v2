@@ -113,7 +113,8 @@
   "billing": "Billing",
   "security": "Security",
   "support": "Support",
-  "aiSettings": "AI Settings"
+  "aiSettings": "AI Settings",
+  "aiUsage": "AI Usage"
   },
   "ownerPanel": {
     "title": "Owner Panel",
@@ -424,6 +425,22 @@
     "aiAddonPriceHint": "Price customers pay when exceeding monthly AI limits",
     "aiTotalTokens": "Total Tokens Consumed This Month",
     "aiTotalQueries": "Total AI Queries by Customers",
+    "aiUsageTitle": "AI Usage Analytics",
+    "aiUsageSubtitle": "Detailed AI consumption and cost tracking across all organizations",
+    "aiUsageTotalTokens": "Total Tokens Consumed",
+    "aiUsageTotalSpend": "Total Spend (June)",
+    "aiUsageTotalQueries": "Total Smart Queries",
+    "aiUsageImagesProcessed": "Invoices / Images Processed",
+    "aiUsageLogTitle": "Detailed Usage Log",
+    "aiUsageColSession": "Session ID",
+    "aiUsageColType": "Operation Type",
+    "aiUsageColModel": "Model",
+    "aiUsageColPrompt": "Prompt Tokens",
+    "aiUsageColCompletion": "Completion Tokens",
+    "aiUsageColTotal": "Total Tokens",
+    "aiUsageColCost": "Cost ($)",
+    "aiUsageColDate": "Date",
+    "aiUsageNoData": "No usage data yet",
     "plan": "Plan"
   },
   "dashboard": {

@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { tools } from "@/lib/ai/tools";
 import { prisma } from "@/lib/prisma";
 import { logger } from "@/lib/logger";
+import { calculateCost, detectOperationType } from "@/lib/ai/pricing";
 
 const makeSystemPrompt = (todayStr: string) => `أنت "المحاسب الذكي"، مساعد مالي خبير وصارم جداً تعمل داخل منصة محاسبة سحابية (SaaS). تلتزم بأعلى معايير التدقيق المالي المعتمدة، ووظيفتك الأساسية هي قراءة المستندات وتحليل الفواتير المرفوعة بدقة مطلقة، وتحويلها إلى قيود محاسبية متزنة دون أي هامش للخطأ أو التخمين. تاريخ اليوم الفعلي هو: ${todayStr}.
 
@@ -94,12 +95,59 @@ export async function POST(req: Request) {
     system += "\n\nملاحظة: تم تعطيل صلاحية إنشاء المسودات في باقاتك. يمكنك فقط عرض المعلومات والتقارير.";
   }
 
+  const modelName = "gpt-4o-mini";
+
   const result = streamText({
-    model: openai("gpt-4o-mini"),
+    model: openai(modelName),
     system,
     messages,
     tools: tools(session.user.organizationId, session.user.id),
     stopWhen: stepCountIs(10),
+    onFinish: async ({ usage }) => {
+      try {
+        const promptTokens = usage.inputTokens ?? 0;
+        const completionTokens = usage.outputTokens ?? 0;
+        const totalTokens = usage.totalTokens ?? 0;
+        const costUsd = calculateCost(modelName, promptTokens, completionTokens);
+        const opType = detectOperationType(messages as any[]);
+
+        await prisma.aiUsageLog.create({
+          data: {
+            organizationId: session.user.organizationId,
+            userId: session.user.id,
+            operationType: opType,
+            modelName,
+            promptTokens,
+            completionTokens,
+            totalTokens,
+            costUsd,
+          },
+        });
+
+        await prisma.aiUsage.upsert({
+          where: { organizationId_userId_month: { organizationId: session.user.organizationId, userId: session.user.id, month } },
+          update: {
+            queryCount: { increment: 1 },
+            promptTokens: { increment: promptTokens },
+            completionTokens: { increment: completionTokens },
+            totalTokens: { increment: totalTokens },
+            costUsd: { increment: costUsd },
+          },
+          create: {
+            organizationId: session.user.organizationId,
+            userId: session.user.id,
+            month,
+            queryCount: 1,
+            promptTokens,
+            completionTokens,
+            totalTokens,
+            costUsd,
+          },
+        });
+      } catch (err) {
+        logger.error({ err }, "Failed to record AI usage");
+      }
+    },
   });
 
   return result.toTextStreamResponse();

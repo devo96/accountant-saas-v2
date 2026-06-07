@@ -29,10 +29,10 @@ export default async function OwnerAiSettingsPage() {
   const thisMonth = new Date().toISOString().slice(0, 7).replace("-", "");
   const usageAgg = await prisma.aiUsage.aggregate({
     where: { month: thisMonth },
-    _sum: { queryCount: true },
+    _sum: { queryCount: true, totalTokens: true, costUsd: true },
   });
   const totalQueries = usageAgg._sum.queryCount ?? 0;
-  const totalTokens = Number(totalQueries) * 3500;
+  const totalTokens = usageAgg._sum.totalTokens ?? 0;
 
   return (
     <FadeIn>
