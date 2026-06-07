@@ -105,6 +105,7 @@
     "import": "Import Data",
     "zatca": "ZATCA",
     "auditLogs": "Audit Logs",
+    "bookmarklet": "Element Inspector",
   "owner": "Owner Panel",
   "payments": "Payments",
   "overview": "Overview",
@@ -2120,5 +2121,22 @@
     "footerCopyright": "Qoyod. All rights reserved.",
     "footerZatca": "ZATCA Compliant",
     "footerCloud": "100% Cloud"
+  },
+  "bookmarklet": {
+    "title": "Bookmarklet Inspector",
+    "description": "A browser bookmark that inspects any page element",
+    "bookmarkletName": "Element Inspector",
+    "dragInstruction": "Drag the button below to your bookmarks bar",
+    "dragHint": "Then click it on any page to inspect elements",
+    "stepsTitle": "How to install",
+    "step1": "Make sure your bookmarks bar is visible (Ctrl+Shift+B / Cmd+Shift+B)",
+    "step2": "Drag the blue button above to your bookmarks bar",
+    "step3": "Click the bookmark on any page to activate the element inspector",
+    "featuresTitle": "Features",
+    "feature1": "Hover over any element to see its outline",
+    "feature2": "Click to view tag, classes, ID, and CSS selector",
+    "feature3": "Add a modification note and copy all info",
+    "feature4": "Works on any website, not just this app",
+    "note": "The bookmarklet only runs when you click it. It does not collect any data."
   }
 }

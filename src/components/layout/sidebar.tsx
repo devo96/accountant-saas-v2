@@ -11,7 +11,7 @@ import {
   PiggyBank, Calculator, FileSpreadsheet, Calendar, Layout, Activity, QrCode, Mail, Upload,
   Handshake, ArrowRightLeft, ShieldCheck, HandCoins, Truck,
   ClipboardList, FolderTree, Ruler, BriefcaseBusiness, CircleDollarSign,
-  Network,
+  Network, Search,
 } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -155,6 +155,7 @@ const navItems: NavItem[] = [
       { key: "emailTemplates", href: "/settings/email-templates", icon: Mail },
       { key: "import", href: "/settings/import", icon: Upload },
       { key: "zatca", href: "/settings/zatca", icon: QrCode },
+      { key: "bookmarklet", href: "/settings/bookmarklet", icon: Search },
       { key: "auditLogs", href: "/settings/audit-logs", icon: Activity, adminOnly: true },
     ],
   },
