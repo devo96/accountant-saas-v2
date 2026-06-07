@@ -1,8 +1,8 @@
 # PROJECT_MAP — accountant-saas-v2
 
-> **Generated:** 2026-06-03 23:50 UTC+3  
-> **Last Build:** 2026-06-05 03:10 UTC+3 — ✅ **Build Succeeded (244 pages)**  
-> **Last Deploy:** 2026-06-04 02:25 UTC+3 — ✅ **Vercel (schema auto-synced, all pages live)**  
+> **Generated:** 2026-06-07 23:00 UTC+3  
+> **Last Build:** 2026-06-07 22:55 UTC+3 — ✅ **Build Succeeded (252 pages)**  
+> **Last Deploy:** 2026-06-07 21:35 UTC+3 — ✅ **Vercel (schema auto-synced, all pages live)**  
 > **Seed:** All models populated with demo data (employee, customer, vendor, categories, units, payment terms, branches, fixed assets, items, invoices, receipts, journal entries, projects, tasks, advances, deductions, social insurance)  
 > **Target:** 100% feature parity with Qoyod (https://app.qoyod.com)  
 > **Paradigm:** Simplicity First · Domain-Driven · No Feature Creep  
@@ -240,6 +240,8 @@ export const logger = pino({
 | `/accounting/fixed-assets/...`      | ✅ Full    | FixedAsset model         |
 | `/reports/vat-return`               | ✅ Full    | Invoice models           |
 | `/reports/inventory-report`         | ✅ Full    | Item model               |
+| `/reports/journal-entries`          | ✅ Full    | JournalEntry model       |
+| `/reports/account-statement`        | ✅ Full    | Account + JournalEntry   |
 | `/reports/budgets`                  | ✅ Redirect| → /budgets               |
 | `/payroll/advances`                 | ✅ Full    | Advance model (new)      |
 | `/payroll/deductions`               | ✅ Full    | Deduction model (new)    |
@@ -251,18 +253,31 @@ export const logger = pino({
 | `/settings/cost-centers`            | ✅ Full    | AccountingDimension model|
 | `/settings/email-templates`         | ✅ Full    | Email template            |
 
+## TOOLS ADDED
+
+| Tool                          | Location                         | Description                                  |
+| ----------------------------- | -------------------------------- | -------------------------------------------- |
+| Element Inspector             | `src/components/inspector/`      | زر عائم (✎) في الزاوية اليمنى السفلية. تضغط عليه لتفعيل وضع التحديد، ثم تضغط على أي عنصر في الموقع فتظهر نافذة بمعلومات العنصر (المسار، الوسم، النص، الـ CSS Selector) مع حقل لوصف التعديل المطلوب وزر نسخ المعلومات |
+
 ## ORPHANS & PENDING
 
 | Item                          | Status      | Notes                                       |
 | ----------------------------- | ----------- | ------------------------------------------- |
 | Multi-tenant isolation        | PENDING     | middleware check pending                    |
-| Email notifications           | PENDING     | Post-marketing emails (invoice send, reminders) |
-| PDF generation (invoices)     | PENDING     | @react-pdf/renderer or puppeteer            |
+| PDF generation (quotes)       | ✅ DONE    | jsPDF + html2canvas client-side; Puppeteer `/api/export/pdf` |
+| PDF generation (invoices)     | PENDING     | Same approach; not yet wired                |
+| Email send (quotes)           | ✅ DONE    | POST `/api/quotes/[id]/send-email` via resend.com |
+| Email notifications (general) | PENDING     | Invoice send, reminders, etc.              |
 | Dark mode                     | PENDING     | Tailwind dark variant, simple toggle        |
 | Proxy (Next.js 16)            | WARN        | middleware.ts deprecated; rename to proxy.ts |
 | Vitest/Playwright tests       | NOT YET     | Only build verification so far              |
 | CRUD APIs for new models      | PENDING     | Category, UnitOfMeasure, PaymentTerm, Branch, Advance, Deduction, SocialInsurance, Project, Task — pages exist, need POST/PUT/DELETE APIs |
 | Payroll run engine            | PENDING     | Calculate salaries + deductions + insurance  |
+| Excel export (all reports)    | ✅ DONE    | `exceljs` via `lib/export.ts` — trial balance, balance sheet, income statement, journal entries, account statement |
+| Quote→Invoice conversion      | ✅ DONE    | Convert button creates SalesInvoice + lines, auto-redirects to Sales Invoices list |
+| Project quick-create          | ✅ DONE    | `QuickCreateDialog` → Project form in slide-over |
+| Item validation               | ✅ DONE    | `errorMessage` + disabled Save when no lines in invoice/quote |
+| Customer/Vendor address       | ✅ DONE    | `crNumber`, `street`, `city`, `district`, `region`, `country`, `postalCode` added to schema + forms |
 | Forms: auto-form component    | ✅ DONE    | Generic form builder created                |
 | Forms: invoice-line-editor    | ✅ DONE    | Reusable line editor component              |
 | Sidebar restructure (Qoyod)   | ✅ DONE    | 12 groups, 58 items, matched Qoyod layout  |
@@ -371,6 +386,9 @@ export const logger = pino({
 - [x] Cash Flow Statement page (monthly)
 - [x] AR Aging page (5 buckets)
 - [x] AP Aging page (5 buckets)
+- [x] Journal Entries Report page (date range filter, table with reference/status)
+- [x] Account Statement Report page (date range, running balance, Excel export)
+- [x] Excel export for all reports (via `exceljs` — replaces old CSV)
 
 ### M7 — Polish & Admin ✅
 - [x] Organization settings page (edit form)
@@ -382,11 +400,16 @@ export const logger = pino({
 
 ### M8 — Testing & Deployment 🟡
 - [x] Deploy to Vercel (https://accountant-saas-v2.vercel.app)
-- [x] 209 pages, 0 TypeScript errors
+- [x] All pages, 0 TypeScript errors
 - [x] Auto-sync Postgres schema on Vercel deploy (postinstall.js)
 - [x] SalesInvoice: referenceNumber, paymentTermId, branchId, DRAFT/CONFIRMED status
 - [x] New invoice form matches Qoyod design (Reference, Issue/Due Dates, Payment Terms, Branch, table lines, Save as Draft + Save & Approve)
 - [x] PaymentTerm + Branch opposite relations added for SalesInvoice
+- [x] PDF download (quotes via jsPDF + Puppeteer)
+- [x] Email send (quotes via resend.com)
+- [x] Quote→Invoice conversion (auto-redirect to Sales Invoices)
+- [x] Customer/Vendor: crNumber + full address (schema + forms + dialogs)
+- [x] Excel export via exceljs (trial balance, balance sheet, income statement, journal entries, account statement)
 - [ ] Unit tests: domain services, validation schemas
 - [ ] Integration tests: API / Server Actions
 - [ ] E2E tests: critical user journeys (Playwright)
@@ -399,7 +422,14 @@ export const logger = pino({
 - [ ] CRUD API routes for Advance, Deduction, SocialInsurance
 - [ ] CRUD API routes for Project, Task
 - [ ] Payroll run engine (salary calculation)
-- [ ] Email notifications + PDF generation
+- [x] PDF generation (quotes) — jsPDF + Puppeteer
+- [x] Email send (quotes) — resend.com HTML template
+- [x] Journal Entries Report
+- [x] Account Statement Report
+- [x] Excel export
+- [x] Customer/Vendor: crNumber + full address
+- [x] Quote→Invoice conversion
+- [x] Item validation (no items = no save)
 - [ ] Dark mode toggle
 
 ---

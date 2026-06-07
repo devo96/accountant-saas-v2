@@ -4,6 +4,7 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
 import { ImpersonationBanner } from "@/components/layout/impersonation-banner";
 import { AiChat } from "@/components/ai/ai-chat";
+import { ElementInspector } from "@/components/inspector/element-inspector";
 import { Providers } from "@/components/providers";
 import { ThemeProvider } from "@/components/theme-provider";
 import { NotificationProvider } from "@/components/notification-provider";
@@ -36,6 +37,7 @@ export default function DashboardLayout({
               </div>
             </div>
             <AiChat />
+            <ElementInspector />
           </NotificationProvider>
         </ToastProvider>
       </ThemeProvider>
