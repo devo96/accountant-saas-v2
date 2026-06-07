@@ -18,7 +18,7 @@ function setLocaleCookie(response: NextResponse, locale: string): NextResponse {
   return response;
 }
 
-export default async function middleware(req: NextRequest) {
+export default async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const locale = getLocale(pathname);
   const publicPaths = ["/login", "/register", "/forgot-password"];
