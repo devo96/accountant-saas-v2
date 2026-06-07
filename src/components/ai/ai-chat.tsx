@@ -27,6 +27,7 @@ export function AiChat() {
   const [approvedDraftIds, setApprovedDraftIds] = useState<string[]>([]);
   const [rejectedDraftIds, setRejectedDraftIds] = useState<string[]>([]);
   const [processingDraft, setProcessingDraft] = useState<string | null>(null);
+  const [draftError, setDraftError] = useState<{ draftId: string; message: string } | null>(null);
   const [draftToMessage, setDraftToMessage] = useState<Record<string, string>>({});
   const messagesRef = useRef<Message[]>([]);
   messagesRef.current = messages;
@@ -68,8 +69,9 @@ export function AiChat() {
     } catch {}
   }, [approvedDraftIds]);
 
-  const handleDraftAction = useCallback(async (draftId: string, action: "approve" | "reject") => {
+  const handleDraftAction = async (draftId: string, action: "approve" | "reject") => {
     if (processingDraft) return;
+    setDraftError(null);
     setProcessingDraft(draftId);
     try {
       const res = await fetch(`/api/ai/drafts/${draftId}`, {
@@ -78,10 +80,12 @@ export function AiChat() {
         body: JSON.stringify({ action }),
       });
       if (!res.ok) {
-        const err = await res.text();
-        console.error(`Draft ${action} failed:`, err);
+        const errBody = await res.text();
+        const displayMsg = locale === "ar" ? "فشلت العملية. حاول مرة أخرى." : "Operation failed. Please try again.";
+        setDraftError({ draftId, message: displayMsg });
         return;
       }
+      const result = await res.json();
       if (action === "approve") {
         setApprovedDraftIds((prev) => [...prev, draftId]);
         const msg = locale === "ar"
@@ -94,10 +98,11 @@ export function AiChat() {
         setMessages((prev) => [...prev, { role: "assistant", id: crypto.randomUUID(), content: msg }]);
       }
     } catch (e) {
-      console.error("Draft action error:", e);
+      const displayMsg = locale === "ar" ? "حدث خطأ في الاتصال بالخادم." : "Connection error.";
+      setDraftError({ draftId, message: displayMsg });
     }
     setProcessingDraft(null);
-  }, [locale, processingDraft]);
+  };
 
   useEffect(() => {
     if (!isLoading && messages.length > 0) fetchDrafts();
@@ -207,6 +212,7 @@ export function AiChat() {
                 const isApproved = approvedDraftIds.includes(draft.id);
                 const isRejected = rejectedDraftIds.includes(draft.id);
                 const isProcessing = processingDraft === draft.id;
+                const errMsg = draftError?.draftId === draft.id ? draftError.message : null;
                 let borderStyle: string, bgStyle: string, textStyle: string;
                 let badge: React.ReactNode;
                 if (isApproved) {
@@ -228,17 +234,22 @@ export function AiChat() {
                   </div>
                   <p className="text-sm text-gray-700">{draft.summary}</p>
                   {!isApproved && !isRejected && (
-                  <div className="flex gap-2">
-                    <button onClick={() => handleDraftAction(draft.id, "approve")} disabled={isProcessing}
-                      className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors disabled:opacity-50">
-                      {isProcessing ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
-                      {isProcessing ? (locale === "ar" ? "جاري الحفظ..." : "Saving...") : (locale === "ar" ? "موافقة واعتماد" : "Confirm & Approve")}
-                    </button>
-                    <button onClick={() => handleDraftAction(draft.id, "reject")} disabled={isProcessing}
-                      className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300 transition-colors disabled:opacity-50">
-                      <XCircle className="h-4 w-4" />
-                      {locale === "ar" ? "إلغاء" : "Cancel"}
-                    </button>
+                  <div className="space-y-2">
+                    <div className="flex gap-2">
+                      <button onClick={() => handleDraftAction(draft.id, "approve")} disabled={isProcessing}
+                        className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors disabled:opacity-50">
+                        {isProcessing ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+                        {isProcessing ? (locale === "ar" ? "جاري الاعتماد..." : "Approving...") : (locale === "ar" ? "موافقة واعتماد" : "Confirm & Approve")}
+                      </button>
+                      <button onClick={() => handleDraftAction(draft.id, "reject")} disabled={isProcessing}
+                        className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300 transition-colors disabled:opacity-50">
+                        <XCircle className="h-4 w-4" />
+                        {locale === "ar" ? "إلغاء" : "Cancel"}
+                      </button>
+                    </div>
+                    {errMsg && (
+                      <p className="text-xs text-red-500 text-center">{errMsg}</p>
+                    )}
                   </div>
                   )}
                 </div>
