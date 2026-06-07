@@ -200,13 +200,11 @@ export function AiSettingsClient({ plans: initialPlans, settings: initialSetting
         <CardHeader><CardTitle className="flex items-center gap-2 text-base"><FileText className="h-5 w-5 text-indigo-500" />{t("aiPerPlan")}</CardTitle></CardHeader>
         <CardContent className="space-y-3">
           {/* Table Header */}
-          <div className="hidden md:flex items-center justify-between px-3 py-2 text-xs font-medium text-gray-400 uppercase tracking-wider">
-            <span className="w-36">{t("plan")}</span>
-            <div className="flex items-center gap-4">
-              <span className="w-28 text-center">{t("aiOcr")}</span>
-              <span className="w-28 text-center">{t("aiReporting")}</span>
-              <span className="w-28 text-center">{t("aiDrafting")}</span>
-            </div>
+          <div className="hidden md:grid grid-cols-[1fr_repeat(3,auto)] items-center px-3 py-2 text-xs font-medium text-gray-400 uppercase tracking-wider gap-4">
+            <span>{t("plan")}</span>
+            <span className="w-28 text-center">{t("aiOcr")}</span>
+            <span className="w-28 text-center">{t("aiReporting")}</span>
+            <span className="w-28 text-center">{t("aiDrafting")}</span>
           </div>
 
           {plans.map((plan) => {
@@ -214,24 +212,21 @@ export function AiSettingsClient({ plans: initialPlans, settings: initialSetting
             const tierColors: Record<string, string> = { FREE: "text-gray-500 bg-gray-100", STARTER: "text-blue-600 bg-blue-50", PROFESSIONAL: "text-purple-600 bg-purple-50", ENTERPRISE: "text-amber-600 bg-amber-50" };
             const tc = tierColors[plan.tier] ?? "text-gray-500 bg-gray-100";
             return (
-              <div key={plan.id} className="flex flex-col md:flex-row md:items-center justify-between py-3 px-4 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors gap-2">
+              <div key={plan.id} className="grid grid-cols-1 md:grid-cols-[1fr_repeat(3,auto)] items-center py-3 px-4 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors gap-2 md:gap-4">
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium">{plan.name}</span>
                   <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${tc}`}>{plan.tier}</span>
                 </div>
-                <div className="flex items-center gap-3 md:gap-4">
-                  {FEATURES.map((key) => (
-                    <button key={key} onClick={() => togglePlanFeature(plan.id, key)}
-                      className="flex items-center gap-2 text-xs whitespace-nowrap">
-                      <span className={feats[key] ? "text-indigo-500" : "text-gray-300"}>
-                        {feats[key] ? "✓" : "○"}
-                      </span>
-                      <span className="text-gray-500">
-                        {key === "ocr" ? "OCR" : key === "reporting" ? t("aiReporting") : t("aiDrafting")}
-                      </span>
-                    </button>
-                  ))}
-                </div>
+                {FEATURES.map((key) => (
+                  <label key={key} className="flex items-center justify-center w-28 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={feats[key]}
+                      onChange={() => togglePlanFeature(plan.id, key)}
+                      className="h-4 w-4 rounded border-gray-300 text-indigo-500 focus:ring-indigo-500/30 cursor-pointer"
+                    />
+                  </label>
+                ))}
               </div>
             );
           })}
