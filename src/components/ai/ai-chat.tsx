@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect, type FormEvent } from "react";
+import { useState, useRef, useMemo, useCallback, useEffect, type FormEvent } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { X, Send, ImageUp, Loader2, Bot, User, CheckCircle2, XCircle, FileText, Receipt } from "lucide-react";
 import ReactMarkdown from "react-markdown";
@@ -26,8 +26,17 @@ export function AiChat() {
   const [drafts, setDrafts] = useState<DraftInfo[]>([]);
   const [approvedDraftIds, setApprovedDraftIds] = useState<string[]>([]);
   const [processingDraft, setProcessingDraft] = useState<string | null>(null);
+  const [draftToMessage, setDraftToMessage] = useState<Record<string, string>>({});
+  const messagesRef = useRef<Message[]>([]);
+  messagesRef.current = messages;
   const fileRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  const latestPendingDraftId = useMemo(() => {
+    const pending = drafts.filter(d => !approvedDraftIds.includes(d.id));
+    if (pending.length === 0) return null;
+    return pending.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].id;
+  }, [drafts, approvedDraftIds]);
 
   const scrollDown = () => setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
 
@@ -41,6 +50,20 @@ export function AiChat() {
         const incoming = (data.drafts || []).filter((d: DraftInfo) => !approvedDraftIds.includes(d.id));
         return [...approved, ...incoming];
       });
+
+      const incomingDrafts = data.drafts || [];
+      if (incomingDrafts.length > 0) {
+        const lastAssistantId = messagesRef.current.filter(m => m.role === "assistant").pop()?.id;
+        if (lastAssistantId) {
+          setDraftToMessage((prev) => {
+            const next = { ...prev };
+            for (const d of incomingDrafts) {
+              if (!next[d.id]) next[d.id] = lastAssistantId;
+            }
+            return next;
+          });
+        }
+      }
     } catch {}
   }, [approvedDraftIds]);
 
@@ -161,49 +184,54 @@ export function AiChat() {
             <div className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center ${m.role === "user" ? "bg-primary-100" : "bg-gray-100"}`}>
               {m.role === "user" ? <User className="h-4 w-4 text-primary-600" /> : <Bot className="h-4 w-4 text-gray-600" />}
             </div>
-            <div className={`max-w-[85%] rounded-xl px-3 py-2 text-sm leading-relaxed ${m.role === "user" ? "bg-primary-600 text-white whitespace-pre-wrap" : "bg-gray-100 text-gray-800 [&_h3]:text-base [&_h3]:font-bold [&_h3]:mt-2 [&_h3]:mb-1 [&_strong]:font-bold [&_ul]:list-disc [&_ul]:pr-4 [&_ul]:space-y-0.5 [&_ol]:list-decimal [&_ol]:pr-4 [&_li]:mb-0 [&_code]:bg-gray-200 [&_code]:px-1 [&_code]:rounded [&_pre]:bg-gray-800 [&_pre]:text-gray-100 [&_pre]:p-3 [&_pre]:rounded-lg [&_pre]:text-xs [&_pre]:overflow-x-auto [&_p]:mb-1 [&_p:last-child]:mb-0"}`}>
-              {m.role === "assistant" ? (
-                m.content ? <ReactMarkdown>{m.content}</ReactMarkdown> : (isLoading && m === messages[messages.length - 1] ? "..." : "")
-              ) : (
-                m.content || ""
-              )}
+            <div className="max-w-[85%] space-y-2">
+              <div className={`rounded-xl px-3 py-2 text-sm leading-relaxed ${m.role === "user" ? "bg-primary-600 text-white whitespace-pre-wrap" : "bg-gray-100 text-gray-800 [&_h3]:text-base [&_h3]:font-bold [&_h3]:mt-2 [&_h3]:mb-1 [&_strong]:font-bold [&_ul]:list-disc [&_ul]:pr-4 [&_ul]:space-y-0.5 [&_ol]:list-decimal [&_ol]:pr-4 [&_li]:mb-0 [&_code]:bg-gray-200 [&_code]:px-1 [&_code]:rounded [&_pre]:bg-gray-800 [&_pre]:text-gray-100 [&_pre]:p-3 [&_pre]:rounded-lg [&_pre]:text-xs [&_pre]:overflow-x-auto [&_p]:mb-1 [&_p:last-child]:mb-0"}`}>
+                {m.role === "assistant" ? (
+                  m.content ? <ReactMarkdown>{m.content}</ReactMarkdown> : (isLoading && m === messages[messages.length - 1] ? "..." : "")
+                ) : (
+                  m.content || ""
+                )}
+              </div>
+
+              {m.role === "assistant" && drafts
+                .filter(d => draftToMessage[d.id] === m.id)
+                .filter(d => approvedDraftIds.includes(d.id) || d.id === latestPendingDraftId)
+                .map((draft) => {
+                const isApproved = approvedDraftIds.includes(draft.id);
+                return (
+                <div key={draft.id} className={`rounded-xl p-4 space-y-3 ${isApproved ? "border border-emerald-200 bg-emerald-50" : "border border-amber-200 bg-amber-50"}`} dir="rtl">
+                  <div className={`flex items-center gap-2 ${isApproved ? "text-emerald-700" : "text-amber-700"}`}>
+                    {draft.actionType === "JOURNAL_ENTRY" ? <FileText className="h-5 w-5" /> : <Receipt className="h-5 w-5" />}
+                    <span className="font-semibold text-sm">{locale === "ar" ? "مسودة قيد محاسبي" : "Journal Entry Draft"}</span>
+                    {isApproved ? (
+                      <span className="text-xs bg-emerald-200 text-emerald-800 px-2 py-0.5 rounded-full flex items-center gap-1">
+                        <CheckCircle2 className="h-3 w-3" /> {locale === "ar" ? "تم الاعتماد بنجاح" : "Approved"}
+                      </span>
+                    ) : (
+                      <span className="text-xs bg-amber-200 px-2 py-0.5 rounded-full">{locale === "ar" ? "بانتظار الموافقة" : "Pending Approval"}</span>
+                    )}
+                  </div>
+                  <p className="text-sm text-gray-700">{draft.summary}</p>
+                  {!isApproved && (
+                  <div className="flex gap-2">
+                    <button onClick={() => handleDraftAction(draft.id, "approve")} disabled={processingDraft === draft.id}
+                      className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors disabled:opacity-50">
+                      {processingDraft === draft.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+                      {locale === "ar" ? "موافقة واعتماد" : "Confirm & Approve"}
+                    </button>
+                    <button onClick={() => handleDraftAction(draft.id, "reject")} disabled={processingDraft === draft.id}
+                      className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300 transition-colors disabled:opacity-50">
+                      <XCircle className="h-4 w-4" />
+                      {locale === "ar" ? "إلغاء" : "Cancel"}
+                    </button>
+                  </div>
+                  )}
+                </div>
+                );
+              })}
             </div>
           </div>
         ))}
-
-        {drafts.map((draft) => {
-          const isApproved = approvedDraftIds.includes(draft.id);
-          return (
-          <div key={draft.id} className={`rounded-xl p-4 space-y-3 ${isApproved ? "border border-emerald-200 bg-emerald-50" : "border border-amber-200 bg-amber-50"}`} dir="rtl">
-            <div className={`flex items-center gap-2 ${isApproved ? "text-emerald-700" : "text-amber-700"}`}>
-              {draft.actionType === "JOURNAL_ENTRY" ? <FileText className="h-5 w-5" /> : <Receipt className="h-5 w-5" />}
-              <span className="font-semibold text-sm">{locale === "ar" ? "مسودة قيد محاسبي" : "Journal Entry Draft"}</span>
-              {isApproved ? (
-                <span className="text-xs bg-emerald-200 text-emerald-800 px-2 py-0.5 rounded-full flex items-center gap-1">
-                  <CheckCircle2 className="h-3 w-3" /> {locale === "ar" ? "تم الاعتماد بنجاح" : "Approved"}
-                </span>
-              ) : (
-                <span className="text-xs bg-amber-200 px-2 py-0.5 rounded-full">{locale === "ar" ? "بانتظار الموافقة" : "Pending Approval"}</span>
-              )}
-            </div>
-            <p className="text-sm text-gray-700">{draft.summary}</p>
-            {!isApproved && (
-            <div className="flex gap-2">
-              <button onClick={() => handleDraftAction(draft.id, "approve")} disabled={processingDraft === draft.id}
-                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors disabled:opacity-50">
-                {processingDraft === draft.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
-                {locale === "ar" ? "موافقة واعتماد" : "Confirm & Approve"}
-              </button>
-              <button onClick={() => handleDraftAction(draft.id, "reject")} disabled={processingDraft === draft.id}
-                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300 transition-colors disabled:opacity-50">
-                <XCircle className="h-4 w-4" />
-                {locale === "ar" ? "إلغاء" : "Cancel"}
-              </button>
-            </div>
-            )}
-          </div>
-          );
-        })}
 
         <div ref={bottomRef} />
       </div>

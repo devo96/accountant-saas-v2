@@ -448,6 +448,7 @@ export const logger = pino({
 - [x] No delete/drop operations exposed to AI
 - [x] `createDraftEntry` tool replaces direct write
 - [x] Draft summary card + Confirm & Approve / Cancel buttons in chat UI
+- [x] Draft cards bound to AI response messages (not global at bottom); only latest active draft shows action buttons; old pending drafts auto-hidden
 - [x] `POST /api/ai/drafts/[id]` approve/reject endpoint
 - [x] `GET /api/ai/drafts/pending` endpoint
 - [x] `/owner/ai-settings` page: per-plan toggles (OCR, Reporting, Drafting)
