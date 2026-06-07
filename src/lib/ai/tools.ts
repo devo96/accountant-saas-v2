@@ -218,6 +218,16 @@ export const tools = (orgId: string, userId: string) => ({
       }),
     }),
     execute: async ({ actionType, summary, payload }: any) => {
+      if (actionType === "JOURNAL_ENTRY" && payload?.lines) {
+        const totalDebit = payload.lines.reduce((s: number, l: any) => s + (Number(l.debit) || 0), 0);
+        const totalCredit = payload.lines.reduce((s: number, l: any) => s + (Number(l.credit) || 0), 0);
+        const diff = Math.abs(totalDebit - totalCredit);
+        if (diff > 0.001) {
+          logger.warn({ totalDebit, totalCredit, diff }, "Unbalanced journal entry draft rejected");
+          return { error: "غير متوازن: مجموع المدين لا يساوي مجموع الدائن. الرجاء إعادة المحاولة بأرقام صحيحة.", unbalanced: true, totalDebit, totalCredit };
+        }
+      }
+
       const draft = await prisma.aiActionDraft.create({
         data: {
           organizationId: orgId,

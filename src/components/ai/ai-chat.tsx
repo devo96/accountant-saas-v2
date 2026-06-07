@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback, useEffect, type FormEvent } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { X, Send, ImageUp, Loader2, Bot, User, CheckCircle2, XCircle, FileText, Receipt } from "lucide-react";
+import ReactMarkdown from "react-markdown";
 
 type Message = { role: "user" | "assistant"; content: string; id: string };
 
@@ -153,8 +154,12 @@ export function AiChat() {
             <div className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center ${m.role === "user" ? "bg-primary-100" : "bg-gray-100"}`}>
               {m.role === "user" ? <User className="h-4 w-4 text-primary-600" /> : <Bot className="h-4 w-4 text-gray-600" />}
             </div>
-            <div className={`max-w-[85%] rounded-xl px-3 py-2 text-sm leading-relaxed whitespace-pre-wrap ${m.role === "user" ? "bg-primary-600 text-white" : "bg-gray-100 text-gray-800"}`}>
-              {m.content || (isLoading && m === messages[messages.length - 1] ? "..." : "")}
+            <div className={`max-w-[85%] rounded-xl px-3 py-2 text-sm leading-relaxed ${m.role === "user" ? "bg-primary-600 text-white whitespace-pre-wrap" : "bg-gray-100 text-gray-800 [&_h3]:text-base [&_h3]:font-bold [&_h3]:mt-2 [&_h3]:mb-1 [&_strong]:font-bold [&_ul]:list-disc [&_ul]:pr-4 [&_ul]:space-y-0.5 [&_ol]:list-decimal [&_ol]:pr-4 [&_li]:mb-0 [&_code]:bg-gray-200 [&_code]:px-1 [&_code]:rounded [&_pre]:bg-gray-800 [&_pre]:text-gray-100 [&_pre]:p-3 [&_pre]:rounded-lg [&_pre]:text-xs [&_pre]:overflow-x-auto [&_p]:mb-1 [&_p:last-child]:mb-0"}`}>
+              {m.role === "assistant" ? (
+                m.content ? <ReactMarkdown>{m.content}</ReactMarkdown> : (isLoading && m === messages[messages.length - 1] ? "..." : "")
+              ) : (
+                m.content || ""
+              )}
             </div>
           </div>
         ))}
