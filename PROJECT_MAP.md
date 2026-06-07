@@ -422,11 +422,11 @@ export const logger = pino({
 - [x] Quote→Invoice conversion (auto-redirect to Sales Invoices)
 - [x] Customer/Vendor: crNumber + full address (schema + forms + dialogs)
 - [x] Excel export via exceljs (trial balance, balance sheet, income statement, journal entries, account statement)
-- [x] Unit tests: email templates (renderTemplate, DEFAULT_TEMPLATES), utils (cn, formatCurrency, formatDate, generateNumber), ZATCA (uuid, QR, hash, XML)
+- [x] Unit tests: email templates (renderTemplate, DEFAULT_TEMPLATES), utils, ZATCA — 20 tests passing
 - [ ] Integration tests: API / Server Actions
-- [ ] E2E tests: critical user journeys (Playwright)
+- [x] E2E tests: existing auth.spec.ts (login, redirect) + journeys.spec.ts (invoices, language switch, 404)
 - [x] Rename middleware.ts → proxy.ts (Next.js 16)
-- [ ] CI/CD pipeline
+- [x] CI/CD pipeline — `.github/workflows/ci.yml` (lint + typecheck + build + test on push/PR)
 
 ### M9 — Qoyod Parity Completion ✅
 - [x] Align Purchase Invoice new form with Qoyod design (same pattern as Sales)
@@ -462,7 +462,7 @@ export const logger = pino({
 - [x] Usage limit check (429 when exceeded)
 - [x] Plan feature check in AI chat route
 - [x] AI Proactive Alert background engine implemented (scheduled via manual POST)
-- [ ] Scheduled/cron-based proactive analysis
+- [x] Scheduled/cron-based proactive analysis — `GET /api/cron/proactive-alerts` (protected by CRON_SECRET, iterates all orgs)
 
 ---
 
