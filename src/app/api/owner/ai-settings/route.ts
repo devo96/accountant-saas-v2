@@ -18,6 +18,8 @@ export async function POST(req: NextRequest) {
     ai_max_queries: String(global.maxQueries ?? 500),
     ai_max_tokens: String(global.maxTokens ?? 1000000),
     ai_proactive_alerts: String(global.proactiveAlerts ?? false),
+    ai_model_provider: String(global.modelProvider ?? "openai-gpt4o"),
+    ai_addon_price: String(global.addonPrice ?? 50),
   };
 
   for (const [key, value] of Object.entries(settingsMap)) {

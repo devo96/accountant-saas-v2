@@ -417,7 +417,14 @@
     "aiSettingsSaved": "AI settings saved successfully",
     "aiSettingsFailed": "Failed to save AI settings",
     "aiQueriesLabel": "Queries/month",
-    "aiTokensLabel": "Tokens/month"
+    "aiTokensLabel": "Tokens/month",
+    "aiModelProvider": "AI Model Provider",
+    "aiModelProviderHint": "Select the AI model provider for the accounting assistant",
+    "aiAddonPrice": "AI Add-on Bundle Price",
+    "aiAddonPriceHint": "Price customers pay when exceeding monthly AI limits",
+    "aiTotalTokens": "Total Tokens Consumed This Month",
+    "aiTotalQueries": "Total AI Queries by Customers",
+    "plan": "Plan"
   },
   "dashboard": {
     "title": "Dashboard",

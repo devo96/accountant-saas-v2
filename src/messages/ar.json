@@ -415,7 +415,14 @@
     "aiSettingsSaved": "تم حفظ إعدادات المحاسب الذكي بنجاح",
     "aiSettingsFailed": "فشل حفظ إعدادات المحاسب الذكي",
     "aiQueriesLabel": "استعلام/شهر",
-    "aiTokensLabel": "توكن/شهر"
+    "aiTokensLabel": "توكن/شهر",
+    "aiModelProvider": "نموذج الذكاء الاصطناعي المشغّل",
+    "aiModelProviderHint": "اختر مزود نموذج الذكاء الاصطناعي للمحاسب الذكي",
+    "aiAddonPrice": "سعر حزمة الاستعلامات الإضافية",
+    "aiAddonPriceHint": "المبلغ الذي يدفعه العميل عند تجاوز الحد الشهري",
+    "aiTotalTokens": "إجمالي التوكنز المستهلكة هذا الشهر",
+    "aiTotalQueries": "إجمالي عدد الاستعلامات الذكية للعملاء",
+    "plan": "الباقة"
   },
   "dashboard": {
     "title": "لوحة التحكم",

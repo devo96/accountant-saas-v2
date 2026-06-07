@@ -26,11 +26,24 @@ export default async function OwnerAiSettingsPage() {
   const settingsMap: Record<string, string> = {};
   for (const s of globalSettings) settingsMap[s.key] = s.value;
 
+  const thisMonth = new Date().toISOString().slice(0, 7).replace("-", "");
+  const usageAgg = await prisma.aiUsage.aggregate({
+    where: { month: thisMonth },
+    _sum: { queryCount: true },
+  });
+  const totalQueries = usageAgg._sum.queryCount ?? 0;
+  const totalTokens = Number(totalQueries) * 3500;
+
   return (
     <FadeIn>
       <div className="space-y-4">
         <PageHeader title={t("aiSettingsTitle")} description={t("aiSettingsSubtitle")} />
-        <AiSettingsClient plans={plansData} settings={settingsMap} />
+        <AiSettingsClient
+          plans={plansData}
+          settings={settingsMap}
+          totalTokens={totalTokens}
+          totalQueries={totalQueries}
+        />
       </div>
     </FadeIn>
   );
