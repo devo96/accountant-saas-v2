@@ -9,13 +9,15 @@ import { FadeIn } from "@/components/transitions";
 import { PageHeader } from "@/components/ui/page-header";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
+import { QuickCreateDialog } from "@/components/forms/quick-create-dialog";
 
 type Vendor = { id: string; name: string };
 
-export default function NewPurchaseOrderClient({ vendors }: { vendors: Vendor[] }) {
+export default function NewPurchaseOrderClient({ vendors: initialVendors }: { vendors: Vendor[] }) {
   const router = useRouter();
   const t = useTranslations("purchaseOrders");
   const [submitting, setSubmitting] = useState(false);
+  const [vendors, setVendors] = useState<Vendor[]>(initialVendors);
   const [form, setForm] = useState({
     vendorId: "",
     orderDate: new Date().toISOString().split("T")[0],
@@ -28,6 +30,11 @@ export default function NewPurchaseOrderClient({ vendors }: { vendors: Vendor[] 
   });
 
   const vendorOpts = vendors.map((v) => ({ value: v.id, label: v.name }));
+
+  const handleVendorCreated = (entity: { id: string; name: string }) => {
+    setVendors([...vendors, { id: entity.id, name: entity.name }]);
+    setForm((f) => ({ ...f, vendorId: entity.id }));
+  };
 
   async function handleSubmit() {
     setSubmitting(true);
@@ -64,7 +71,12 @@ export default function NewPurchaseOrderClient({ vendors }: { vendors: Vendor[] 
       <Card>
         <CardHeader><CardTitle>{t("dialogTitle")}</CardTitle></CardHeader>
         <CardContent className="grid grid-cols-3 gap-4">
-          <Select label={t("vendor")} options={vendorOpts} placeholder={t("vendor")} value={form.vendorId} onChange={(e) => setForm({ ...form, vendorId: e.target.value })} />
+          <div className="flex gap-2 items-end">
+            <div className="flex-1">
+              <Select label={t("vendor")} options={vendorOpts} placeholder={t("vendor")} value={form.vendorId} onChange={(e) => setForm({ ...form, vendorId: e.target.value })} />
+            </div>
+            <QuickCreateDialog type="vendor" onCreated={handleVendorCreated} />
+          </div>
           <Input label={t("orderDate")} type="date" value={form.orderDate} onChange={(e) => setForm({ ...form, orderDate: e.target.value })} />
           <Input label={t("expectedDate")} type="date" value={form.expectedDate} onChange={(e) => setForm({ ...form, expectedDate: e.target.value })} />
           <Input label={t("subtotal")} type="number" value={form.subtotal} onChange={(e) => setForm({ ...form, subtotal: e.target.value })} />
