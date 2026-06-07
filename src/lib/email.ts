@@ -1,5 +1,6 @@
 import { Resend } from "resend";
 import { prisma } from "./prisma";
+import { DEFAULT_TEMPLATES, renderTemplate } from "./email-templates";
 
 const resend = process.env.RESEND_API_KEY
   ? new Resend(process.env.RESEND_API_KEY)
@@ -7,24 +8,7 @@ const resend = process.env.RESEND_API_KEY
 
 const DEFAULT_FROM = process.env.EMAIL_FROM ?? "noreply@accountant-saas.com";
 
-const DEFAULT_TEMPLATES: Record<string, { subject: string; body: string }> = {
-  "invoice.created": {
-    subject: "New Invoice #{number}",
-    body: "<p>Dear {customerName},</p><p>Invoice #{number} for {amount} has been created.</p><p>Thank you.</p>",
-  },
-  "invoice.paid": {
-    subject: "Invoice #{number} - Payment Received",
-    body: "<p>Dear {customerName},</p><p>Payment of {amount} for Invoice #{number} has been received.</p><p>Thank you.</p>",
-  },
-  "quote.accepted": {
-    subject: "Quote #{number} - Accepted",
-    body: "<p>Dear {customerName},</p><p>Quote #{number} for {amount} has been accepted.</p><p>Thank you.</p>",
-  },
-  "expense.approved": {
-    subject: "Expense Approved",
-    body: "<p>Your expense of {amount} has been approved.</p><p>Thank you.</p>",
-  },
-};
+export { renderTemplate };
 
 export async function getEmailTemplate(organizationId: string, key: string) {
   const custom = await prisma.emailTemplate.findUnique({
@@ -32,10 +16,6 @@ export async function getEmailTemplate(organizationId: string, key: string) {
   });
   if (custom) return { subject: custom.subject, body: custom.body };
   return DEFAULT_TEMPLATES[key] ?? null;
-}
-
-export function renderTemplate(template: string, vars: Record<string, string | number>): string {
-  return template.replace(/\{(\w+)\}/g, (_, key) => String(vars[key] ?? `{${key}}`));
 }
 
 export async function sendEmail(to: string, subject: string, html: string): Promise<void> {
