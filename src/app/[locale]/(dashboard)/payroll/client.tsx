@@ -7,8 +7,8 @@ import { Dialog } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { FadeIn } from "@/components/transitions";
 import { PageHeader } from "@/components/ui/page-header";
-import { Plus } from "lucide-react";
-import { formatCurrency, generateNumber } from "@/lib/utils";
+import { Plus, Calculator } from "lucide-react";
+import { formatCurrency } from "@/lib/utils";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
@@ -44,9 +44,27 @@ export function PayrollClient({ runs }: Props) {
   const router = useRouter();
   const [showAdd, setShowAdd] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [calculating, setCalculating] = useState(false);
   const [form, setForm] = useState({ month: new Date().getMonth() + 1, year: new Date().getFullYear(), totalSalaries: "", totalGosi: "", netTotal: "" });
 
   const statusLabels: Record<string, string> = { DRAFT: "draft", CONFIRMED: "confirmed", PAID: "paid", CANCELLED: "cancelled" };
+
+  async function handleCalculate() {
+    setCalculating(true);
+    try {
+      const res = await fetch("/api/payroll-runs/calculate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ month: form.month, year: form.year }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setForm({ ...form, totalSalaries: String(data.totalSalaries), totalGosi: String(data.totalGosi), netTotal: String(data.netTotal) });
+      }
+    } finally {
+      setCalculating(false);
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -94,9 +112,14 @@ export function PayrollClient({ runs }: Props) {
           <Input label={t("totalSalaries")} type="number" value={form.totalSalaries} onChange={(e) => setForm({ ...form, totalSalaries: e.target.value })} />
           <Input label={t("totalGosi")} type="number" value={form.totalGosi} onChange={(e) => setForm({ ...form, totalGosi: e.target.value })} />
           <Input label={t("netTotal")} type="number" value={form.netTotal} onChange={(e) => setForm({ ...form, netTotal: e.target.value })} />
-          <div className="flex justify-end gap-3 pt-2">
-            <Button type="button" variant="outline" onClick={() => setShowAdd(false)}>{t("cancel")}</Button>
-            <Button type="submit" disabled={loading}>{loading ? t("saving") : t("save")}</Button>
+          <div className="flex justify-between gap-3 pt-2">
+            <Button type="button" variant="outline" onClick={handleCalculate} disabled={calculating}>
+              <Calculator className="h-4 w-4 ms-1" /> {calculating ? t("calculating") : t("autoCalculate")}
+            </Button>
+            <div className="flex gap-2">
+              <Button type="button" variant="outline" onClick={() => setShowAdd(false)}>{t("cancel")}</Button>
+              <Button type="submit" disabled={loading}>{loading ? t("saving") : t("save")}</Button>
+            </div>
           </div>
         </form>
       </Dialog>

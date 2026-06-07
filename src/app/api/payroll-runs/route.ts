@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { NextResponse } from "next/server";
+import { calculatePayroll } from "@/domains/payroll/engine";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -38,13 +39,24 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Payroll run already exists for this month" }, { status: 409 });
   }
 
+  let totalSalaries = Number(body.totalSalaries) || 0;
+  let totalGosi = Number(body.totalGosi) || 0;
+  let netTotal = Number(body.netTotal) || 0;
+
+  if (body.autoCalculate) {
+    const calc = await calculatePayroll(session.user.organizationId, Number(body.month), Number(body.year));
+    totalSalaries = calc.totalSalaries;
+    totalGosi = calc.totalGosi;
+    netTotal = calc.netTotal;
+  }
+
   const run = await prisma.payrollRun.create({
     data: {
       month: Number(body.month),
       year: Number(body.year),
-      totalSalaries: Number(body.totalSalaries) || 0,
-      totalGosi: Number(body.totalGosi) || 0,
-      netTotal: Number(body.netTotal) || 0,
+      totalSalaries,
+      totalGosi,
+      netTotal,
       status: body.status ?? "DRAFT",
       organizationId: session.user.organizationId,
       createdById: session.user.id,

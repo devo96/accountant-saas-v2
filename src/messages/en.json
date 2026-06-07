@@ -476,6 +476,8 @@
     "runInfo": "Payroll Run Information",
     "editRun": "Edit Payroll Run",
     "edit": "Edit",
+    "autoCalculate": "Auto Calculate",
+    "calculating": "Calculating...",
     "back": "Back to Payroll Runs"
   },
   "employees": {
