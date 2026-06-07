@@ -1,14 +1,28 @@
 "use client";
 
+import { useState, useRef } from "react";
 import { FadeIn } from "@/components/transitions";
 import { PageHeader } from "@/components/ui/page-header";
 import { useTranslations } from "next-intl";
 
-const BOOKMARKLET_URL = "javascript:(function(){document.body.appendChild(document.createElement('script')).src='/bookmarklet.js?'+Date.now()})()";
+const BOOKMARKLET_LOADER = `/bookmarklet.js?${Date.now()}`;
+const BOOKMARKLET_URL = `javascript:(function(){document.body.appendChild(document.createElement('script')).src='${BOOKMARKLET_LOADER}'})()`;
 
 export function BookmarkletClient() {
   const t = useTranslations("bookmarklet");
   const s = useTranslations("common");
+  const [copied, setCopied] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  function copyCode() {
+    if (inputRef.current) {
+      inputRef.current.select();
+      navigator.clipboard.writeText(BOOKMARKLET_URL).then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2500);
+      });
+    }
+  }
 
   return (
     <FadeIn>
@@ -16,28 +30,9 @@ export function BookmarkletClient() {
       <PageHeader title={t("title")} description={t("description")} />
 
       <div className="rounded-lg border p-6 space-y-6">
-        <div className="text-center p-8 bg-blue-50 dark:bg-blue-950/30 rounded-xl">
-          <p className="text-lg font-semibold mb-4">{t("dragInstruction")}</p>
-          <a
-            href={BOOKMARKLET_URL}
-            onClick={(e) => e.preventDefault()}
-            className="inline-block px-8 py-4 bg-blue-600 text-white rounded-xl text-lg font-bold shadow-lg hover:bg-blue-700 transition-colors cursor-grab active:cursor-grabbing select-none"
-            draggable={false}
-            onMouseDown={(e) => {
-              const target = e.currentTarget;
-              const a = document.createElement("a");
-              a.href = BOOKMARKLET_URL;
-              a.textContent = `🔍 ${t("bookmarkletName")}`;
-              a.style.position = "fixed";
-              a.style.left = "-9999px";
-              document.body.appendChild(a);
-              a.setAttribute("draggable", "true");
-              setTimeout(() => document.body.removeChild(a), 100);
-            }}
-          >
-            🔍 {t("bookmarkletName")}
-          </a>
-          <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">{t("dragHint")}</p>
+        <div className="text-center p-8 bg-blue-50 dark:bg-blue-950/30 rounded-xl space-y-4">
+          <p className="text-lg font-semibold">{t("dragInstruction")}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{t("dragHint")}</p>
         </div>
 
         <div className="space-y-4">
@@ -50,6 +45,16 @@ export function BookmarkletClient() {
         </div>
 
         <div className="rounded-lg bg-gray-50 dark:bg-gray-900 p-4 space-y-2">
+          <h3 className="font-semibold text-sm">{t("manualTitle")}</h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{t("manualDesc")}</p>
+          <div className="flex gap-2 items-center">
+            <input ref={inputRef} readOnly value={BOOKMARKLET_URL} className="flex-1 px-3 py-2 text-xs font-mono border rounded-lg bg-white dark:bg-gray-800 dark:border-gray-700 truncate cursor-pointer" onClick={copyCode} />
+            <button onClick={copyCode} className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors shrink-0">{copied ? "✓" : t("copyBtn")}</button>
+          </div>
+          <p className="text-xs text-gray-400 mt-2">{t("manualNote")}</p>
+        </div>
+
+        <div className="space-y-2">
           <h3 className="font-semibold text-sm">{t("featuresTitle")}</h3>
           <ul className="list-disc list-inside space-y-1 text-sm text-gray-600 dark:text-gray-400">
             <li>{t("feature1")}</li>
