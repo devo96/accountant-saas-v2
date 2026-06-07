@@ -24,6 +24,7 @@ export function AiChat() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [drafts, setDrafts] = useState<DraftInfo[]>([]);
+  const [approvedDraftIds, setApprovedDraftIds] = useState<string[]>([]);
   const [processingDraft, setProcessingDraft] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -35,9 +36,13 @@ export function AiChat() {
       const res = await fetch("/api/ai/drafts/pending");
       if (!res.ok) return;
       const data = await res.json();
-      if (data.drafts?.length) setDrafts(data.drafts);
+      setDrafts((prev) => {
+        const approved = prev.filter((d) => approvedDraftIds.includes(d.id));
+        const incoming = (data.drafts || []).filter((d: DraftInfo) => !approvedDraftIds.includes(d.id));
+        return [...approved, ...incoming];
+      });
     } catch {}
-  }, []);
+  }, [approvedDraftIds]);
 
   const handleDraftAction = useCallback(async (draftId: string, action: "approve" | "reject") => {
     setProcessingDraft(draftId);
@@ -48,12 +53,14 @@ export function AiChat() {
         body: JSON.stringify({ action }),
       });
       if (res.ok) {
-        setDrafts((prev) => prev.filter((d) => d.id !== draftId));
-        const result = await res.json();
         if (action === "approve") {
-          const msg = locale === "ar" ? `✅ تم اعتماد المسودة و${result.resultType === "JournalEntry" ? "ترحيل القيد" : "إنشاء المستند"} بنجاح.` : `✅ Draft approved and ${result.resultType === "JournalEntry" ? "journal entry posted" : "document created"} successfully.`;
+          setApprovedDraftIds((prev) => [...prev, draftId]);
+          const msg = locale === "ar"
+            ? "تم اعتماد القيد وتثبيته في حساباتك بنجاح!"
+            : "Journal entry approved and posted to your accounts successfully!";
           setMessages((prev) => [...prev, { role: "assistant", id: crypto.randomUUID(), content: msg }]);
         } else {
+          setDrafts((prev) => prev.filter((d) => d.id !== draftId));
           const msg = locale === "ar" ? "🗑️ تم إلغاء المسودة." : "🗑️ Draft cancelled.";
           setMessages((prev) => [...prev, { role: "assistant", id: crypto.randomUUID(), content: msg }]);
         }
@@ -164,14 +171,23 @@ export function AiChat() {
           </div>
         ))}
 
-        {drafts.map((draft) => (
-          <div key={draft.id} className="border border-amber-200 bg-amber-50 rounded-xl p-4 space-y-3" dir="rtl">
-            <div className="flex items-center gap-2 text-amber-700">
+        {drafts.map((draft) => {
+          const isApproved = approvedDraftIds.includes(draft.id);
+          return (
+          <div key={draft.id} className={`rounded-xl p-4 space-y-3 ${isApproved ? "border border-emerald-200 bg-emerald-50" : "border border-amber-200 bg-amber-50"}`} dir="rtl">
+            <div className={`flex items-center gap-2 ${isApproved ? "text-emerald-700" : "text-amber-700"}`}>
               {draft.actionType === "JOURNAL_ENTRY" ? <FileText className="h-5 w-5" /> : <Receipt className="h-5 w-5" />}
               <span className="font-semibold text-sm">{locale === "ar" ? "مسودة قيد محاسبي" : "Journal Entry Draft"}</span>
-              <span className="text-xs bg-amber-200 px-2 py-0.5 rounded-full">{locale === "ar" ? "بانتظار الموافقة" : "Pending Approval"}</span>
+              {isApproved ? (
+                <span className="text-xs bg-emerald-200 text-emerald-800 px-2 py-0.5 rounded-full flex items-center gap-1">
+                  <CheckCircle2 className="h-3 w-3" /> {locale === "ar" ? "تم الاعتماد بنجاح" : "Approved"}
+                </span>
+              ) : (
+                <span className="text-xs bg-amber-200 px-2 py-0.5 rounded-full">{locale === "ar" ? "بانتظار الموافقة" : "Pending Approval"}</span>
+              )}
             </div>
             <p className="text-sm text-gray-700">{draft.summary}</p>
+            {!isApproved && (
             <div className="flex gap-2">
               <button onClick={() => handleDraftAction(draft.id, "approve")} disabled={processingDraft === draft.id}
                 className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors disabled:opacity-50">
@@ -184,8 +200,10 @@ export function AiChat() {
                 {locale === "ar" ? "إلغاء" : "Cancel"}
               </button>
             </div>
+            )}
           </div>
-        ))}
+          );
+        })}
 
         <div ref={bottomRef} />
       </div>
