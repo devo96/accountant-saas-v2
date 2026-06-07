@@ -95,7 +95,20 @@ export async function POST(req: Request) {
     system += "\n\nملاحظة: تم تعطيل صلاحية إنشاء المسودات في باقاتك. يمكنك فقط عرض المعلومات والتقارير.";
   }
 
-  const modelName = "gpt-4o-mini";
+  const setting = await prisma.organizationSetting.findUnique({
+    where: { organizationId_key: { organizationId: session.user.organizationId, key: "ai_model_provider" } },
+  });
+  const configuredProvider = setting?.value ?? "openai-gpt4o-mini";
+  const hasImage = detectOperationType(messages as any[]) === "image_processing";
+
+  const modelMap: Record<string, string> = {
+    "openai-gpt4o": "gpt-4o",
+    "openai-gpt4o-mini": "gpt-4o-mini",
+    "anthropic-claude35": "claude-3-5-sonnet",
+    "deepseek-v3": "deepseek-v3",
+  };
+  const baseModel = modelMap[configuredProvider] ?? "gpt-4o-mini";
+  const modelName = hasImage && configuredProvider.startsWith("openai-") ? "gpt-4o" : baseModel;
 
   const result = streamText({
     model: openai(modelName),

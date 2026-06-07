@@ -5,7 +5,8 @@ import { useTranslations, useLocale } from "next-intl";
 import { X, Send, ImageUp, Loader2, Bot, User, CheckCircle2, XCircle, FileText, Receipt } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 
-type Message = { role: "user" | "assistant"; content: string; id: string };
+type ContentPart = { type: "text" | "image"; text?: string; image?: string };
+type Message = { role: "user" | "assistant"; content: string | ContentPart[]; id: string };
 
 type DraftInfo = {
   id: string;
@@ -109,7 +110,7 @@ export function AiChat() {
   }, [isLoading, messages.length, fetchDrafts]);
 
   const sendMessage = useCallback(async (content: string | { type: "text" | "image"; text?: string; image?: string }[]) => {
-    const userMsg: Message = { role: "user", id: crypto.randomUUID(), content: typeof content === "string" ? content : JSON.stringify(content) };
+    const userMsg: Message = { role: "user", id: crypto.randomUUID(), content };
     const assistantMsg: Message = { role: "assistant", id: crypto.randomUUID(), content: "" };
 
     setMessages((prev) => [...prev, userMsg, assistantMsg]);
@@ -159,6 +160,10 @@ export function AiChat() {
     if (fileRef.current) fileRef.current.value = "";
   }
 
+    function messageText(content: string | ContentPart[]): string {
+    if (typeof content === "string") return content;
+    return content.filter(p => p.type === "text").map(p => p.text).join("\n");
+  }
   function onSubmit(e: FormEvent) { e.preventDefault(); if (!input.trim() || isLoading) return; const text = input; setInput(""); sendMessage(text); }
 
   if (!open) {
@@ -199,9 +204,9 @@ export function AiChat() {
             <div className="max-w-[85%] space-y-2">
               <div className={`rounded-xl px-3 py-2 text-sm leading-relaxed ${m.role === "user" ? "bg-primary-600 text-white whitespace-pre-wrap" : "bg-gray-100 text-gray-800 [&_h3]:text-base [&_h3]:font-bold [&_h3]:mt-2 [&_h3]:mb-1 [&_strong]:font-bold [&_ul]:list-disc [&_ul]:pr-4 [&_ul]:space-y-0.5 [&_ol]:list-decimal [&_ol]:pr-4 [&_li]:mb-0 [&_code]:bg-gray-200 [&_code]:px-1 [&_code]:rounded [&_pre]:bg-gray-800 [&_pre]:text-gray-100 [&_pre]:p-3 [&_pre]:rounded-lg [&_pre]:text-xs [&_pre]:overflow-x-auto [&_p]:mb-1 [&_p:last-child]:mb-0"}`}>
                 {m.role === "assistant" ? (
-                  m.content ? <ReactMarkdown>{m.content}</ReactMarkdown> : (isLoading && m === messages[messages.length - 1] ? "..." : "")
+                  m.content ? <ReactMarkdown>{m.content as string}</ReactMarkdown> : (isLoading && m === messages[messages.length - 1] ? "..." : "")
                 ) : (
-                  m.content || ""
+                  <span>{messageText(m.content)}{Array.isArray(m.content) && m.content.some(p => p.type === "image") ? " 📎" : ""}</span>
                 )}
               </div>
 
