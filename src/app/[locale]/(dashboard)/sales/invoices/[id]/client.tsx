@@ -7,12 +7,14 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DropdownMenu } from "@/components/ui/dropdown-menu";
 import { FadeIn } from "@/components/transitions";
-import { ArrowLeft, Save, X, Plus, Trash2, Upload, Mail, MoreHorizontal, Edit, FileText } from "lucide-react";
+import { ArrowLeft, Save, X, Plus, Trash2, Upload, Mail, MoreHorizontal, Edit, FileText, Download } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { formatCurrency } from "@/lib/utils";
 import { ZatcaBadge, ZatcaQrCode } from "@/components/zatca";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 type Line = {
   id: string; key?: number; itemId?: string | null; description: string; quantity: number;
@@ -65,6 +67,19 @@ export function SalesInvoiceViewClient({ invoice: initial, customers, items, tax
   const [emailResult, setEmailResult] = useState("");
 
   const statusLabel = inv.status === "DRAFT" ? ct("draft") : inv.status === "CONFIRMED" ? ct("confirmed") : inv.status === "PAID" ? ct("paid") : inv.status === "PARTIALLY_PAID" ? ct("partiallyPaid") : ct("cancelled");
+
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  async function downloadPdf() {
+    if (!contentRef.current) return;
+    const canvas = await html2canvas(contentRef.current, { scale: 2, useCORS: true });
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF("p", "mm", "a4");
+    const pdfW = pdf.internal.pageSize.getWidth();
+    const pdfH = (canvas.height * pdfW) / canvas.width;
+    pdf.addImage(imgData, "PNG", 0, 0, pdfW, pdfH);
+    pdf.save(`INV-${String(inv.number).padStart(5, "0")}.pdf`);
+  }
 
   function addLine() {
     setLines([...lines, { id: "", key: nextKey++, itemId: null, description: "", quantity: 1, unitPrice: 0, discountPercent: 0, taxCodeId: null, taxRate: 0, lineTotal: 0 }]);
@@ -222,7 +237,7 @@ export function SalesInvoiceViewClient({ invoice: initial, customers, items, tax
 
   return (
     <FadeIn>
-    <div className="space-y-6">
+    <div ref={contentRef} className="space-y-6">
       <div className="flex items-center gap-4">
         <Button variant="ghost" onClick={() => router.push("/sales/invoices")}><ArrowLeft className="h-5 w-5 rtl:scale-x-[-1]" /></Button>
         <div className="flex-1">
@@ -244,6 +259,7 @@ export function SalesInvoiceViewClient({ invoice: initial, customers, items, tax
             items={[
               { label: t("edit"), icon: <Edit className="h-4 w-4" />, onClick: () => setEditing(true) },
               { label: ct("print"), icon: <FileText className="h-4 w-4" />, onClick: () => window.print() },
+              { label: t("downloadPdf"), icon: <Download className="h-4 w-4" />, onClick: downloadPdf },
               { label: t("sendEmail"), icon: <Mail className="h-4 w-4" />, onClick: () => setShowEmailDialog(true) },
             ]}
           />

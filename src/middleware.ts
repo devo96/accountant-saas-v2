@@ -1,6 +1,7 @@
 import createMiddleware from "next-intl/middleware";
 import { NextRequest, NextResponse } from "next/server";
 import { routing } from "./i18n/routing";
+import { getToken } from "next-auth/jwt";
 
 const intlMiddleware = createMiddleware(routing);
 
@@ -17,12 +18,21 @@ function setLocaleCookie(response: NextResponse, locale: string): NextResponse {
   return response;
 }
 
-export default function middleware(req: NextRequest) {
+export default async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const locale = getLocale(pathname);
   const publicPaths = ["/login", "/register", "/forgot-password"];
   const isPublic = publicPaths.some((p) => pathname.includes(p))
     || pathname === "/" || /^\/(ar|en)$/.test(pathname);
+
+  // API routes: validate session for non-public, non-owner endpoints
+  if (pathname.includes("/api/") && !pathname.includes("/api/auth/") && !pathname.includes("/api/owner/")) {
+    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+    if (!token?.organizationId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    return setLocaleCookie(intlMiddleware(req), locale);
+  }
 
   if (isPublic) {
     return setLocaleCookie(intlMiddleware(req), locale);
@@ -41,5 +51,5 @@ export default function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!api|_next|_vercel|.*\\..*).*)"],
+  matcher: ["/((?!_next|_vercel|.*\\..*).*)"],
 };
