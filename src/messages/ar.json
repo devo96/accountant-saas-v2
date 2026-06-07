@@ -110,7 +110,8 @@
   "plans": "الباقات",
   "billing": "الفواتير",
   "security": "الأمان",
-  "support": "الدعم"
+  "support": "الدعم",
+  "aiSettings": "إعدادات الذكاء الاصطناعي"
   },
   "ownerPanel": {
     "title": "لوحة المالك",
@@ -399,7 +400,22 @@
     "statusChangeFailed": "فشل تغيير حالة الاشتراك",
     "noAuditLogs": "لا توجد أحداث مسجلة",
     "ticketReply": "رد من الدعم",
-    "originalMessage": "الرسالة الأصلية"
+    "originalMessage": "الرسالة الأصلية",
+    "aiSettingsTitle": "إعدادات المحاسب الذكي",
+    "aiSettingsSubtitle": "تكوين سلوك المحاسب الذكي والحدود والصلاحيات",
+    "aiOcr": "قراءة وتحليل الفواتير والمستندات بالصور (OCR)",
+    "aiReporting": "الإجابة على الاستفسارات والتقارير المالية",
+    "aiDrafting": "تجهيز عروض الأسعار والمسودات",
+    "aiMaxQueries": "الحد الأقصى للاستعلامات لكل مستخدم/شهر",
+    "aiTokensPerMonth": "الحد الأقصى للتوكنز شهرياً",
+    "aiProactiveAlerts": "التنبيهات الاستباقية الذكية",
+    "aiProactiveAlertsHint": "السماح للمحاسب الذكي بإجراء تحليلات خلفية وإرسال تحذيرات الصحة المالية للمستخدمين",
+    "aiPerPlan": "إدارة الصلاحيات حسب الباقات",
+    "aiGlobalSettings": "الإعدادات العامة للمحاسب الذكي",
+    "aiSettingsSaved": "تم حفظ إعدادات المحاسب الذكي بنجاح",
+    "aiSettingsFailed": "فشل حفظ إعدادات المحاسب الذكي",
+    "aiQueriesLabel": "استعلام/شهر",
+    "aiTokensLabel": "توكن/شهر"
   },
   "dashboard": {
     "title": "لوحة التحكم",

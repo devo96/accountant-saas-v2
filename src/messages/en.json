@@ -112,7 +112,8 @@
   "plans": "Plans",
   "billing": "Billing",
   "security": "Security",
-  "support": "Support"
+  "support": "Support",
+  "aiSettings": "AI Settings"
   },
   "ownerPanel": {
     "title": "Owner Panel",
@@ -401,7 +402,22 @@
     "statusChangeFailed": "Failed to change subscription status",
     "noAuditLogs": "No audit logs found",
     "ticketReply": "Support Reply",
-    "originalMessage": "Original Message"
+    "originalMessage": "Original Message",
+    "aiSettingsTitle": "AI Assistant Settings",
+    "aiSettingsSubtitle": "Configure AI Accounting Assistant behavior, limits, and permissions",
+    "aiOcr": "OCR - Read & analyze invoices and documents from images",
+    "aiReporting": "Reporting - Answer financial queries and analytics",
+    "aiDrafting": "Drafting - Prepare quotes, invoices, and journal drafts",
+    "aiMaxQueries": "Max AI Queries per user/month",
+    "aiTokensPerMonth": "Max Tokens per month",
+    "aiProactiveAlerts": "Proactive AI Alerts",
+    "aiProactiveAlertsHint": "Allow AI to run background analysis and send financial health warnings to users",
+    "aiPerPlan": "Per-Plan AI Feature Toggles",
+    "aiGlobalSettings": "Global AI Settings",
+    "aiSettingsSaved": "AI settings saved successfully",
+    "aiSettingsFailed": "Failed to save AI settings",
+    "aiQueriesLabel": "Queries/month",
+    "aiTokensLabel": "Tokens/month"
   },
   "dashboard": {
     "title": "Dashboard",

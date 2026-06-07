@@ -9,6 +9,12 @@ export const tools = (orgId: string, userId: string) => ({
     description: "Get the full chart of accounts tree with codes, names, types (ASSET/LIABILITY/EQUITY/INCOME/EXPENSE), natures (DEBIT/CREDIT), and current balances.",
     inputSchema: z.object({}),
     execute: async () => {
+      await prisma.aiUsage.upsert({
+        where: { organizationId_userId_month: { organizationId: orgId, userId, month: new Date().toISOString().slice(0, 7).replace("-", "") } },
+        update: { queryCount: { increment: 1 } },
+        create: { organizationId: orgId, userId, month: new Date().toISOString().slice(0, 7).replace("-", "") },
+      });
+
       const accounts = await prisma.account.findMany({
         where: { organizationId: orgId },
         orderBy: { code: "asc" },
@@ -34,11 +40,14 @@ export const tools = (orgId: string, userId: string) => ({
       accountId: z.string().optional().describe("Filter by account ID to get expenses for a specific account"),
     }),
     execute: async ({ keyword, fromDate, toDate, accountId }: any) => {
-      const where: Record<string, unknown> = { organizationId: orgId };
+      await prisma.aiUsage.upsert({
+        where: { organizationId_userId_month: { organizationId: orgId, userId, month: new Date().toISOString().slice(0, 7).replace("-", "") } },
+        update: { queryCount: { increment: 1 } },
+        create: { organizationId: orgId, userId, month: new Date().toISOString().slice(0, 7).replace("-", "") },
+      });
 
-      if (keyword) {
-        where.description = { contains: keyword };
-      }
+      const where: Record<string, unknown> = { organizationId: orgId };
+      if (keyword) where.description = { contains: keyword };
       if (fromDate || toDate) {
         (where as any).date = {};
         if (fromDate) (where as any).date.gte = new Date(fromDate);
@@ -56,30 +65,16 @@ export const tools = (orgId: string, userId: string) => ({
         return expenses
           .filter((e) => e.lines.some((l) => l.accountId === accountId))
           .map((e) => ({
-            id: e.id,
-            number: e.number,
-            date: e.date,
-            description: e.description,
+            id: e.id, number: e.number, date: e.date, description: e.description,
             amount: Number(e.amount),
-            lines: e.lines.map((l) => ({
-              accountCode: l.account.code,
-              accountName: l.account.name,
-              amount: Number(l.amount),
-            })),
+            lines: e.lines.map((l) => ({ accountCode: l.account.code, accountName: l.account.name, amount: Number(l.amount) })),
           }));
       }
 
       return expenses.map((e) => ({
-        id: e.id,
-        number: e.number,
-        date: e.date,
-        description: e.description,
+        id: e.id, number: e.number, date: e.date, description: e.description,
         amount: Number(e.amount),
-        lines: e.lines.map((l) => ({
-          accountCode: l.account.code,
-          accountName: l.account.name,
-          amount: Number(l.amount),
-        })),
+        lines: e.lines.map((l) => ({ accountCode: l.account.code, accountName: l.account.name, amount: Number(l.amount) })),
       }));
     },
   }) as any,
@@ -92,8 +87,13 @@ export const tools = (orgId: string, userId: string) => ({
       customerId: z.string().optional(),
     }),
     execute: async ({ fromDate, toDate, customerId }: any) => {
-      const where: Record<string, unknown> = { organizationId: orgId };
+      await prisma.aiUsage.upsert({
+        where: { organizationId_userId_month: { organizationId: orgId, userId, month: new Date().toISOString().slice(0, 7).replace("-", "") } },
+        update: { queryCount: { increment: 1 } },
+        create: { organizationId: orgId, userId, month: new Date().toISOString().slice(0, 7).replace("-", "") },
+      });
 
+      const where: Record<string, unknown> = { organizationId: orgId };
       if (customerId) where.customerId = customerId;
       if (fromDate || toDate) {
         (where as any).invoiceDate = {};
@@ -128,6 +128,12 @@ export const tools = (orgId: string, userId: string) => ({
       limit: z.number().optional().default(20),
     }),
     execute: async ({ fromDate, toDate, accountId, limit }: any) => {
+      await prisma.aiUsage.upsert({
+        where: { organizationId_userId_month: { organizationId: orgId, userId, month: new Date().toISOString().slice(0, 7).replace("-", "") } },
+        update: { queryCount: { increment: 1 } },
+        create: { organizationId: orgId, userId, month: new Date().toISOString().slice(0, 7).replace("-", "") },
+      });
+
       const where: Record<string, unknown> = { organizationId: orgId };
       if (fromDate || toDate) {
         (where as any).date = {};
@@ -145,38 +151,15 @@ export const tools = (orgId: string, userId: string) => ({
         take: limit as number,
       });
 
-      if (accountId) {
-        return entries
-          .filter((e) => e.lines.some((l) => l.accountId === accountId))
-          .slice(0, limit)
-          .map((e) => ({
-            id: e.id,
-            number: e.number,
-            date: e.date,
-            description: e.description,
-            descriptionAr: e.descriptionAr,
-            createdBy: e.createdBy?.name ?? e.createdBy?.email,
-            lines: e.lines.map((l) => ({
-              account: `${l.account.code} ${l.account.name}`,
-              debit: Number(l.debit),
-              credit: Number(l.credit),
-            })),
-          }));
-      }
-
-      return entries.map((e) => ({
-        id: e.id,
-        number: e.number,
-        date: e.date,
-        description: e.description,
+      const mapEntry = (e: any) => ({
+        id: e.id, number: e.number, date: e.date, description: e.description,
         descriptionAr: e.descriptionAr,
         createdBy: e.createdBy?.name ?? e.createdBy?.email,
-        lines: e.lines.map((l) => ({
-          account: `${l.account.code} ${l.account.name}`,
-          debit: Number(l.debit),
-          credit: Number(l.credit),
-        })),
-      }));
+        lines: e.lines.map((l: any) => ({ account: `${l.account.code} ${l.account.name}`, debit: Number(l.debit), credit: Number(l.credit) })),
+      });
+
+      if (accountId) return entries.filter((e) => e.lines.some((l) => l.accountId === accountId)).slice(0, limit).map(mapEntry);
+      return entries.map(mapEntry);
     },
   }) as any,
 
@@ -186,114 +169,63 @@ export const tools = (orgId: string, userId: string) => ({
       accountName: z.string().describe("Account name or code to search for"),
     }),
     execute: async ({ accountName }: any) => {
+      await prisma.aiUsage.upsert({
+        where: { organizationId_userId_month: { organizationId: orgId, userId, month: new Date().toISOString().slice(0, 7).replace("-", "") } },
+        update: { queryCount: { increment: 1 } },
+        create: { organizationId: orgId, userId, month: new Date().toISOString().slice(0, 7).replace("-", "") },
+      });
+
       const account = await prisma.account.findFirst({
-        where: {
-          organizationId: orgId,
-          OR: [
-            { name: { contains: accountName } },
-            { code: accountName } as any,
-          ],
-        },
+        where: { organizationId: orgId, OR: [{ name: { contains: accountName } }, { code: accountName } as any] },
       });
 
       if (!account) {
-        const similar = await prisma.account.findMany({
-          where: { organizationId: orgId },
-          take: 5,
-        });
-        return {
-          error: `Account "${accountName}" not found`,
-          similarAccounts: similar.map((a) => `${a.code} ${a.name}`),
-        };
+        const similar = await prisma.account.findMany({ where: { organizationId: orgId }, take: 5 });
+        return { error: `Account "${accountName}" not found`, similarAccounts: similar.map((a) => `${a.code} ${a.name}`) };
       }
 
-      return {
-        code: account.code,
-        name: account.name,
-        type: account.type,
-        nature: account.nature,
-        balance: Number(account.balance),
-      };
+      return { code: account.code, name: account.name, type: account.type, nature: account.nature, balance: Number(account.balance) };
     },
   }) as any,
 
-  createJournalEntry: dynamicTool({
-    description: "CREATE a journal entry in the accounting system. Use ONLY after the user has explicitly reviewed and confirmed the proposed debit/credit entries. ALWAYS log to audit.",
+  createDraftEntry: dynamicTool({
+    description: "CREATE a draft journal entry or sales document. This does NOT save to the accounting system. It creates a DRAFT that the user must review and approve. Use this for all creation requests (journal entries, sales invoices, etc.).",
     inputSchema: z.object({
-      date: z.string().describe("Entry date ISO string (YYYY-MM-DD)"),
-      description: z.string().describe("English description of the entry"),
-      descriptionAr: z.string().optional().describe("Arabic description of the entry"),
-      lines: z.array(z.object({
-        accountId: z.string().describe("The Account ID (not code) to debit/credit"),
+      actionType: z.enum(["JOURNAL_ENTRY", "SALES_INVOICE", "EXPENSE"]).describe("Type of document to create"),
+      summary: z.string().describe("Arabic summary of what will be created, shown to user for review"),
+      payload: z.object({
+        date: z.string(),
         description: z.string().optional(),
-        debit: z.number().nonnegative(),
-        credit: z.number().nonnegative(),
-      })).min(2),
+        lines: z.array(z.object({
+          accountId: z.string(),
+          description: z.string().optional(),
+          debit: z.number().nonnegative(),
+          credit: z.number().nonnegative(),
+        })).min(1),
+      }),
     }),
-    execute: async ({ date, description, descriptionAr, lines }: any) => {
-      const totalDebit = lines.reduce((s: number, l: any) => s + l.debit, 0);
-      const totalCredit = lines.reduce((s: number, l: any) => s + l.credit, 0);
-
-      if (Math.abs(totalDebit - totalCredit) > 0.01) {
-        return { error: `Debits (${totalDebit}) must equal credits (${totalCredit})` };
-      }
-
-      const lastEntry = await prisma.journalEntry.findFirst({
-        where: { organizationId: orgId },
-        orderBy: { number: "desc" },
-        select: { number: true },
-      });
-
-      const entry = await prisma.journalEntry.create({
+    execute: async ({ actionType, summary, payload }: any) => {
+      const draft = await prisma.aiActionDraft.create({
         data: {
-          number: (lastEntry?.number ?? 0) + 1,
-          date: new Date(date),
-          description,
-          descriptionAr,
           organizationId: orgId,
-          createdById: userId,
-          status: "POSTED",
-          lines: {
-            create: lines.map((l: any) => ({
-              accountId: l.accountId,
-              description: l.description,
-              debit: l.debit,
-              credit: l.credit,
-            })),
-          },
+          userId,
+          actionType,
+          summary,
+          payload: payload as any,
+          expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
         },
-        include: { lines: { include: { account: true } } },
       });
 
       await createAuditLog({
-        organizationId: orgId,
-        userId,
-        action: "AI_CREATE",
-        entity: "JournalEntry",
-        entityId: entry.id,
-        newValue: {
-          number: entry.number,
-          description: entry.description,
-          lines: entry.lines.map((l) => ({
-            account: `${l.account.code} ${l.account.name}`,
-            debit: Number(l.debit),
-            credit: Number(l.credit),
-          })),
-        },
+        organizationId: orgId, userId,
+        action: "AI_DRAFT_CREATED", entity: "AiActionDraft",
+        entityId: draft.id,
+        newValue: { actionType, summary: summary.slice(0, 200) },
       });
 
-      logger.info({ entryId: entry.id, userId }, "AI created journal entry");
+      logger.info({ draftId: draft.id, userId, actionType }, "AI created draft");
 
-      return {
-        success: true,
-        entryNumber: entry.number,
-        entryId: entry.id,
-        lines: entry.lines.map((l) => ({
-          account: `${l.account.code} ${l.account.name}`,
-          debit: Number(l.debit),
-          credit: Number(l.credit),
-        })),
-      };
+      return { draftId: draft.id, summary, actionType };
     },
   }) as any,
 });

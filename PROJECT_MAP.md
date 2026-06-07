@@ -1,7 +1,7 @@
 # PROJECT_MAP — accountant-saas-v2
 
-> **Generated:** 2026-06-07 23:00 UTC+3  
-> **Last Build:** 2026-06-07 22:55 UTC+3 — ✅ **Build Succeeded (252 pages)**  
+> **Generated:** 2026-06-07 23:40 UTC+3  
+> **Last Build:** 2026-06-07 23:35 UTC+3 — ✅ **Build Succeeded (256 pages)**  
 > **Last Deploy:** 2026-06-07 21:35 UTC+3 — ✅ **Vercel (schema auto-synced, all pages live)**  
 > **Seed:** All models populated with demo data (employee, customer, vendor, categories, units, payment terms, branches, fixed assets, items, invoices, receipts, journal entries, projects, tasks, advances, deductions, social insurance)  
 > **Target:** 100% feature parity with Qoyod (https://app.qoyod.com)  
@@ -252,6 +252,10 @@ export const logger = pino({
 | `/settings/payment-terms`           | ✅ Full    | PaymentTerm model (new)  |
 | `/settings/cost-centers`            | ✅ Full    | AccountingDimension model|
 | `/settings/email-templates`         | ✅ Full    | Email template            |
+| `/owner/ai-settings`               | ✅ Full    | AI config (plan toggles, limits, alerts) |
+| `/api/ai/drafts/pending`           | ✅ API     | Pending drafts for current user |
+| `/api/ai/drafts/[id]`              | ✅ API     | Approve/reject draft      |
+| `/api/owner/ai-settings`           | ✅ API     | Save AI settings           |
 
 ## TOOLS ADDED
 
@@ -278,6 +282,10 @@ export const logger = pino({
 | Project quick-create          | ✅ DONE    | `QuickCreateDialog` → Project form in slide-over |
 | Item validation               | ✅ DONE    | `errorMessage` + disabled Save when no lines in invoice/quote |
 | Customer/Vendor address       | ✅ DONE    | `crNumber`, `street`, `city`, `district`, `region`, `country`, `postalCode` added to schema + forms |
+| AI Data Isolation Layer       | ✅ DONE    | All tools filter by orgId; no delete/drop tools; usage tracking via AiUsage model |
+| Draft & Approval Workflow     | ✅ DONE    | AiActionDraft model; AI creates drafts only; summary card with Confirm/Cancel buttons in chat |
+| Owner AI Settings Page        | ✅ DONE    | `/owner/ai-settings` — plan toggles (OCR, Reporting, Drafting), usage limits, proactive alerts |
+| AI Proactive Alerts (engine)  | PENDING    | AiProactiveAlert model created; actual background analysis logic not yet implemented |
 | Forms: auto-form component    | ✅ DONE    | Generic form builder created                |
 | Forms: invoice-line-editor    | ✅ DONE    | Reusable line editor component              |
 | Sidebar restructure (Qoyod)   | ✅ DONE    | 12 groups, 58 items, matched Qoyod layout  |
@@ -431,6 +439,23 @@ export const logger = pino({
 - [x] Quote→Invoice conversion
 - [x] Item validation (no items = no save)
 - [ ] Dark mode toggle
+
+### M10 — AI Accounting Assistant 🟡
+- [x] AiActionDraft model (draft before write)
+- [x] AiUsage model (query tracking per org/user/month)
+- [x] AiProactiveAlert model (schema only)
+- [x] All tools filter by `organizationId` (tenant isolation)
+- [x] No delete/drop operations exposed to AI
+- [x] `createDraftEntry` tool replaces direct write
+- [x] Draft summary card + Confirm & Approve / Cancel buttons in chat UI
+- [x] `POST /api/ai/drafts/[id]` approve/reject endpoint
+- [x] `GET /api/ai/drafts/pending` endpoint
+- [x] `/owner/ai-settings` page: per-plan toggles (OCR, Reporting, Drafting)
+- [x] Global AI settings: max queries/month, max tokens, proactive alerts toggle
+- [x] Usage limit check (429 when exceeded)
+- [x] Plan feature check in AI chat route
+- [ ] AI Proactive Alert background engine (scheduled analysis)
+- [ ] Unit tests for draft approval workflow
 
 ---
 

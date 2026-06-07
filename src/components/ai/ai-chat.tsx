@@ -1,10 +1,19 @@
 "use client";
 
-import { useState, useRef, useCallback, type FormEvent } from "react";
+import { useState, useRef, useCallback, useEffect, type FormEvent } from "react";
 import { useTranslations, useLocale } from "next-intl";
-import { X, Send, ImageUp, Loader2, Bot, User } from "lucide-react";
+import { X, Send, ImageUp, Loader2, Bot, User, CheckCircle2, XCircle, FileText, Receipt } from "lucide-react";
 
 type Message = { role: "user" | "assistant"; content: string; id: string };
+
+type DraftInfo = {
+  id: string;
+  actionType: string;
+  summary: string;
+  payload: any;
+  createdAt: string;
+  expiresAt?: string;
+};
 
 export function AiChat() {
   const t = useTranslations("common");
@@ -13,17 +22,51 @@ export function AiChat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [drafts, setDrafts] = useState<DraftInfo[]>([]);
+  const [processingDraft, setProcessingDraft] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const scrollDown = () => setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
 
+  const fetchDrafts = useCallback(async () => {
+    try {
+      const res = await fetch("/api/ai/drafts/pending");
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data.drafts?.length) setDrafts(data.drafts);
+    } catch {}
+  }, []);
+
+  const handleDraftAction = useCallback(async (draftId: string, action: "approve" | "reject") => {
+    setProcessingDraft(draftId);
+    try {
+      const res = await fetch(`/api/ai/drafts/${draftId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action }),
+      });
+      if (res.ok) {
+        setDrafts((prev) => prev.filter((d) => d.id !== draftId));
+        const result = await res.json();
+        if (action === "approve") {
+          const msg = locale === "ar" ? `✅ تم اعتماد المسودة و${result.resultType === "JournalEntry" ? "ترحيل القيد" : "إنشاء المستند"} بنجاح.` : `✅ Draft approved and ${result.resultType === "JournalEntry" ? "journal entry posted" : "document created"} successfully.`;
+          setMessages((prev) => [...prev, { role: "assistant", id: crypto.randomUUID(), content: msg }]);
+        } else {
+          const msg = locale === "ar" ? "🗑️ تم إلغاء المسودة." : "🗑️ Draft cancelled.";
+          setMessages((prev) => [...prev, { role: "assistant", id: crypto.randomUUID(), content: msg }]);
+        }
+      }
+    } catch {}
+    setProcessingDraft(null);
+  }, [locale]);
+
+  useEffect(() => {
+    if (!isLoading && messages.length > 0) fetchDrafts();
+  }, [isLoading, messages.length, fetchDrafts]);
+
   const sendMessage = useCallback(async (content: string | { type: "text" | "image"; text?: string; image?: string }[]) => {
-    const userMsg: Message = {
-      role: "user",
-      id: crypto.randomUUID(),
-      content: typeof content === "string" ? content : JSON.stringify(content),
-    };
+    const userMsg: Message = { role: "user", id: crypto.randomUUID(), content: typeof content === "string" ? content : JSON.stringify(content) };
     const assistantMsg: Message = { role: "assistant", id: crypto.randomUUID(), content: "" };
 
     setMessages((prev) => [...prev, userMsg, assistantMsg]);
@@ -31,44 +74,29 @@ export function AiChat() {
     scrollDown();
 
     try {
-      const res = await fetch("/api/ai/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: [
-            ...messages.map((m) => ({ role: m.role, content: m.content })),
-            { role: "user", content },
-          ],
-        }),
-      });
+      const res = await fetch("/api/ai/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ messages: [...messages.map((m) => ({ role: m.role, content: m.content })), { role: "user", content }] }) });
+
+      if (res.status === 429) {
+        const err = await res.json();
+        setMessages((prev) => { const next = [...prev]; next[next.length - 1].content = err.error || "لقد تجاوزت الحد المسموح به."; return next; });
+        setIsLoading(false); return;
+      }
 
       if (!res.body) throw new Error("No response body");
-
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-
         const chunk = decoder.decode(value, { stream: true });
         if (chunk) {
-          setMessages((prev) => {
-            const next = [...prev];
-            const last = next[next.length - 1];
-            if (last?.role === "assistant") last.content += chunk;
-            return next;
-          });
+          setMessages((prev) => { const next = [...prev]; if (next[next.length - 1]?.role === "assistant") next[next.length - 1].content += chunk; return next; });
           scrollDown();
         }
       }
     } catch {
-      setMessages((prev) => {
-        const next = [...prev];
-        const last = next[next.length - 1];
-        if (last?.role === "assistant") last.content = locale === "ar" ? "عذراً، حدث خطأ. حاول مرة أخرى." : "Sorry, something went wrong. Please try again.";
-        return next;
-      });
+      setMessages((prev) => { const next = [...prev]; next[next.length - 1].content = locale === "ar" ? "عذراً، حدث خطأ. حاول مرة أخرى." : "Sorry, something went wrong."; return next; });
     }
 
     setIsLoading(false);
@@ -78,7 +106,6 @@ export function AiChat() {
   function onImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-
     const reader = new FileReader();
     reader.onload = (event) => {
       const base64 = event.target?.result as string;
@@ -89,29 +116,20 @@ export function AiChat() {
     if (fileRef.current) fileRef.current.value = "";
   }
 
-  function onSubmit(e: FormEvent) {
-    e.preventDefault();
-    if (!input.trim() || isLoading) return;
-    const text = input;
-    setInput("");
-    sendMessage(text);
-  }
+  function onSubmit(e: FormEvent) { e.preventDefault(); if (!input.trim() || isLoading) return; const text = input; setInput(""); sendMessage(text); }
 
   if (!open) {
     return (
-      <button
-        onClick={() => setOpen(true)}
-        aria-label={t("aiOpen")}
-        className="fixed bottom-6 end-6 z-50 w-14 h-14 bg-primary-600 hover:bg-primary-700 text-white rounded-full shadow-lg flex items-center justify-center transition-all hover:scale-105 active:scale-95"
-      >
+      <button onClick={() => setOpen(true)} aria-label={t("aiOpen")}
+        className="fixed bottom-6 end-6 z-50 w-14 h-14 bg-primary-600 hover:bg-primary-700 text-white rounded-full shadow-lg flex items-center justify-center transition-all hover:scale-105 active:scale-95">
         <Bot className="h-6 w-6" />
       </button>
     );
   }
 
   return (
-    <div className="fixed bottom-6 end-6 z-50 w-[380px] max-w-[calc(100vw-2rem)] h-[600px] max-h-[calc(100vh-6rem)] bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col overflow-hidden">
-      <div className="flex items-center justify-between px-4 py-3 bg-primary-600 text-white">
+    <div className="fixed bottom-6 end-6 z-50 w-[420px] max-w-[calc(100vw-2rem)] h-[680px] max-h-[calc(100vh-6rem)] bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col overflow-hidden">
+      <div className="flex items-center justify-between px-4 py-3 bg-primary-600 text-white shrink-0">
         <div className="flex items-center gap-2">
           <Bot className="h-5 w-5" />
           <span className="font-semibold text-sm">{t("aiAssistant")}</span>
@@ -135,8 +153,31 @@ export function AiChat() {
             <div className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center ${m.role === "user" ? "bg-primary-100" : "bg-gray-100"}`}>
               {m.role === "user" ? <User className="h-4 w-4 text-primary-600" /> : <Bot className="h-4 w-4 text-gray-600" />}
             </div>
-            <div className={`max-w-[80%] rounded-xl px-3 py-2 text-sm leading-relaxed whitespace-pre-wrap ${m.role === "user" ? "bg-primary-600 text-white" : "bg-gray-100 text-gray-800"}`}>
+            <div className={`max-w-[85%] rounded-xl px-3 py-2 text-sm leading-relaxed whitespace-pre-wrap ${m.role === "user" ? "bg-primary-600 text-white" : "bg-gray-100 text-gray-800"}`}>
               {m.content || (isLoading && m === messages[messages.length - 1] ? "..." : "")}
+            </div>
+          </div>
+        ))}
+
+        {drafts.map((draft) => (
+          <div key={draft.id} className="border border-amber-200 bg-amber-50 rounded-xl p-4 space-y-3" dir="rtl">
+            <div className="flex items-center gap-2 text-amber-700">
+              {draft.actionType === "JOURNAL_ENTRY" ? <FileText className="h-5 w-5" /> : <Receipt className="h-5 w-5" />}
+              <span className="font-semibold text-sm">{locale === "ar" ? "مسودة قيد محاسبي" : "Journal Entry Draft"}</span>
+              <span className="text-xs bg-amber-200 px-2 py-0.5 rounded-full">{locale === "ar" ? "بانتظار الموافقة" : "Pending Approval"}</span>
+            </div>
+            <p className="text-sm text-gray-700">{draft.summary}</p>
+            <div className="flex gap-2">
+              <button onClick={() => handleDraftAction(draft.id, "approve")} disabled={processingDraft === draft.id}
+                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors disabled:opacity-50">
+                {processingDraft === draft.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+                {locale === "ar" ? "موافقة واعتماد" : "Confirm & Approve"}
+              </button>
+              <button onClick={() => handleDraftAction(draft.id, "reject")} disabled={processingDraft === draft.id}
+                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300 transition-colors disabled:opacity-50">
+                <XCircle className="h-4 w-4" />
+                {locale === "ar" ? "إلغاء" : "Cancel"}
+              </button>
             </div>
           </div>
         ))}
@@ -144,20 +185,16 @@ export function AiChat() {
         <div ref={bottomRef} />
       </div>
 
-      <form onSubmit={onSubmit} className="border-t border-gray-200 p-3 flex items-center gap-2">
+      <form onSubmit={onSubmit} className="border-t border-gray-200 p-3 flex items-center gap-2 shrink-0">
         <input type="file" accept="image/*" ref={fileRef} onChange={onImageUpload} className="hidden" />
-        <button type="button" onClick={() => fileRef.current?.click()} disabled={isLoading} aria-label={t("aiUploadImage")} className="shrink-0 p-2 text-gray-400 hover:text-gray-600 transition-colors disabled:opacity-50">
+        <button type="button" onClick={() => fileRef.current?.click()} disabled={isLoading} aria-label={t("aiUploadImage")}
+          className="shrink-0 p-2 text-gray-400 hover:text-gray-600 transition-colors disabled:opacity-50">
           <ImageUp className="h-5 w-5" />
         </button>
-        <input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder={t("aiPlaceholder")}
-          className="flex-1 min-w-0 border-0 bg-gray-50 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary-500/30"
-          dir="auto"
-          disabled={isLoading}
-        />
-        <button type="submit" disabled={!input.trim() || isLoading} aria-label={t("aiSend")} className="shrink-0 p-2 text-primary-600 hover:text-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+        <input value={input} onChange={(e) => setInput(e.target.value)} placeholder={t("aiPlaceholder")}
+          className="flex-1 min-w-0 border-0 bg-gray-50 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary-500/30" dir="auto" disabled={isLoading} />
+        <button type="submit" disabled={!input.trim() || isLoading} aria-label={t("aiSend")}
+          className="shrink-0 p-2 text-primary-600 hover:text-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
           {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
         </button>
       </form>
