@@ -36,12 +36,12 @@ export default async function OpeningBalancesPage() {
     <FadeIn>
       <PageHeader
         title={tnav("openingBalances")}
-        description={`${nonZeroAccounts.length} accounts with non-zero balances`}
+        description={`${nonZeroAccounts.length} حساب برصيد غير صفري`}
       />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">Total Debit Balances</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-500">إجمالي الأرصدة المدينة</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold text-green-600">{formatCurrency(totalDebitBalance)}</p>
@@ -49,7 +49,7 @@ export default async function OpeningBalancesPage() {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">Total Credit Balances</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-500">إجمالي الأرصدة الدائنة</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold text-blue-600">{formatCurrency(totalCreditBalance)}</p>
@@ -60,8 +60,8 @@ export default async function OpeningBalancesPage() {
         <Card>
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <BookOpen className="h-12 w-12 text-gray-300 mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">All balances are zero</h3>
-            <p className="text-sm text-gray-500">Set opening balances for accounts to get started.</p>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">جميع الأرصدة صفرية</h3>
+            <p className="text-sm text-gray-500">حدد الأرصدة الافتتاحية للحسابات للبدء.</p>
           </div>
         </Card>
       ) : (
@@ -69,12 +69,12 @@ export default async function OpeningBalancesPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Code</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Nature</TableHead>
-                <TableHead>Balance</TableHead>
-                <TableHead>Currency</TableHead>
+                <TableHead>الكود</TableHead>
+                <TableHead>الاسم</TableHead>
+                <TableHead>النوع</TableHead>
+                <TableHead>الطبيعة</TableHead>
+                <TableHead>الرصيد</TableHead>
+                <TableHead>العملة</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

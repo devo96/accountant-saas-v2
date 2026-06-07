@@ -584,7 +584,14 @@
     "status": "Status",
     "total": "Total",
     "back": "Back to Vendors",
-    "updateSuccess": "Vendor updated successfully"
+    "updateSuccess": "Vendor updated successfully",
+    "crNumber": "CR Number",
+    "street": "Street",
+    "city": "City",
+    "district": "District",
+    "region": "Region",
+    "country": "Country",
+    "postalCode": "Postal Code"
   },
   "reports": {
     "trialBalance": "Trial Balance",
@@ -672,7 +679,14 @@
     "status": "Status",
     "total": "Total",
     "back": "Back to Customers",
-    "updateSuccess": "Customer updated successfully"
+    "updateSuccess": "Customer updated successfully",
+    "crNumber": "CR Number",
+    "street": "Street",
+    "city": "City",
+    "district": "District",
+    "region": "Region",
+    "country": "Country",
+    "postalCode": "Postal Code"
   },
   "salesInvoices": {
     "title": "Sales Invoices",
@@ -1085,7 +1099,8 @@
     "cancel": "Cancel",
     "saving": "Saving...",
     "receiptInfo": "Payment Receipt Information",
-    "back": "Back to Payment Receipts"
+    "back": "Back to Payment Receipts",
+    "noReceipts": "No receipts found"
   },
   "expenses": {
     "title": "Expenses",
@@ -1140,6 +1155,9 @@
     "dialogTitle": "New Item",
     "product": "Product",
     "service": "Service",
+    "PRODUCT": "Product",
+    "piece": "Piece",
+    "SERVICE": "Service",
     "save": "Save",
     "cancel": "Cancel",
     "saving": "Saving...",
@@ -1410,7 +1428,18 @@
     "notes": "Notes",
     "cancel": "Cancel",
     "save": "Save",
-    "saving": "Saving..."
+    "saving": "Saving...",
+    "accumulatedDepreciation": "Accumulated Depreciation",
+    "annualDepreciation": "Annual Depreciation",
+    "activeAssets": "Active Assets",
+    "disposalDate": "Disposal Date",
+    "zeroDisposedAssets": "0 disposed assets",
+    "noDisposedAssets": "No disposed assets found"
+  },
+  "disposals": {
+    "title": "Disposals",
+    "count": "{count} disposed assets",
+    "noDisposals": "No disposed assets"
   },
   "emailTemplates": {
     "title": "Email Templates",
@@ -1925,7 +1954,17 @@
     "update": "Update",
     "addLine": "Add Line",
     "selectItem": "Select an item",
-    "errorItemRequired": "All lines must have an item selected"
+    "errorItemRequired": "All lines must have an item selected",
+    "totalValue": "Total Value",
+    "unit": "Unit",
+    "costPrice": "Cost Price",
+    "openingBalance": "Opening Balance",
+    "closingBalance": "Closing Balance"
+  },
+  "stockSummary": {
+    "title": "Stock summary across all warehouses",
+    "stockValue": "Stock Value",
+    "totalItems": "Total Items"
   },
   "quickCreate": {
     "add": "Add New",

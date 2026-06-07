@@ -101,7 +101,7 @@ const navItems: NavItem[] = [
       { key: "fixedAssetsList", href: "/accounting/fixed-assets", icon: Building2 },
       { key: "depreciation", href: "/accounting/fixed-assets/depreciation", icon: Calculator },
       { key: "disposals", href: "/accounting/fixed-assets/disposals", icon: ArrowRightLeft },
-      { key: "assetTransfer", href: "/accounting/fixed-assets/transfer", icon: Truck },
+      { key: "assetTransfer", href: "/accounting/fixed-assets/asset-transfer", icon: Truck },
     ],
   },
   {

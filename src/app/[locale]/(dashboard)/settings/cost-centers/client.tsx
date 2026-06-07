@@ -35,7 +35,7 @@ export function CostCentersClient({ dimensions }: { dimensions: Dimension[] }) {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm("Are you sure you want to delete this cost center?")) return;
+    if (!confirm("هل أنت متأكد من حذف مركز التكلفة هذا؟")) return;
     const res = await fetch(`/api/cost-centers/${id}`, { method: "DELETE" });
     if (res.ok) router.refresh();
   }
@@ -44,10 +44,10 @@ export function CostCentersClient({ dimensions }: { dimensions: Dimension[] }) {
     <FadeIn>
       <PageHeader
         title="Cost Centers"
-        description={`${dimensions.length} cost centers`}
+        description={`${dimensions.length} مركز تكلفة`}
         actions={
           <Button onClick={() => setShowAdd(true)}>
-            <Plus className="h-4 w-4 ms-1" /> Add Cost Center
+            <Plus className="h-4 w-4 ms-1" /> إضافة مركز تكلفة
           </Button>
         }
       />
@@ -89,13 +89,13 @@ export function CostCentersClient({ dimensions }: { dimensions: Dimension[] }) {
         </Table>
       </div>
 
-      <Dialog open={showAdd} onClose={() => { setShowAdd(false); setName(""); }} title="Add Cost Center">
+      <Dialog open={showAdd} onClose={() => { setShowAdd(false); setName(""); }} title="إضافة مركز تكلفة">
         <div className="space-y-4">
-          <Input label="Name" value={name} onChange={(e) => setName(e.target.value)} required placeholder="Enter cost center name" />
+          <Input label={td("name")} value={name} onChange={(e) => setName(e.target.value)} required placeholder="أدخل اسم مركز التكلفة" />
           <div className="flex justify-end gap-3">
-            <Button variant="outline" onClick={() => { setShowAdd(false); setName(""); }}>Cancel</Button>
+            <Button variant="outline" onClick={() => { setShowAdd(false); setName(""); }}>إلغاء</Button>
             <Button onClick={handleCreate} disabled={submitting || !name.trim()}>
-              {submitting ? "Saving..." : "Save"}
+              {submitting ? "جاري الحفظ..." : "حفظ"}
             </Button>
           </div>
         </div>

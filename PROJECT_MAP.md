@@ -272,7 +272,7 @@ export const logger = pino({
 | PDF generation (invoices)     | PENDING     | Same approach; not yet wired                |
 | Email send (quotes)           | ✅ DONE    | POST `/api/quotes/[id]/send-email` via resend.com |
 | Email notifications (general) | PENDING     | Invoice send, reminders, etc.              |
-| Dark mode                     | PENDING     | Tailwind dark variant, simple toggle        |
+| Dark mode                     | ✅ DONE    | Tailwind dark variant, simple toggle; light mode is default |
 | Proxy (Next.js 16)            | WARN        | middleware.ts deprecated; rename to proxy.ts |
 | Vitest/Playwright tests       | NOT YET     | Only build verification so far              |
 | CRUD APIs for new models      | PENDING     | Category, UnitOfMeasure, PaymentTerm, Branch, Advance, Deduction, SocialInsurance, Project, Task — pages exist, need POST/PUT/DELETE APIs |
@@ -282,6 +282,10 @@ export const logger = pino({
 | Project quick-create          | ✅ DONE    | `QuickCreateDialog` → Project form in slide-over |
 | Item validation               | ✅ DONE    | `errorMessage` + disabled Save when no lines in invoice/quote |
 | Customer/Vendor address       | ✅ DONE    | `crNumber`, `street`, `city`, `district`, `region`, `country`, `postalCode` added to schema + forms |
+| Arabic translation completeness| ✅ DONE   | All pages translated (easy-entries, opening-balances, cost-centers, accounting-quality, fixed-assets); added missing keys (vendors/customers address fields, paymentReceipts.noReceipts, items types, fixedAssets fields, stockSummary section, disposals section) |
+| Quick-create vendor in purchase orders | ✅ DONE | QuickCreateDialog integrated in purchase order creation form |
+| Sidebar 404 fix               | ✅ DONE    | Fixed `/accounting/fixed-assets/transfer` → `/asset-transfer/` |
+| Light mode default            | ✅ DONE    | Theme provider always defaults to light mode |
 | AI Data Isolation Layer       | ✅ DONE    | All tools filter by orgId; no delete/drop tools; usage tracking via AiUsage model |
 | Draft & Approval Workflow     | ✅ DONE    | AiActionDraft model; AI creates drafts only; summary card with Confirm/Cancel buttons in chat |
 | Owner AI Settings Page        | ✅ DONE    | `/owner/ai-settings` — plan toggles (OCR, Reporting, Drafting), usage limits, proactive alerts |

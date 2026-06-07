@@ -108,12 +108,12 @@ export function FixedAssetsClient({ assets: initial }: Props) {
           <Input label={t("code")} value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} required />
           <Input label={t("name")} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
           <Select label={t("category")} options={[
-            { value: "Equipment", label: "Equipment" },
-            { value: "Furniture", label: "Furniture" },
-            { value: "Vehicles", label: "Vehicles" },
-            { value: "Buildings", label: "Buildings" },
-            { value: "Computers", label: "Computers" },
-            { value: "Other", label: "Other" },
+            { value: "Equipment", label: "معدات" },
+            { value: "Furniture", label: "أثاث" },
+            { value: "Vehicles", label: "مركبات" },
+            { value: "Buildings", label: "مباني" },
+            { value: "Computers", label: "أجهزة كمبيوتر" },
+            { value: "Other", label: "أخرى" },
           ]} value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} />
           <Input label={t("purchaseDate")} type="date" value={form.purchaseDate} onChange={(e) => setForm({ ...form, purchaseDate: e.target.value })} required />
           <Input label={t("cost")} type="number" value={form.purchaseCost} onChange={(e) => setForm({ ...form, purchaseCost: e.target.value })} required />

@@ -17,7 +17,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     setMounted(true);
     const saved = localStorage.getItem("theme") as Theme | null;
     const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const t = saved || (prefersDark ? "dark" : "light");
+    const t = saved || "light";
     setTheme(t);
     document.documentElement.classList.toggle("dark", t === "dark");
   }, []);

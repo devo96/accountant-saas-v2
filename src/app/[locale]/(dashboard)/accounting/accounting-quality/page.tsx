@@ -54,24 +54,24 @@ export default async function AccountingQualityPage() {
 
   const checksList = [
     {
-      label: "Posted Entries",
+      label: "القيود المرحلة",
       status: checks.draftEntries === 0 ? "pass" : checks.draftEntries < checks.totalEntries * 0.2 ? "warn" : "fail",
-      detail: `${checks.postedEntries} of ${checks.totalEntries} entries posted (${checks.draftEntries} drafts)`,
+      detail: `${checks.postedEntries} من ${checks.totalEntries} قيد مرحل (${checks.draftEntries} مسودات)`,
     },
     {
-      label: "Balanced Entries",
+      label: "القيود المتوازنة",
       status: checks.unbalanced === 0 ? "pass" : "fail",
-      detail: `${checks.unbalanced} posted entries with unbalanced debits/credits`,
+      detail: `${checks.unbalanced} قيد مرحل غير متوازن`,
     },
     {
-      label: "Reconciled Transactions",
+      label: "الحركات البنكية المسواة",
       status: checks.unreconciledTransactions === 0 ? "pass" : "warn",
-      detail: `${checks.unreconciledTransactions} unreconciled bank transactions`,
+      detail: `${checks.unreconciledTransactions} حركة بنكية غير مسواة`,
     },
     {
-      label: "Account Balances",
+      label: "أرصدة الحسابات",
       status: checks.negativeBalanceAccounts === 0 ? "pass" : "warn",
-      detail: `${checks.negativeBalanceAccounts} accounts with negative balances`,
+      detail: `${checks.negativeBalanceAccounts} حساب برصيد سالب`,
     },
   ];
 
@@ -80,10 +80,10 @@ export default async function AccountingQualityPage() {
 
   return (
     <FadeIn>
-      <PageHeader title={tnav("accountingQuality")} description="Review the health of your accounting data" />
+      <PageHeader title={tnav("accountingQuality")} description="مراجعة جودة البيانات المحاسبية" />
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card className={`lg:col-span-1 flex flex-col items-center justify-center p-8 ${scoreBg}`}>
-          <p className="text-sm font-medium text-gray-500 mb-2">Quality Score</p>
+          <p className="text-sm font-medium text-gray-500 mb-2">درجة الجودة</p>
           <p className={`text-6xl font-bold ${scoreColor}`}>{checks.score}</p>
           <p className="text-sm text-gray-500 mt-2">/ 100</p>
         </Card>

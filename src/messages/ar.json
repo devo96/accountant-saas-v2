@@ -582,7 +582,14 @@
     "status": "الحالة",
     "total": "الإجمالي",
     "back": "العودة إلى الموردين",
-    "updateSuccess": "تم تحديث المورد بنجاح"
+    "updateSuccess": "تم تحديث المورد بنجاح",
+    "crNumber": "السجل التجاري",
+    "street": "الشارع",
+    "city": "المدينة",
+    "district": "الحي",
+    "region": "المنطقة",
+    "country": "الدولة",
+    "postalCode": "الرمز البريدي"
   },
   "reports": {
     "trialBalance": "ميزان المراجعة",
@@ -670,7 +677,14 @@
     "status": "الحالة",
     "total": "الإجمالي",
     "back": "العودة إلى العملاء",
-    "updateSuccess": "تم تحديث العميل بنجاح"
+    "updateSuccess": "تم تحديث العميل بنجاح",
+    "crNumber": "السجل التجاري",
+    "street": "الشارع",
+    "city": "المدينة",
+    "district": "الحي",
+    "region": "المنطقة",
+    "country": "الدولة",
+    "postalCode": "الرمز البريدي"
   },
   "salesInvoices": {
     "title": "فواتير البيع",
@@ -1083,7 +1097,8 @@
     "cancel": "إلغاء",
     "saving": "جاري الحفظ...",
     "receiptInfo": "معلومات إيصال الدفع",
-    "back": "العودة إلى إيصالات الدفع"
+    "back": "العودة إلى إيصالات الدفع",
+    "noReceipts": "لا توجد إيصالات"
   },
   "expenses": {
     "title": "المصروفات",
@@ -1138,6 +1153,9 @@
     "dialogTitle": "صنف جديد",
     "product": "منتج",
     "service": "خدمة",
+    "PRODUCT": "منتج",
+    "piece": "قطعة",
+    "SERVICE": "خدمة",
     "save": "حفظ",
     "cancel": "إلغاء",
     "saving": "جاري الحفظ...",
@@ -1398,7 +1416,18 @@
     "notes": "ملاحظات",
     "cancel": "إلغاء",
     "save": "حفظ",
-    "saving": "جاري الحفظ..."
+    "saving": "جاري الحفظ...",
+    "accumulatedDepreciation": "الإهلاك المتراكم",
+    "annualDepreciation": "الإهلاك السنوي",
+    "activeAssets": "الأصول النشطة",
+    "disposalDate": "تاريخ التخلص",
+    "zeroDisposedAssets": "0 أصل تم التخلص منه",
+    "noDisposedAssets": "لا توجد أصول تم التخلص منها"
+  },
+  "disposals": {
+    "title": "التخلص من الأصول",
+    "count": "{count} أصل متخلص منه",
+    "noDisposals": "لا توجد أصول متخلص منها"
   },
   "emailTemplates": {
     "title": "قوالب البريد الإلكتروني",
@@ -1922,7 +1951,17 @@
     "update": "تحديث",
     "addLine": "إضافة بند",
     "selectItem": "اختر صنفاً",
-    "errorItemRequired": "جميع البنود يجب أن تحتوي على صنف"
+    "errorItemRequired": "جميع البنود يجب أن تحتوي على صنف",
+    "totalValue": "إجمالي القيمة",
+    "unit": "الوحدة",
+    "costPrice": "سعر التكلفة",
+    "openingBalance": "الرصيد الافتتاحي",
+    "closingBalance": "الرصيد الختامي"
+  },
+  "stockSummary": {
+    "title": "ملخص المخزون لجميع المستودعات",
+    "stockValue": "قيمة المخزون",
+    "totalItems": "إجمالي الأصناف"
   },
   "quickCreate": {
     "add": "إضافة جديد",

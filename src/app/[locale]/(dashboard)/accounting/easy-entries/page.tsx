@@ -9,14 +9,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "@/i18n/navigation";
-import { Calculator, ArrowRightLeft, FileText, DollarSign, ShoppingCart, Receipt, Landmark } from "lucide-react";
+import { Calculator, ArrowRightLeft, FileText, DollarSign, ShoppingCart, Receipt, Landmark, PiggyBank, Calendar } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
 const templates = [
-  { icon: DollarSign, label: "Sales Entry", description: "Record sales revenue", color: "text-green-600" },
-  { icon: ShoppingCart, label: "Purchase Entry", description: "Record purchase expense", color: "text-blue-600" },
-  { icon: Receipt, label: "Expense Payment", description: "Record operating expense", color: "text-orange-600" },
-  { icon: Landmark, label: "Receipt Entry", description: "Record money received", color: "text-purple-600" },
+  { icon: DollarSign, label: "قيود المبيعات", description: "تسجيل إيرادات المبيعات", color: "text-green-600" },
+  { icon: ShoppingCart, label: "قيود المشتريات", description: "تسجيل مصروفات المشتريات", color: "text-blue-600" },
+  { icon: Receipt, label: "سداد مصروفات", description: "تسجيل مصروف تشغيلي", color: "text-orange-600" },
+  { icon: Landmark, label: "سند قبض", description: "تسجيل مبلغ مستلم", color: "text-purple-600" },
+  { icon: Calculator, label: "تسوية", description: "تسوية بين الحسابات", color: "text-teal-600" },
+  { icon: PiggyBank, label: "إيداع بنكي", description: "تسجيل إيداع بنكي", color: "text-emerald-600" },
+  { icon: ArrowRightLeft, label: "تحويل", description: "تحويل أموال بين الحسابات", color: "text-indigo-600" },
+  { icon: Calendar, label: "مصروفات مقدمة", description: "تسجيل مصروفات مدفوعة مقدماً", color: "text-rose-600" },
 ];
 
 export default async function EasyEntriesPage() {
@@ -40,7 +44,7 @@ export default async function EasyEntriesPage() {
     <FadeIn>
       <PageHeader
         title={tnav("easyEntries")}
-        description="Create journal entries quickly with simplified templates"
+        description="إنشاء قيود محاسبية بسرعة باستخدام قوالب مبسطة"
       />
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
         {templates.map((t) => (
@@ -65,15 +69,15 @@ export default async function EasyEntriesPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <FileText className="h-5 w-5 text-primary" />
-            Recent Journal Entries
+            آخر قيود اليومية
           </CardTitle>
         </CardHeader>
         {recentEntries.length === 0 ? (
           <CardContent>
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <Calculator className="h-12 w-12 text-gray-300 mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">No entries yet</h3>
-              <p className="text-sm text-gray-500">Use the templates above to create your first easy entry.</p>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">لا توجد قيود بعد</h3>
+              <p className="text-sm text-gray-500">استخدم القوالب أعلاه لإنشاء أول قيد سهل</p>
             </div>
           </CardContent>
         ) : (
@@ -81,11 +85,11 @@ export default async function EasyEntriesPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>#</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Created By</TableHead>
-                <TableHead>Lines</TableHead>
+                <TableHead>التاريخ</TableHead>
+                <TableHead>الوصف</TableHead>
+                <TableHead>الحالة</TableHead>
+                <TableHead>بواسطة</TableHead>
+                <TableHead>البنود</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -104,7 +108,7 @@ export default async function EasyEntriesPage() {
                     </TableCell>
                     <TableCell>{e.createdBy?.name || "-"}</TableCell>
                     <TableCell className="text-xs text-gray-500">
-                      {e.lines.length} lines · D: {formatCurrency(totalDebit)} · C: {formatCurrency(totalCredit)}
+                      {e.lines.length} بند · م: {formatCurrency(totalDebit)} · د: {formatCurrency(totalCredit)}
                     </TableCell>
                   </TableRow>
                 );
