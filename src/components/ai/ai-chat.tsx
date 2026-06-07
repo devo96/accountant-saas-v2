@@ -25,6 +25,7 @@ export function AiChat() {
   const [isLoading, setIsLoading] = useState(false);
   const [drafts, setDrafts] = useState<DraftInfo[]>([]);
   const [approvedDraftIds, setApprovedDraftIds] = useState<string[]>([]);
+  const [rejectedDraftIds, setRejectedDraftIds] = useState<string[]>([]);
   const [processingDraft, setProcessingDraft] = useState<string | null>(null);
   const [draftToMessage, setDraftToMessage] = useState<Record<string, string>>({});
   const messagesRef = useRef<Message[]>([]);
@@ -33,10 +34,10 @@ export function AiChat() {
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const latestPendingDraftId = useMemo(() => {
-    const pending = drafts.filter(d => !approvedDraftIds.includes(d.id));
-    if (pending.length === 0) return null;
-    return pending.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].id;
-  }, [drafts, approvedDraftIds]);
+    const resolved = drafts.filter(d => !approvedDraftIds.includes(d.id) && !rejectedDraftIds.includes(d.id));
+    if (resolved.length === 0) return null;
+    return resolved.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].id;
+  }, [drafts, approvedDraftIds, rejectedDraftIds]);
 
   const scrollDown = () => setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
 
@@ -68,6 +69,7 @@ export function AiChat() {
   }, [approvedDraftIds]);
 
   const handleDraftAction = useCallback(async (draftId: string, action: "approve" | "reject") => {
+    if (processingDraft) return;
     setProcessingDraft(draftId);
     try {
       const res = await fetch(`/api/ai/drafts/${draftId}`, {
@@ -75,22 +77,27 @@ export function AiChat() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action }),
       });
-      if (res.ok) {
-        if (action === "approve") {
-          setApprovedDraftIds((prev) => [...prev, draftId]);
-          const msg = locale === "ar"
-            ? "تم اعتماد القيد وتثبيته في حساباتك بنجاح!"
-            : "Journal entry approved and posted to your accounts successfully!";
-          setMessages((prev) => [...prev, { role: "assistant", id: crypto.randomUUID(), content: msg }]);
-        } else {
-          setDrafts((prev) => prev.filter((d) => d.id !== draftId));
-          const msg = locale === "ar" ? "🗑️ تم إلغاء المسودة." : "🗑️ Draft cancelled.";
-          setMessages((prev) => [...prev, { role: "assistant", id: crypto.randomUUID(), content: msg }]);
-        }
+      if (!res.ok) {
+        const err = await res.text();
+        console.error(`Draft ${action} failed:`, err);
+        return;
       }
-    } catch {}
+      if (action === "approve") {
+        setApprovedDraftIds((prev) => [...prev, draftId]);
+        const msg = locale === "ar"
+          ? "تم اعتماد القيد بنجاح وتحديث دفاتر المنشأة."
+          : "Journal entry approved and posted to your accounts successfully!";
+        setMessages((prev) => [...prev, { role: "assistant", id: crypto.randomUUID(), content: msg }]);
+      } else {
+        setRejectedDraftIds((prev) => [...prev, draftId]);
+        const msg = locale === "ar" ? "🗑️ تم إلغاء المسودة." : "🗑️ Draft cancelled.";
+        setMessages((prev) => [...prev, { role: "assistant", id: crypto.randomUUID(), content: msg }]);
+      }
+    } catch (e) {
+      console.error("Draft action error:", e);
+    }
     setProcessingDraft(null);
-  }, [locale]);
+  }, [locale, processingDraft]);
 
   useEffect(() => {
     if (!isLoading && messages.length > 0) fetchDrafts();
@@ -195,31 +202,39 @@ export function AiChat() {
 
               {m.role === "assistant" && drafts
                 .filter(d => draftToMessage[d.id] === m.id)
-                .filter(d => approvedDraftIds.includes(d.id) || d.id === latestPendingDraftId)
+                .filter(d => approvedDraftIds.includes(d.id) || rejectedDraftIds.includes(d.id) || d.id === latestPendingDraftId)
                 .map((draft) => {
                 const isApproved = approvedDraftIds.includes(draft.id);
+                const isRejected = rejectedDraftIds.includes(draft.id);
+                const isProcessing = processingDraft === draft.id;
+                let borderStyle: string, bgStyle: string, textStyle: string;
+                let badge: React.ReactNode;
+                if (isApproved) {
+                  borderStyle = "border-emerald-200"; bgStyle = "bg-emerald-50"; textStyle = "text-emerald-700";
+                  badge = <span className="text-xs bg-emerald-200 text-emerald-800 px-2 py-0.5 rounded-full flex items-center gap-1"><CheckCircle2 className="h-3 w-3" /> {locale === "ar" ? "تم الاعتماد بنجاح" : "Approved"}</span>;
+                } else if (isRejected) {
+                  borderStyle = "border-gray-200"; bgStyle = "bg-gray-50"; textStyle = "text-gray-500";
+                  badge = <span className="text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full">{locale === "ar" ? "تم الإلغاء" : "Cancelled"}</span>;
+                } else {
+                  borderStyle = "border-amber-200"; bgStyle = "bg-amber-50"; textStyle = "text-amber-700";
+                  badge = <span className="text-xs bg-amber-200 px-2 py-0.5 rounded-full">{locale === "ar" ? "بانتظار الموافقة" : "Pending Approval"}</span>;
+                }
                 return (
-                <div key={draft.id} className={`rounded-xl p-4 space-y-3 ${isApproved ? "border border-emerald-200 bg-emerald-50" : "border border-amber-200 bg-amber-50"}`} dir="rtl">
-                  <div className={`flex items-center gap-2 ${isApproved ? "text-emerald-700" : "text-amber-700"}`}>
+                <div key={draft.id} className={`rounded-xl p-4 space-y-3 ${borderStyle} ${bgStyle}`} dir="rtl">
+                  <div className={`flex items-center gap-2 ${textStyle}`}>
                     {draft.actionType === "JOURNAL_ENTRY" ? <FileText className="h-5 w-5" /> : <Receipt className="h-5 w-5" />}
                     <span className="font-semibold text-sm">{locale === "ar" ? "مسودة قيد محاسبي" : "Journal Entry Draft"}</span>
-                    {isApproved ? (
-                      <span className="text-xs bg-emerald-200 text-emerald-800 px-2 py-0.5 rounded-full flex items-center gap-1">
-                        <CheckCircle2 className="h-3 w-3" /> {locale === "ar" ? "تم الاعتماد بنجاح" : "Approved"}
-                      </span>
-                    ) : (
-                      <span className="text-xs bg-amber-200 px-2 py-0.5 rounded-full">{locale === "ar" ? "بانتظار الموافقة" : "Pending Approval"}</span>
-                    )}
+                    {badge}
                   </div>
                   <p className="text-sm text-gray-700">{draft.summary}</p>
-                  {!isApproved && (
+                  {!isApproved && !isRejected && (
                   <div className="flex gap-2">
-                    <button onClick={() => handleDraftAction(draft.id, "approve")} disabled={processingDraft === draft.id}
+                    <button onClick={() => handleDraftAction(draft.id, "approve")} disabled={isProcessing}
                       className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors disabled:opacity-50">
-                      {processingDraft === draft.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
-                      {locale === "ar" ? "موافقة واعتماد" : "Confirm & Approve"}
+                      {isProcessing ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+                      {isProcessing ? (locale === "ar" ? "جاري الحفظ..." : "Saving...") : (locale === "ar" ? "موافقة واعتماد" : "Confirm & Approve")}
                     </button>
-                    <button onClick={() => handleDraftAction(draft.id, "reject")} disabled={processingDraft === draft.id}
+                    <button onClick={() => handleDraftAction(draft.id, "reject")} disabled={isProcessing}
                       className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300 transition-colors disabled:opacity-50">
                       <XCircle className="h-4 w-4" />
                       {locale === "ar" ? "إلغاء" : "Cancel"}
