@@ -35,6 +35,8 @@ export function JournalEntriesClient({ entries, accounts, projects }: Props) {
   const router = useRouter();
   const [showAdd, setShowAdd] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
   const [form, setForm] = useState({
     date: new Date().toISOString().split("T")[0],
     description: "",
@@ -60,24 +62,32 @@ export function JournalEntriesClient({ entries, accounts, projects }: Props) {
   }
 
   async function handleSubmit(status: string) {
-    const res = await fetch("/api/journal-entries", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        date: new Date(form.date).toISOString(),
-        description: form.description,
-        reference: form.reference || undefined,
-        projectId: projectId || undefined,
-        attachments: attachments.length > 0 ? JSON.stringify(attachments.map(f => f.name)) : undefined,
-        status,
-        lines: form.lines.map((l) => ({
-          accountId: l.accountId,
-          debit: Number(l.debit),
-          credit: Number(l.credit),
-        })),
-      }),
-    });
-    if (res.ok) { setShowAdd(false); router.refresh(); }
+    setSubmitting(true);
+    setError("");
+    try {
+      const res = await fetch("/api/journal-entries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          date: new Date(form.date).toISOString(),
+          description: form.description,
+          reference: form.reference || undefined,
+          projectId: projectId || undefined,
+          attachments: attachments.length > 0 ? JSON.stringify(attachments.map(f => f.name)) : undefined,
+          status,
+          lines: form.lines.filter((l) => l.accountId).map((l) => ({
+            accountId: l.accountId,
+            debit: Number(l.debit),
+            credit: Number(l.credit),
+          })),
+        }),
+      });
+      if (res.ok) { setShowAdd(false); setSubmitting(false); router.refresh(); return; }
+      const data = await res.json();
+      setError(data?.error || data?.details?.[0]?.message || s("errorOccurred"));
+    } catch {
+      setError(s("errorOccurred"));
+    } finally { setSubmitting(false); }
   }
 
   async function handleDelete() {
@@ -142,8 +152,8 @@ export function JournalEntriesClient({ entries, accounts, projects }: Props) {
             <Input label={t("reference")} value={form.reference} onChange={(e) => setForm({ ...form, reference: e.target.value })} />
           </div>
           <Input label={t("description")} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} required />
-          <Select label={t("project")} options={projectOpts} placeholder={t("selectProject")} value={projectId} onChange={(e) => setProjectId(e.target.value)} />
-          <Input label={t("attachments")} type="file" ref={fileRef} multiple onChange={(e) => setAttachments(Array.from(e.target.files || []))} />
+          <Select label={s("project")} options={projectOpts} placeholder={s("selectProject")} value={projectId} onChange={(e) => setProjectId(e.target.value)} />
+          <Input label={s("attachments")} type="file" ref={fileRef} multiple onChange={(e) => setAttachments(Array.from(e.target.files || []))} />
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
@@ -174,9 +184,10 @@ export function JournalEntriesClient({ entries, accounts, projects }: Props) {
             </div>
           </div>
 
+          {error && <p className="text-sm text-red-600 text-center">{error}</p>}
           <div className="flex justify-end gap-3">
-            <Button type="button" variant="outline" onClick={() => handleSubmit("DRAFT")} disabled={!isBalanced || form.lines.length < 2}>{t("saveDraft")}</Button>
-            <Button type="button" onClick={() => handleSubmit("POSTED")} disabled={!isBalanced || form.lines.length < 2}>{t("postEntry")}</Button>
+            <Button type="button" variant="outline" onClick={() => handleSubmit("DRAFT")} disabled={submitting || !isBalanced || form.lines.length < 2}>{submitting ? t("saving") : t("saveDraft")}</Button>
+            <Button type="button" onClick={() => handleSubmit("POSTED")} disabled={submitting || !isBalanced || form.lines.length < 2}>{submitting ? t("saving") : t("postEntry")}</Button>
           </div>
         </form>
       </Dialog>

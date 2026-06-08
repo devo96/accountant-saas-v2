@@ -17,7 +17,9 @@ type Project = { id: string; name: string };
 export default function NewJournalEntryClient({ accounts, projects }: { accounts: Account[]; projects: Project[] }) {
   const router = useRouter();
   const t = useTranslations("journalEntries");
+  const s = useTranslations("common");
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
   const [form, setForm] = useState({
     date: new Date().toISOString().split("T")[0],
     description: "",
@@ -45,6 +47,7 @@ export default function NewJournalEntryClient({ accounts, projects }: { accounts
 
   async function handleSubmit(status: string) {
     setSubmitting(true);
+    setError("");
     try {
       const res = await fetch("/api/journal-entries", {
         method: "POST",
@@ -59,7 +62,11 @@ export default function NewJournalEntryClient({ accounts, projects }: { accounts
             lines: form.lines.filter((l) => l.accountId).map((l) => ({ accountId: l.accountId, debit: Number(l.debit), credit: Number(l.credit) })),
           }),
       });
-      if (res.ok) router.push("/accounting/journal-entries");
+      if (res.ok) { router.push("/accounting/journal-entries"); return; }
+      const data = await res.json();
+      setError(data?.error || data?.details?.[0]?.message || s("errorOccurred"));
+    } catch {
+      setError(s("errorOccurred"));
     } finally { setSubmitting(false); }
   }
 
@@ -77,14 +84,16 @@ export default function NewJournalEntryClient({ accounts, projects }: { accounts
         }
       />
 
+      {error && <p className="text-sm text-red-600 text-center mb-4">{error}</p>}
+
       <Card>
         <CardHeader><CardTitle>{t("dialogTitle")}</CardTitle></CardHeader>
         <CardContent className="grid grid-cols-3 gap-4">
           <Input label={t("date")} type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} />
           <Input label={t("reference")} value={form.reference} onChange={(e) => setForm({ ...form, reference: e.target.value })} />
-          <Select label={t("project")} options={projectOpts} placeholder={t("selectProject")} value={projectId} onChange={(e) => setProjectId(e.target.value)} />
+          <Select label={s("project")} options={projectOpts} placeholder={s("selectProject")} value={projectId} onChange={(e) => setProjectId(e.target.value)} />
           <div className="col-span-3"><Input label={t("description")} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
-          <div className="col-span-3"><Input label={t("attachments")} type="file" ref={fileRef} multiple onChange={(e) => setAttachments(Array.from(e.target.files || []))} /></div>
+          <div className="col-span-3"><Input label={s("attachments")} type="file" ref={fileRef} multiple onChange={(e) => setAttachments(Array.from(e.target.files || []))} /></div>
         </CardContent>
       </Card>
 

@@ -1864,6 +1864,7 @@
     "selectCustomer": "Select Customer",
     "selectVendor": "Select Vendor",
     "selectProject": "Select Project",
+    "errorOccurred": "An error occurred, please try again",
     "selectFile": "Select File",
     "entries": "Entries",
     "lines": "Lines",
