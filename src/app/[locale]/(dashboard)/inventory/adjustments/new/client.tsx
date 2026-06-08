@@ -17,6 +17,7 @@ export default function NewAdjustmentClient({ items, warehouses }: { items: Item
   const router = useRouter();
   const t = useTranslations("inventoryAdjustments");
   const [submitting, setSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [form, setForm] = useState({
     itemId: "",
     warehouseId: "",
@@ -31,6 +32,7 @@ export default function NewAdjustmentClient({ items, warehouses }: { items: Item
 
   async function handleSubmit() {
     setSubmitting(true);
+    setErrorMessage("");
     try {
       const res = await fetch("/api/inventory/adjustments", {
         method: "POST",
@@ -38,6 +40,9 @@ export default function NewAdjustmentClient({ items, warehouses }: { items: Item
         body: JSON.stringify(form),
       });
       if (res.ok) router.push("/inventory/adjustments");
+      else { const data = await res.json().catch(() => ({})); setErrorMessage(data?.message || "Failed to save"); }
+    } catch (e) {
+      setErrorMessage(e instanceof Error ? e.message : "Network error");
     } finally { setSubmitting(false); }
   }
 
@@ -59,9 +64,11 @@ export default function NewAdjustmentClient({ items, warehouses }: { items: Item
         <CardContent className="grid grid-cols-3 gap-4">
           <Select label={t("item")} options={itemOpts} placeholder={t("item")} value={form.itemId} onChange={(e) => setForm({ ...form, itemId: e.target.value })} />
           <Select label={t("warehouse")} options={warehouseOpts} placeholder={t("warehouse")} value={form.warehouseId} onChange={(e) => setForm({ ...form, warehouseId: e.target.value })} />
+          <Input label={t("currentQty")} type="number" value={form.quantityBefore} onChange={(e) => setForm({ ...form, quantityBefore: e.target.value })} />
           <Input label={t("quantityAfter")} type="number" value={form.quantityAfter} onChange={(e) => setForm({ ...form, quantityAfter: e.target.value })} />
           <Input label={t("reason")} value={form.reason} onChange={(e) => setForm({ ...form, reason: e.target.value })} />
           <Input label={t("reference")} value={form.reference} onChange={(e) => setForm({ ...form, reference: e.target.value })} />
+          {errorMessage && <div className="col-span-3"><p className="text-sm text-red-500">{errorMessage}</p></div>}
         </CardContent>
       </Card>
     </div>

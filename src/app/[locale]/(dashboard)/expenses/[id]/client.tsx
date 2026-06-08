@@ -31,17 +31,19 @@ export function ExpenseViewClient({ expense: initial }: Props) {
   const router = useRouter();
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [form, setForm] = useState({ category: initial.category ?? "", description: initial.description, amount: String(initial.amount), paymentMethod: initial.paymentMethod, notes: initial.notes ?? "" });
 
   async function handleSave() {
     setSaving(true);
+    setErrorMessage("");
     try {
       const res = await fetch(`/api/expenses/${initial.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...form, amount: Number(form.amount) }),
       });
-      if (res.ok) { setEditing(false); router.refresh(); }
+      if (res.ok) { setEditing(false); router.refresh(); } else { const data = await res.json().catch(() => ({})); setErrorMessage(data.error || t("errorOccurred")); }
     } finally { setSaving(false); }
   }
 
@@ -61,6 +63,11 @@ export function ExpenseViewClient({ expense: initial }: Props) {
           <Button variant="ghost" onClick={() => router.push("/expenses")}><ArrowLeft className="h-5 w-5 rtl:scale-x-[-1]" /></Button>
           <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t("editExpense")}</h2>
         </div>
+        {errorMessage && (
+          <div className="rounded-lg border border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700 p-4 text-sm text-red-700 dark:text-red-400">
+            {errorMessage}
+          </div>
+        )}
         <div className="grid grid-cols-2 gap-4">
           <Input label={t("category")} value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} />
           <Input label={t("description")} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} required />

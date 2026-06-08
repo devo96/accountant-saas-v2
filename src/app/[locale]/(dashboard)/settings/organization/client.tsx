@@ -25,28 +25,37 @@ export function OrganizationSettingsClient({ org, settings: initialSettings }: P
   const [settingsSaving, setSettingsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [testStatus, setTestStatus] = useState("");
+  const [error, setError] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
-    const res = await fetch(`/api/organizations/${org.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
-    if (res.ok) { setSaved(true); setTimeout(() => setSaved(false), 3000); }
-    setSaving(false);
+    setError("");
+    try {
+      const res = await fetch(`/api/organizations/${org.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      if (res.ok) { setSaved(true); setTimeout(() => setSaved(false), 3000); }
+      else { const data = await res.json().catch(() => ({})); setError(data.error || t("saveChanges")); }
+    } catch { setError(t("saveChanges")); }
+    finally { setSaving(false); }
   }
 
   async function saveSettings() {
     setSettingsSaving(true);
-    const res = await fetch("/api/organization-settings", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(settings),
-    });
-    if (res.ok) { setSaved(true); setTimeout(() => setSaved(false), 3000); }
-    setSettingsSaving(false);
+    setError("");
+    try {
+      const res = await fetch("/api/organization-settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(settings),
+      });
+      if (res.ok) { setSaved(true); setTimeout(() => setSaved(false), 3000); }
+      else { const data = await res.json().catch(() => ({})); setError(data.error || t("saveSettings")); }
+    } catch { setError(t("saveSettings")); }
+    finally { setSettingsSaving(false); }
   }
 
   function updateSetting(key: string, value: string) {
@@ -62,12 +71,16 @@ export function OrganizationSettingsClient({ org, settings: initialSettings }: P
 
   async function sendTestEmail() {
     setTestStatus("");
-    const res = await fetch("/api/send-email", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ to: form.email || "test@example.com", subject: "Test Email", html: "<p>This is a test email from your accounting system.</p>" }),
-    });
-    setTestStatus(res.ok ? t("testEmailSent") : (await res.json()).error);
+    setError("");
+    try {
+      const res = await fetch("/api/send-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ to: form.email || "test@example.com", subject: "Test Email", html: "<p>This is a test email from your accounting system.</p>" }),
+      });
+      if (res.ok) setTestStatus(t("testEmailSent"));
+      else { const data = await res.json().catch(() => ({})); setError(data.error || t("sendTestEmail")); }
+    } catch { setError(t("sendTestEmail")); }
   }
 
   return (
@@ -78,6 +91,7 @@ export function OrganizationSettingsClient({ org, settings: initialSettings }: P
         description={t("subtitle")}
       />
 
+      {error && <div className="rounded-lg border border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700 p-4 text-sm text-red-700 dark:text-red-400">{error}</div>}
       <form onSubmit={handleSubmit} className="space-y-4">
         <Input label={t("orgName")} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
         <Input label={t("email")} type="email" value={form.email ?? ""} onChange={(e) => setForm({ ...form, email: e.target.value })} />

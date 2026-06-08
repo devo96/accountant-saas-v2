@@ -46,10 +46,12 @@ export function InventoryAdjustmentsClient({ data, items, warehouses }: Props) {
     reference: "",
   });
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
+    setErrorMessage("");
     try {
       const res = await fetch("/api/inventory/adjustments", {
         method: "POST",
@@ -59,7 +61,12 @@ export function InventoryAdjustmentsClient({ data, items, warehouses }: Props) {
       if (res.ok) {
         setOpen(false);
         router.refresh();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setErrorMessage(data?.message || "Failed to save");
       }
+    } catch (e) {
+      setErrorMessage(e instanceof Error ? e.message : "Network error");
     } finally {
       setLoading(false);
     }
@@ -175,6 +182,7 @@ export function InventoryAdjustmentsClient({ data, items, warehouses }: Props) {
             value={form.reference}
             onChange={(e) => setForm({ ...form, reference: e.target.value })}
           />
+          {errorMessage && <p className="text-sm text-red-500">{errorMessage}</p>}
           <div className="flex justify-end gap-3 pt-2">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>{t("cancel")}</Button>
             <Button type="submit" disabled={loading}>{loading ? t("saving") : t("save")}</Button>

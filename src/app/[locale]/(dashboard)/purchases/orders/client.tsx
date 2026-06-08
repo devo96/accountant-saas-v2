@@ -44,6 +44,7 @@ export function PurchaseOrdersClient({ orders, vendors }: Props) {
   const s = useTranslations("common");
   const router = useRouter();
   const [showAdd, setShowAdd] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ vendorId: "", orderDate: new Date().toISOString().split("T")[0], expectedDate: "", subtotal: "", discountAmount: "0", taxAmount: "0", total: "", notes: "" });
 
@@ -58,7 +59,7 @@ export function PurchaseOrdersClient({ orders, vendors }: Props) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...form, subtotal: Number(form.subtotal), discountAmount: Number(form.discountAmount), taxAmount: Number(form.taxAmount), total: Number(form.total) }),
       });
-      if (res.ok) { setShowAdd(false); router.refresh(); }
+      if (res.ok) { setShowAdd(false); router.refresh(); } else { const data = await res.json().catch(() => ({})); setErrorMessage(data.error || t("errorOccurred")); }
     } finally {
       setLoading(false);
     }
@@ -86,6 +87,11 @@ export function PurchaseOrdersClient({ orders, vendors }: Props) {
         }
       />
 
+      {errorMessage && (
+        <div className="rounded-lg border border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700 p-4 text-sm text-red-700 dark:text-red-400">
+          {errorMessage}
+        </div>
+      )}
       <DataTable columns={columns} data={orders} searchable searchPlaceholder={t("searchPlaceholder")} onRowClick={(o) => router.push(`/purchases/orders/${(o as PurchaseOrder).id}`)} exportable exportFilename="purchase-orders" filters={[{ key: "status", label: t("status"), type: "select", options: Object.keys(statusLabels).map((k) => ({ label: s(statusLabels[k]), value: k })) }]} />
 
       <Dialog open={showAdd} onClose={() => setShowAdd(false)} title={t("dialogTitle")}>

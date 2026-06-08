@@ -149,6 +149,9 @@ export function NewInvoiceClient({ customers: initialCustomers, items: initialIt
       if (res.ok) {
         router.push("/sales/invoices");
         router.refresh();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setErrorMessage(data.error || tc("errorOccurred"));
       }
     } finally {
       setSubmitting(false);
@@ -271,11 +274,11 @@ export function NewInvoiceClient({ customers: initialCustomers, items: initialIt
               <div className="flex gap-2">
                 <div className="flex-1">
                   <Select
-                    label="Project"
+                    label={tc("project")}
                     options={projectOpts}
                     value={projectId}
                     onChange={(e) => setProjectId(e.target.value)}
-                    placeholder="Select project"
+                    placeholder={tc("selectProject")}
                   />
                 </div>
                 <QuickCreateDialog type="project" onCreated={handleProjectCreated} />

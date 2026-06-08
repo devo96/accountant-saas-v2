@@ -31,6 +31,7 @@ export function ExpensesClient({ expenses, accounts, vendors }: Props) {
   const router = useRouter();
   const [showAdd, setShowAdd] = useState(false);
   const [form, setForm] = useState({ date: new Date().toISOString().split("T")[0], description: "", amount: "", taxAmount: "", accountId: "", vendorId: "", paymentMethod: "CASH", notes: "", category: "", receipt: "" });
+  const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -42,7 +43,7 @@ export function ExpensesClient({ expenses, accounts, vendors }: Props) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...form, amount: Number(form.amount) }),
       });
-      if (res.ok) { setShowAdd(false); router.refresh(); }
+      if (res.ok) { setShowAdd(false); router.refresh(); } else { const data = await res.json().catch(() => ({})); setErrorMessage(data.error || t("errorOccurred")); }
     } finally {
       setLoading(false);
     }
@@ -69,19 +70,25 @@ export function ExpensesClient({ expenses, accounts, vendors }: Props) {
         }
       />
 
+      {errorMessage && (
+        <div className="rounded-lg border border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700 p-4 text-sm text-red-700 dark:text-red-400">
+          {errorMessage}
+        </div>
+      )}
       <DataTable
         searchable
         selectable
         bulkActions={[
           {
-            label: "Delete Selected",
+            label: t("deleteSelected"),
             variant: "danger",
             onClick: async (ids) => {
-              await fetch("/api/bulk-delete", {
+              const res = await fetch("/api/bulk-delete", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ entity: "Expense", ids }),
               });
+              if (!res.ok) { const data = await res.json().catch(() => ({})); setErrorMessage(data.error || t("errorOccurred")); }
               router.refresh();
             },
           },

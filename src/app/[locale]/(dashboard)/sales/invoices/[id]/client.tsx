@@ -63,6 +63,7 @@ export function SalesInvoiceViewClient({ invoice: initial, customers, items, tax
 
   const [showEmailDialog, setShowEmailDialog] = useState(false);
   const [emailTo, setEmailTo] = useState(inv.customer ? inv.customer.name + "@" : "");
+  const [errorMessage, setErrorMessage] = useState("");
   const [emailSending, setEmailSending] = useState(false);
   const [emailResult, setEmailResult] = useState("");
 
@@ -138,6 +139,9 @@ export function SalesInvoiceViewClient({ invoice: initial, customers, items, tax
         setInv(updated);
         setEditing(false);
         router.refresh();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setErrorMessage(data.error || ct("errorOccurred"));
       }
     } finally { setSaving(false); }
   }
@@ -162,6 +166,9 @@ export function SalesInvoiceViewClient({ invoice: initial, customers, items, tax
       const updated = await res.json();
       setInv(updated);
       router.refresh();
+    } else {
+      const data = await res.json().catch(() => ({}));
+      setErrorMessage(data.error || ct("errorOccurred"));
     }
   }
 
@@ -175,6 +182,9 @@ export function SalesInvoiceViewClient({ invoice: initial, customers, items, tax
       const data = await res.json();
       setInv({ ...inv, zatcaStatus: data.zatcaStatus });
       router.refresh();
+    } else {
+      const data = await res.json().catch(() => ({}));
+      setErrorMessage(data.error || ct("errorOccurred"));
     }
   }
 
@@ -190,7 +200,11 @@ export function SalesInvoiceViewClient({ invoice: initial, customers, items, tax
           <Button variant="ghost" onClick={() => router.push("/sales/invoices")}><ArrowLeft className="h-5 w-5 rtl:scale-x-[-1]" /></Button>
           <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t("editTitle")} INV-{String(inv.number).padStart(5, "0")}</h2>
         </div>
-
+        {errorMessage && (
+          <div className="rounded-lg border border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700 p-4 text-sm text-red-700 dark:text-red-400">
+            {errorMessage}
+          </div>
+        )}
         <div className="grid grid-cols-3 gap-4">
           <Select label={t("customer")} options={customerOpts} value={customerId} onChange={(e) => setCustomerId(e.target.value)} required placeholder={t("selectCustomer")} />
           <Input label={t("invoiceDate")} type="date" value={date} onChange={(e) => setDate(e.target.value)} required />

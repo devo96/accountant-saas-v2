@@ -26,10 +26,12 @@ export function ItemsClient({ items }: Props) {
   const [deleting, setDeleting] = useState<Item | null>(null);
   const [form, setForm] = useState({ name: "", sku: "", barcode: "", type: "PRODUCT", sellingPrice: "", costPrice: "", unit: "piece", minStock: "", description: "" });
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
+    setErrorMessage("");
     const isEdit = !!editing;
     const url = isEdit ? `/api/items/${editing!.id}` : "/api/items";
     const method = isEdit ? "PUT" : "POST";
@@ -40,6 +42,9 @@ export function ItemsClient({ items }: Props) {
         body: JSON.stringify({ ...form, sellingPrice: Number(form.sellingPrice), costPrice: Number(form.costPrice) }),
       });
       if (res.ok) { setShowAdd(false); setEditing(null); router.refresh(); toast({ title: t(isEdit ? "updateSuccess" : "save"), type: "success" }); }
+      else { const data = await res.json().catch(() => ({})); setErrorMessage(data?.message || "Failed to save"); }
+    } catch (e) {
+      setErrorMessage(e instanceof Error ? e.message : "Network error");
     } finally {
       setLoading(false);
     }
@@ -48,9 +53,13 @@ export function ItemsClient({ items }: Props) {
   async function handleDelete() {
     if (!deleting) return;
     setLoading(true);
+    setErrorMessage("");
     try {
       const res = await fetch(`/api/items/${deleting.id}`, { method: "DELETE" });
       if (res.ok) { setDeleting(null); router.refresh(); toast({ title: t("save"), message: deleting.name, type: "success" }); }
+      else { const data = await res.json().catch(() => ({})); setErrorMessage(data?.message || "Failed to delete"); }
+    } catch (e) {
+      setErrorMessage(e instanceof Error ? e.message : "Network error");
     } finally {
       setLoading(false);
     }
@@ -105,6 +114,7 @@ export function ItemsClient({ items }: Props) {
           <Input label={t("costPrice")} type="number" value={form.costPrice} onChange={(e) => setForm({ ...form, costPrice: e.target.value })} />
           <Input label={t("minStock")} type="number" value={form.minStock} onChange={(e) => setForm({ ...form, minStock: e.target.value })} />
           <Input label={t("description")} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+          {errorMessage && <p className="text-sm text-red-500">{errorMessage}</p>}
           <div className="flex justify-end gap-3 pt-2">
             <Button type="button" variant="outline" onClick={() => { setShowAdd(false); setEditing(null); }}>{t("cancel")}</Button>
             <Button type="submit" disabled={loading}>{loading ? t("saving") : t("save")}</Button>
@@ -115,6 +125,7 @@ export function ItemsClient({ items }: Props) {
       {deleting && (
         <Dialog open onClose={() => setDeleting(null)} title={t("deleteItem")}>
           <p className="text-sm text-gray-600 mb-4">{t("confirmDelete")}<br/><strong>{deleting.name}</strong></p>
+          {errorMessage && <p className="text-sm text-red-500 mb-4">{errorMessage}</p>}
           <div className="flex justify-end gap-3">
             <Button variant="outline" onClick={() => setDeleting(null)}>{t("cancel")}</Button>
             <Button variant="danger" onClick={handleDelete} disabled={loading}>{loading ? t("deleting") : t("deleteItem")}</Button>

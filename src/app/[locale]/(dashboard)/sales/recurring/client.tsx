@@ -35,36 +35,45 @@ export function RecurringInvoicesClient({ templates, customers }: Props) {
     endDate: "", dueDateDays: 30, subtotal: 0, total: 0, notes: "",
   });
   const [saving, setSaving] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
-    const res = await fetch("/api/recurring-invoices", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ...form,
-        subtotal: Number(form.subtotal),
-        total: Number(form.total),
-        endDate: form.endDate || null,
-        lines: [{ description: "Auto-generated", quantity: 1, unitPrice: Number(form.subtotal), taxRate: 0, lineTotal: Number(form.subtotal) }],
-      }),
-    });
-    if (res.ok) { setShowAdd(false); router.refresh(); }
-    setSaving(false);
+    try {
+      const res = await fetch("/api/recurring-invoices", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...form,
+          subtotal: Number(form.subtotal),
+          total: Number(form.total),
+          endDate: form.endDate || null,
+          lines: [{ description: "Auto-generated", quantity: 1, unitPrice: Number(form.subtotal), taxRate: 0, lineTotal: Number(form.subtotal) }],
+        }),
+      });
+      if (res.ok) { setShowAdd(false); router.refresh(); } else { const data = await res.json().catch(() => ({})); setErrorMessage(data.error || ct("errorOccurred")); }
+    } catch { setErrorMessage(ct("errorOccurred")); }
+    finally { setSaving(false); }
   }
 
   async function generateNow(id: string) {
-    await fetch(`/api/recurring-invoices/generate/${id}`, { method: "POST" });
+    try {
+      const res = await fetch(`/api/recurring-invoices/generate/${id}`, { method: "POST" });
+      if (!res.ok) { const data = await res.json().catch(() => ({})); setErrorMessage(data.error || ct("errorOccurred")); }
+    } catch { setErrorMessage(ct("errorOccurred")); }
     router.refresh();
   }
 
   async function toggleActive(t: Template) {
-    await fetch(`/api/recurring-invoices/${t.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ active: !t.active }),
-    });
+    try {
+      const res = await fetch(`/api/recurring-invoices/${t.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ active: !t.active }),
+      });
+      if (!res.ok) { const data = await res.json().catch(() => ({})); setErrorMessage(data.error || ct("errorOccurred")); }
+    } catch { setErrorMessage(ct("errorOccurred")); }
     router.refresh();
   }
 
@@ -80,6 +89,11 @@ export function RecurringInvoicesClient({ templates, customers }: Props) {
           <Button onClick={() => setShowAdd(true)}><Plus className="h-4 w-4 ms-1" /> {t("newTemplate")}</Button>
         }
       />
+      {errorMessage && (
+        <div className="rounded-lg border border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700 p-4 text-sm text-red-700 dark:text-red-400">
+          {errorMessage}
+        </div>
+      )}
 
       <DataTable
         searchable
@@ -104,7 +118,7 @@ export function RecurringInvoicesClient({ templates, customers }: Props) {
         data={templates as unknown as Record<string, unknown>[]}
         bulkActions={[
           {
-            label: "Generate Now",
+            label: ct("export"),
             onClick: async (ids) => { for (const id of ids) await generateNow(id); },
           },
         ]}

@@ -159,8 +159,10 @@ export default function NewQuoteClient({
     }
   };
 
+  const [customersState, setCustomersState] = useState<Customer[]>(customers);
+
   const handleCustomerCreated = (entity: { id: string; name: string }) => {
-    customers.push({ id: entity.id, name: entity.name });
+    setCustomersState([...customersState, { id: entity.id, name: entity.name }]);
     setCustomerId(entity.id);
   };
 
@@ -209,7 +211,7 @@ export default function NewQuoteClient({
             <div className="flex-1">
               <Select
                 label={t("customer")}
-                options={customers.map((c) => ({ value: c.id, label: c.name }))}
+                options={customersState.map((c) => ({ value: c.id, label: c.name }))}
                 placeholder={t("selectCustomer")}
                 value={customerId}
                 onChange={(e) => setCustomerId(e.target.value)}
@@ -238,11 +240,11 @@ export default function NewQuoteClient({
           <div className="flex gap-2">
             <div className="flex-1">
               <Select
-                label="Project"
+                label={tc("project")}
                 options={projectOpts}
                 value={projectId}
                 onChange={(e) => setProjectId(e.target.value)}
-                placeholder="Select project"
+                placeholder={tc("selectProject")}
               />
             </div>
             <QuickCreateDialog type="project" onCreated={handleProjectCreated} />

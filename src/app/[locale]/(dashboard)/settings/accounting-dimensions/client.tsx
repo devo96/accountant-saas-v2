@@ -50,6 +50,7 @@ export function AccountingDimensionsClient({ dimensions: initialDimensions, acco
 
   const [allocForm, setAllocForm] = useState({ accountId: "", percentage: "" });
   const [allocSaving, setAllocSaving] = useState(false);
+  const [error, setError] = useState("");
 
   const filtered = useMemo(
     () => dimensions.filter((d) => d.name.toLowerCase().includes(search.toLowerCase())),
@@ -59,42 +60,52 @@ export function AccountingDimensionsClient({ dimensions: initialDimensions, acco
   async function createDimension() {
     if (!form.name) return;
     setSaving(true);
-    const res = await fetch("/api/accounting-dimensions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
-    if (res.ok) {
-      const created = await res.json();
-      setDimensions([...dimensions, { ...created, _count: { allocations: 0 } }]);
-      setForm({ name: "" });
-      setShowAdd(false);
-      router.refresh();
-    }
-    setSaving(false);
+    setError("");
+    try {
+      const res = await fetch("/api/accounting-dimensions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      if (res.ok) {
+        const created = await res.json();
+        setDimensions([...dimensions, { ...created, _count: { allocations: 0 } }]);
+        setForm({ name: "" });
+        setShowAdd(false);
+        router.refresh();
+      } else { const data = await res.json().catch(() => ({})); setError(data.error || "Failed to save"); }
+    } catch { setError("Network error"); }
+    finally { setSaving(false); }
   }
 
   async function openAllocations(dim: Dimension) {
     setAllocDim(dim);
-    const res = await fetch(`/api/dimension-allocations?dimensionId=${dim.id}`);
-    if (res.ok) setAllocations(await res.json());
+    setError("");
+    try {
+      const res = await fetch(`/api/dimension-allocations?dimensionId=${dim.id}`);
+      if (res.ok) setAllocations(await res.json());
+      else setError("Failed to load allocations");
+    } catch { setError("Network error"); }
   }
 
   async function addAllocation() {
     if (!allocForm.accountId || !allocForm.percentage || !allocDim) return;
     setAllocSaving(true);
-    const res = await fetch("/api/dimension-allocations", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ dimensionId: allocDim.id, accountId: allocForm.accountId, percentage: allocForm.percentage }),
-    });
-    if (res.ok) {
-      const created = await res.json();
-      setAllocations([...allocations, created]);
-      setAllocForm({ accountId: "", percentage: "" });
-      setDimensions(dimensions.map((d) => d.id === allocDim.id ? { ...d, _count: { allocations: d._count.allocations + 1 } } : d));
-    }
-    setAllocSaving(false);
+    setError("");
+    try {
+      const res = await fetch("/api/dimension-allocations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ dimensionId: allocDim.id, accountId: allocForm.accountId, percentage: allocForm.percentage }),
+      });
+      if (res.ok) {
+        const created = await res.json();
+        setAllocations([...allocations, created]);
+        setAllocForm({ accountId: "", percentage: "" });
+        setDimensions(dimensions.map((d) => d.id === allocDim.id ? { ...d, _count: { allocations: d._count.allocations + 1 } } : d));
+      } else { const data = await res.json().catch(() => ({})); setError(data.error || "Failed to add allocation"); }
+    } catch { setError("Network error"); }
+    finally { setAllocSaving(false); }
   }
 
   return (
@@ -106,6 +117,8 @@ export function AccountingDimensionsClient({ dimensions: initialDimensions, acco
           <Button onClick={() => setShowAdd(true)}><Plus className="h-4 w-4 me-1" />{t.newDimension}</Button>
         }
       />
+
+      {error && <p className="text-sm text-red-600 text-center">{error}</p>}
 
       <DataTable
         searchable
@@ -119,7 +132,7 @@ export function AccountingDimensionsClient({ dimensions: initialDimensions, acco
         exportable exportFilename="accounting-dimensions"
       />
 
-      <Dialog open={showAdd} onClose={() => setShowAdd(false)} title={t.dialogTitle}>
+      <Dialog open={showAdd} onClose={() => { setShowAdd(false); setError(""); }} title={t.dialogTitle}>
         <div className="space-y-4">
           <Input label={t.name} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
           <div className="flex justify-end gap-3 pt-2">
@@ -129,7 +142,7 @@ export function AccountingDimensionsClient({ dimensions: initialDimensions, acco
         </div>
       </Dialog>
 
-      <Dialog open={!!allocDim} onClose={() => setAllocDim(null)} title={allocDim ? `Allocations: ${allocDim.name}` : ""}>
+      <Dialog open={!!allocDim} onClose={() => { setAllocDim(null); setError(""); }} title={allocDim ? `${t.name} ${allocDim.name}` : ""}>
         <div className="space-y-4">
           <div className="flex items-end gap-2">
             <select

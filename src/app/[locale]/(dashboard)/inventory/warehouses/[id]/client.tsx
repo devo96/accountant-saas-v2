@@ -26,10 +26,12 @@ export function WarehouseDetailClient({ warehouse }: Props) {
     address: warehouse.address ?? "",
   });
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   async function handleUpdate(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
+    setErrorMessage("");
     try {
       const res = await fetch(`/api/warehouses/${warehouse.id}`, {
         method: "PUT",
@@ -37,6 +39,9 @@ export function WarehouseDetailClient({ warehouse }: Props) {
         body: JSON.stringify(form),
       });
       if (res.ok) { setShowEdit(false); router.refresh(); }
+      else { const data = await res.json().catch(() => ({})); setErrorMessage(data?.message || "Failed to save"); }
+    } catch (e) {
+      setErrorMessage(e instanceof Error ? e.message : "Network error");
     } finally {
       setLoading(false);
     }
@@ -86,6 +91,7 @@ export function WarehouseDetailClient({ warehouse }: Props) {
         <form onSubmit={handleUpdate} className="space-y-4">
           <Input label={t("name")} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
           <Input label={t("location")} value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
+          {errorMessage && <p className="text-sm text-red-500">{errorMessage}</p>}
           <div className="flex justify-end gap-3 pt-2">
             <Button type="button" variant="outline" onClick={() => setShowEdit(false)}>{t("cancel")}</Button>
             <Button type="submit" disabled={loading}>{loading ? t("saving") : t("save")}</Button>

@@ -12,6 +12,7 @@ import { Plus, Pencil, Trash2, FolderKanban, BriefcaseBusiness } from "lucide-re
 import { useRouter } from "@/i18n/navigation";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { formatCurrency } from "@/lib/utils";
 
 type Project = { id: string; name: string; description: string | null; startDate: Date | null; endDate: Date | null; status: string; budget: number; customerId: string | null; customer: { id: string; name: string } | null; managerId: string | null; manager: { id: string; name: string } | null; progress: number };
 type Props = { projects: Project[] };
@@ -25,6 +26,7 @@ export function ProjectsClient({ projects }: Props) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [form, setForm] = useState({ name: "", description: "", startDate: "", endDate: "", status: "PLANNING", budget: 0, customerId: "", managerId: "", progress: 0 });
+  const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
   const activeCount = projects.filter((p) => p.status === "ACTIVE").length;
@@ -43,7 +45,7 @@ export function ProjectsClient({ projects }: Props) {
       const isEdit = !!editingId;
       const url = isEdit ? `/api/projects/${editingId}` : "/api/projects";
       const res = await fetch(url, { method: isEdit ? "PATCH" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
-      if (res.ok) { setShowAdd(false); setEditingId(null); router.refresh(); }
+      if (res.ok) { setShowAdd(false); setEditingId(null); router.refresh(); } else { const data = await res.json().catch(() => ({})); setErrorMessage(data.error || t("errorOccurred")); }
     } finally { setLoading(false); }
   }
 
@@ -52,7 +54,7 @@ export function ProjectsClient({ projects }: Props) {
     setLoading(true);
     try {
       const res = await fetch(`/api/projects/${deletingId}`, { method: "DELETE" });
-      if (res.ok) { setDeletingId(null); router.refresh(); }
+      if (res.ok) { setDeletingId(null); router.refresh(); } else { const data = await res.json().catch(() => ({})); setErrorMessage(data.error || t("errorOccurred")); }
     } finally { setLoading(false); }
   }
 
@@ -66,12 +68,17 @@ export function ProjectsClient({ projects }: Props) {
           <Card><CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-gray-500 flex items-center gap-2"><BriefcaseBusiness className="h-4 w-4" /> {t("active")}</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">{activeCount}</p></CardContent></Card>
           <Card><CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-gray-500">{t("completed")}</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">{completedCount}</p></CardContent></Card>
         </div>
+        {errorMessage && (
+          <div className="rounded-lg border border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700 p-4 text-sm text-red-700 dark:text-red-400">
+            {errorMessage}
+          </div>
+        )}
         <DataTable searchable columns={[
           { key: "name", label: t("name") },
           { key: "customer", label: t("customer"), render: (c) => (c as Project).customer?.name || "-" },
           { key: "manager", label: t("manager"), render: (c) => (c as Project).manager?.name || "-" },
-          { key: "status", label: t("status"), render: (c) => <Badge variant={statusVariant[(c as Project).status] || "outline"} className="capitalize">{(c as Project).status.toLowerCase().replace(/_/g, " ")}</Badge> },
-          { key: "budget", label: t("budget"), render: (c) => `﷼${(c as Project).budget.toFixed(2)}` },
+          { key: "status", label: t("status"), render: (c) => <Badge variant={statusVariant[(c as Project).status] || "outline"} className="capitalize">{t((c as Project).status === "PLANNING" ? "planning" : (c as Project).status === "ACTIVE" ? "active" : (c as Project).status === "ON_HOLD" ? "onHold" : (c as Project).status === "COMPLETED" ? "completed" : (c as Project).status === "CANCELLED" ? "cancelled" : (c as Project).status)}</Badge> },
+          { key: "budget", label: t("budget"), render: (c) => formatCurrency((c as Project).budget) },
           { key: "progress", label: t("progress"), render: (c) => `${(c as Project).progress}%` },
           { key: "actions", label: "", render: (c) => { const cur = c as Project; return (<div className="flex gap-1"><Button variant="ghost" size="sm" onClick={() => startEdit(cur)} className="h-8 w-8 p-0 text-gray-400 hover:text-primary-600"><Pencil className="h-4 w-4" /></Button><Button variant="ghost" size="sm" onClick={() => setDeletingId(cur.id)} className="h-8 w-8 p-0 text-gray-400 hover:text-red-600"><Trash2 className="h-4 w-4" /></Button></div>); }},
         ]} data={projects as unknown as Record<string, unknown>[]} />
@@ -81,7 +88,7 @@ export function ProjectsClient({ projects }: Props) {
             <Input label={t("name")} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
             <Input label={t("description")} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
             <div className="grid grid-cols-2 gap-4"><Input label={t("startDate")} type="date" value={form.startDate} onChange={(e) => setForm({ ...form, startDate: e.target.value })} /><Input label={t("endDate")} type="date" value={form.endDate} onChange={(e) => setForm({ ...form, endDate: e.target.value })} /></div>
-            <div><label className="block text-sm font-medium mb-1">{t("status")}</label><select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"><option value="PLANNING">Planning</option><option value="ACTIVE">Active</option><option value="ON_HOLD">On Hold</option><option value="COMPLETED">{t("completed")}</option><option value="CANCELLED">Cancelled</option></select></div>
+            <div><label className="block text-sm font-medium mb-1">{t("status")}</label><select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"><option value="PLANNING">{t("planning")}</option><option value="ACTIVE">{t("active")}</option><option value="ON_HOLD">{t("onHold")}</option><option value="COMPLETED">{t("completed")}</option><option value="CANCELLED">{t("cancelled")}</option></select></div>
             <Input label={t("budget")} type="number" step={0.01} value={form.budget} onChange={(e) => setForm({ ...form, budget: Number(e.target.value) })} />
             <Input label={t("progress")} type="number" min={0} max={100} value={form.progress} onChange={(e) => setForm({ ...form, progress: Number(e.target.value) })} />
             <div className="flex justify-end gap-3 pt-2"><Button type="button" variant="outline" onClick={() => { setShowAdd(false); setEditingId(null); }}>{t("cancel")}</Button><Button type="submit" disabled={loading}>{loading ? t("saving") : t("save")}</Button></div>

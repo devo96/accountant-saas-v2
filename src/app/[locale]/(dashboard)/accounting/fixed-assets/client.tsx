@@ -34,6 +34,7 @@ export function FixedAssetsClient({ assets: initial }: Props) {
   const [assets, setAssets] = useState(initial);
   const [showAdd, setShowAdd] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
 
   const emptyForm = { code: "", name: "", category: "Equipment", purchaseDate: "", purchaseCost: "", usefulLifeYears: "5", salvageValue: "0", depreciationMethod: "STRAIGHT_LINE", notes: "" };
   const [form, setForm] = useState(emptyForm);
@@ -41,30 +42,47 @@ export function FixedAssetsClient({ assets: initial }: Props) {
   async function createAsset() {
     if (!form.code || !form.name || !form.purchaseDate || !form.purchaseCost || !form.usefulLifeYears) return;
     setSaving(true);
-    const res = await fetch("/api/fixed-assets", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
-    if (res.ok) {
-      const created = await res.json();
-      setAssets([created, ...assets]);
-      setShowAdd(false);
-      setForm(emptyForm);
-      router.refresh();
+    setError("");
+    try {
+      const res = await fetch("/api/fixed-assets", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      if (res.ok) {
+        const created = await res.json();
+        setAssets([created, ...assets]);
+        setShowAdd(false);
+        setForm(emptyForm);
+        router.refresh();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error || "Failed to create asset");
+      }
+    } catch {
+      setError("Network error");
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
   }
 
   async function runDepreciation(assetId: string) {
-    const res = await fetch("/api/fixed-assets/depreciate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ assetId }),
-    });
-    if (res.ok) {
-      const updated = await res.json();
-      setAssets(assets.map((a) => (a.id === assetId ? updated : a)));
+    setError("");
+    try {
+      const res = await fetch("/api/fixed-assets/depreciate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ assetId }),
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        setAssets(assets.map((a) => (a.id === assetId ? updated : a)));
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error || "Failed to run depreciation");
+      }
+    } catch {
+      setError("Network error");
     }
   }
 
@@ -94,7 +112,7 @@ export function FixedAssetsClient({ assets: initial }: Props) {
             return (
               <div className="flex gap-1">
                 {asset.status === "ACTIVE" && <Button variant="ghost" size="sm" onClick={() => runDepreciation(asset.id)} title={t("depreciate")}><RefreshCw className="h-4 w-4" /></Button>}
-                <Button variant="ghost" size="sm"><Pencil className="h-4 w-4" /></Button>
+                <Button variant="ghost" size="sm" onClick={() => router.push(`/accounting/fixed-assets/${asset.id}`)}><Pencil className="h-4 w-4" /></Button>
               </div>
             );
           }},
@@ -103,7 +121,8 @@ export function FixedAssetsClient({ assets: initial }: Props) {
         exportable exportFilename="fixed-assets"
       />
 
-      <Dialog open={showAdd} onClose={() => setShowAdd(false)} title={t("addAsset")}>
+      <Dialog open={showAdd} onClose={() => { setShowAdd(false); setError(""); }} title={t("addAsset")}>
+        {error && <p className="text-sm text-red-600 dark:text-red-400 mb-4">{error}</p>}
         <div className="grid grid-cols-2 gap-4">
           <Input label={t("code")} value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} required />
           <Input label={t("name")} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />

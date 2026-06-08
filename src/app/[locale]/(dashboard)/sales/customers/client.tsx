@@ -37,6 +37,7 @@ export function CustomersClient({ customers }: Props) {
   const t = useTranslations("customers");
   const [showAdd, setShowAdd] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", phone: "", mobile: "", address: "", crNumber: "", street: "", city: "", district: "", region: "", country: "", postalCode: "", taxNumber: "", creditLimit: "" });
+  const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -46,9 +47,9 @@ export function CustomersClient({ customers }: Props) {
       const res = await fetch("/api/customers", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, creditLimit: Number(form.creditLimit) }),
       });
-      if (res.ok) { setShowAdd(false); router.refresh(); }
+      if (res.ok) { setShowAdd(false); router.refresh(); } else { const data = await res.json().catch(() => ({})); setErrorMessage(data.error || t("errorOccurred")); }
     } finally {
       setLoading(false);
     }
@@ -78,6 +79,11 @@ export function CustomersClient({ customers }: Props) {
         exportable exportFilename="customers"
       />
 
+      {errorMessage && (
+        <div className="rounded-lg border border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700 p-4 text-sm text-red-700 dark:text-red-400">
+          {errorMessage}
+        </div>
+      )}
       <Dialog open={showAdd} onClose={() => setShowAdd(false)} title={t("dialogTitle")}>
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input label={t("name")} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />

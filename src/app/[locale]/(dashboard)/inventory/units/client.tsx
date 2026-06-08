@@ -26,6 +26,7 @@ export function UnitsClient({ units }: Props) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [form, setForm] = useState({ name: "", symbol: "", precision: 0, active: true });
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   function startEdit(u: Unit) {
     setForm({ name: u.name, symbol: u.symbol, precision: u.precision, active: u.active });
@@ -36,20 +37,28 @@ export function UnitsClient({ units }: Props) {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
+    setErrorMessage("");
     try {
       const isEdit = !!editingId;
       const url = isEdit ? `/api/inventory/units/${editingId}` : "/api/inventory/units";
       const res = await fetch(url, { method: isEdit ? "PATCH" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
       if (res.ok) { setShowAdd(false); setEditingId(null); router.refresh(); toast({ title: t("save"), type: "success" }); }
+      else { const data = await res.json().catch(() => ({})); setErrorMessage(data?.message || "Failed to save"); }
+    } catch (e) {
+      setErrorMessage(e instanceof Error ? e.message : "Network error");
     } finally { setLoading(false); }
   }
 
   async function handleDelete() {
     if (!deletingId) return;
     setLoading(true);
+    setErrorMessage("");
     try {
       const res = await fetch(`/api/inventory/units/${deletingId}`, { method: "DELETE" });
       if (res.ok) { setDeletingId(null); router.refresh(); toast({ title: t("delete"), type: "success" }); }
+      else { const data = await res.json().catch(() => ({})); setErrorMessage(data?.message || "Failed to delete"); }
+    } catch (e) {
+      setErrorMessage(e instanceof Error ? e.message : "Network error");
     } finally { setLoading(false); }
   }
 
@@ -72,12 +81,14 @@ export function UnitsClient({ units }: Props) {
             <Input label={t("symbol")} value={form.symbol} onChange={(e) => setForm({ ...form, symbol: e.target.value })} required />
             <Input label={t("precision")} type="number" value={form.precision} onChange={(e) => setForm({ ...form, precision: Number(e.target.value) })} />
             <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} /> {tc("active")}</label>
+            {errorMessage && <p className="text-sm text-red-500">{errorMessage}</p>}
             <div className="flex justify-end gap-3 pt-2"><Button type="button" variant="outline" onClick={() => { setShowAdd(false); setEditingId(null); }}>{t("cancel")}</Button><Button type="submit" disabled={loading}>{loading ? t("saving") : t("save")}</Button></div>
           </form>
         </Dialog>
 
         <Dialog open={!!deletingId} onClose={() => setDeletingId(null)} title={t("delete")}>
           <p className="text-sm text-gray-600 mb-6">{t("confirmDelete")}</p>
+          {errorMessage && <p className="text-sm text-red-500 mb-4">{errorMessage}</p>}
           <div className="flex justify-end gap-3"><Button type="button" variant="outline" onClick={() => setDeletingId(null)}>{t("cancel")}</Button><Button type="button" variant="danger" onClick={handleDelete} disabled={loading}>{loading ? t("deleting") : t("delete")}</Button></div>
         </Dialog>
       </div>

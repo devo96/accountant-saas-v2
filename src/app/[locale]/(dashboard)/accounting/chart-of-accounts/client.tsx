@@ -108,6 +108,12 @@ export function ChartOfAccountsClient({ accounts, parentAccounts, currencies }: 
         body: JSON.stringify(form),
       });
       if (res.ok) { setShowAdd(false); setEditingId(null); router.refresh(); }
+      else {
+        const data = await res.json().catch(() => ({}));
+        setDeleteError(data.error || "Failed to save account");
+      }
+    } catch {
+      setDeleteError("Network error");
     } finally {
       setLoading(false);
     }
@@ -124,6 +130,8 @@ export function ChartOfAccountsClient({ accounts, parentAccounts, currencies }: 
         const data = await res.json().catch(() => ({}));
         setDeleteError(data.error || "Failed to delete account");
       }
+    } catch {
+      setDeleteError("Network error");
     } finally {
       setLoading(false);
     }

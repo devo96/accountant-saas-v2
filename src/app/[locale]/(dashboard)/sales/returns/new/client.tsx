@@ -16,6 +16,8 @@ type Customer = { id: string; name: string };
 export default function NewSalesReturnClient({ customers }: { customers: Customer[] }) {
   const router = useRouter();
   const t = useTranslations("salesReturns");
+  const tc = useTranslations("common");
+  const [errorMessage, setErrorMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
     customerId: "",
@@ -35,13 +37,23 @@ export default function NewSalesReturnClient({ customers }: { customers: Custome
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...form, total: Number(form.total) }),
       });
-      if (res.ok) router.push("/sales/returns");
+      if (res.ok) {
+        router.push("/sales/returns");
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setErrorMessage(data.error || tc("errorOccurred"));
+      }
     } finally { setSubmitting(false); }
   }
 
   return (
     <FadeIn>
     <div className="space-y-6">
+      {errorMessage && (
+        <div className="rounded-lg border border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700 p-4 text-sm text-red-700 dark:text-red-400">
+          {errorMessage}
+        </div>
+      )}
       <PageHeader
         title={t("newReturn")}
         actions={
@@ -58,7 +70,7 @@ export default function NewSalesReturnClient({ customers }: { customers: Custome
           <Select label={t("customer")} options={customerOpts} placeholder={t("customer")} value={form.customerId} onChange={(e) => setForm({ ...form, customerId: e.target.value })} />
           <Input label={t("date")} type="date" value={form.returnDate} onChange={(e) => setForm({ ...form, returnDate: e.target.value })} />
           <Input label={t("total")} type="number" value={form.total} onChange={(e) => setForm({ ...form, total: e.target.value })} />
-          <Input label="Original Invoice ID" value={form.invoiceId} onChange={(e) => setForm({ ...form, invoiceId: e.target.value })} />
+          <Input label={t("originalInvoiceId")} value={form.invoiceId} onChange={(e) => setForm({ ...form, invoiceId: e.target.value })} />
           <div className="col-span-3"><Input label={t("notes")} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} /></div>
         </CardContent>
       </Card>

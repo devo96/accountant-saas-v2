@@ -65,7 +65,7 @@ export function BookmarkletClient() {
         </div>
 
         <div className="text-sm text-gray-500 dark:text-gray-400 bg-yellow-50 dark:bg-yellow-950/20 p-4 rounded-lg border border-yellow-200 dark:border-yellow-800">
-          <p className="font-semibold mb-1">{s("note")}</p>
+          <p className="font-semibold mb-1">{t("note")}</p>
           <p>{t("note")}</p>
         </div>
       </div>

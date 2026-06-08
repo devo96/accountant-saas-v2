@@ -60,6 +60,7 @@ export function VendorDetailClient({ vendor }: Props) {
     postalCode: vendor.postalCode ?? "",
     taxNumber: vendor.taxNumber ?? "",
   });
+  const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function handleUpdate(e: React.FormEvent) {
@@ -71,7 +72,7 @@ export function VendorDetailClient({ vendor }: Props) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
-      if (res.ok) { setShowEdit(false); router.refresh(); }
+      if (res.ok) { setShowEdit(false); router.refresh(); } else { const data = await res.json().catch(() => ({})); setErrorMessage(data.error || t("errorOccurred")); }
     } finally {
       setLoading(false);
     }
@@ -203,6 +204,11 @@ export function VendorDetailClient({ vendor }: Props) {
         </div>
       )}
 
+      {errorMessage && (
+        <div className="rounded-lg border border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700 p-4 text-sm text-red-700 dark:text-red-400">
+          {errorMessage}
+        </div>
+      )}
       <Dialog open={showEdit} onClose={() => setShowEdit(false)} title={t("editVendor")}>
         <form onSubmit={handleUpdate} className="space-y-4">
           <Input label={t("name")} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />

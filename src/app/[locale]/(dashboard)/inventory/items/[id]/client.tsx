@@ -36,10 +36,12 @@ export function ItemDetailClient({ item }: Props) {
     description: item.description ?? "",
   });
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   async function handleUpdate(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
+    setErrorMessage("");
     try {
       const res = await fetch(`/api/items/${item.id}`, {
         method: "PUT",
@@ -47,6 +49,9 @@ export function ItemDetailClient({ item }: Props) {
         body: JSON.stringify(form),
       });
       if (res.ok) { setShowEdit(false); router.refresh(); }
+      else { const data = await res.json().catch(() => ({})); setErrorMessage(data?.message || "Failed to save"); }
+    } catch (e) {
+      setErrorMessage(e instanceof Error ? e.message : "Network error");
     } finally {
       setLoading(false);
     }
@@ -129,6 +134,7 @@ export function ItemDetailClient({ item }: Props) {
           <Input label={t("costPrice")} type="number" value={form.costPrice} onChange={(e) => setForm({ ...form, costPrice: e.target.value })} />
           <Input label={t("minStock")} type="number" value={form.minStock} onChange={(e) => setForm({ ...form, minStock: e.target.value })} />
           <Input label={t("description")} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+          {errorMessage && <p className="text-sm text-red-500">{errorMessage}</p>}
           <div className="flex justify-end gap-3 pt-2">
             <Button type="button" variant="outline" onClick={() => setShowEdit(false)}>{t("cancel")}</Button>
             <Button type="submit" disabled={loading}>{loading ? t("saving") : t("save")}</Button>

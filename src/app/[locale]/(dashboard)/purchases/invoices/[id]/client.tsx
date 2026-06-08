@@ -50,6 +50,7 @@ export function PurchaseInvoiceViewClient({ invoice: initial, vendors, items, ta
   const ct = useTranslations("common");
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [inv, setInv] = useState(initial);
 
   const [vendorId, setVendorId] = useState(inv.vendor?.id ?? "");
@@ -66,12 +67,15 @@ export function PurchaseInvoiceViewClient({ invoice: initial, vendors, items, ta
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ invoiceId: inv.id, type: "purchase" }),
     });
-    if (res.ok) {
-      const data = await res.json();
-      setInv({ ...inv, zatcaStatus: data.zatcaStatus });
-      router.refresh();
+      if (res.ok) {
+        const data = await res.json();
+        setInv({ ...inv, zatcaStatus: data.zatcaStatus });
+        router.refresh();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setErrorMessage(data.error || ct("errorOccurred"));
+      }
     }
-  }
 
   function addLine() { setLines([...lines, { id: "", key: nextKey++, itemId: null, description: "", quantity: 1, unitPrice: 0, discountPercent: 0, taxCodeId: null, taxRate: 0, lineTotal: 0 }]); }
   function removeLine(key: number) { setLines(lines.filter((l) => l.key !== key)); }
@@ -108,7 +112,7 @@ export function PurchaseInvoiceViewClient({ invoice: initial, vendors, items, ta
           })),
         }),
       });
-      if (res.ok) { const updated = await res.json(); setInv(updated); setEditing(false); router.refresh(); }
+      if (res.ok) { const updated = await res.json(); setInv(updated); setEditing(false); router.refresh(); } else { const data = await res.json().catch(() => ({})); setErrorMessage(data.error || ct("errorOccurred")); }
     } finally { setSaving(false); }
   }
 
@@ -122,7 +126,7 @@ export function PurchaseInvoiceViewClient({ invoice: initial, vendors, items, ta
     const res = await fetch(`/api/purchase-invoices/${inv.id}`, {
       method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status: newStatus }),
     });
-    if (res.ok) { const updated = await res.json(); setInv(updated); router.refresh(); }
+    if (res.ok) { const updated = await res.json(); setInv(updated); router.refresh(); } else { const data = await res.json().catch(() => ({})); setErrorMessage(data.error || ct("errorOccurred")); }
   }
 
   if (editing) {
@@ -135,8 +139,13 @@ export function PurchaseInvoiceViewClient({ invoice: initial, vendors, items, ta
       <div className="space-y-6">
         <div className="flex items-center gap-4">
           <Button variant="ghost" onClick={() => router.push("/purchases/invoices")}><ArrowLeft className="h-5 w-5 rtl:scale-x-[-1]" /></Button>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t("editTitle")} PINV-{String(inv.number).padStart(5, "0")}</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t("editTitle")} PINV-{String(inv.number).padStart(5, "0")}</h2>
         </div>
+        {errorMessage && (
+          <div className="rounded-lg border border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700 p-4 text-sm text-red-700 dark:text-red-400">
+            {errorMessage}
+          </div>
+        )}
         <div className="grid grid-cols-3 gap-4">
           <Select label={t("vendor")} options={vendorOpts} value={vendorId} onChange={(e) => setVendorId(e.target.value)} required placeholder={t("selectVendor")} />
           <Input label={t("invoiceDate")} type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
@@ -213,12 +222,12 @@ export function PurchaseInvoiceViewClient({ invoice: initial, vendors, items, ta
         {inv.status !== "DRAFT" && inv.status !== "CANCELLED" && (
           <div className="rounded-lg border p-4">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="font-medium text-gray-700 dark:text-gray-300">ZATCA</h3>
+              <h3 className="font-medium text-gray-700 dark:text-gray-300">{ct("zatcaStatus")}</h3>
               <ZatcaBadge status={inv.zatcaStatus} />
             </div>
             {inv.zatcaStatus === "NOT_SUBMITTED" && (
               <Button size="sm" variant="outline" onClick={submitToZatca}>
-                <Upload className="h-4 w-4 ms-1" /> Submit to ZATCA
+                <Upload className="h-4 w-4 ms-1" /> {ct("submitToZatca")}
               </Button>
             )}
             {inv.zatcaQr && <div className="mt-2"><ZatcaQrCode base64={inv.zatcaQr} /></div>}

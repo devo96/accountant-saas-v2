@@ -34,18 +34,19 @@ export function BankReconciliationDetailClient({ bankReconciliation }: Props) {
     closingBalance: String(bankReconciliation.closingBalance),
     status: bankReconciliation.status,
   });
+  const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function handleUpdate(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await fetch(`/api/bank-reconciliation/${bankReconciliation.id}`, {
+      const res = await fetch(`/api/bank-reconciliations/${bankReconciliation.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
-      if (res.ok) { setShowEdit(false); router.refresh(); }
+      if (res.ok) { setShowEdit(false); router.refresh(); } else { const data = await res.json().catch(() => ({})); setErrorMessage(data.error || t("errorOccurred")); }
     } finally {
       setLoading(false);
     }
@@ -109,6 +110,11 @@ export function BankReconciliationDetailClient({ bankReconciliation }: Props) {
         </dl>
       </div>
 
+      {errorMessage && (
+        <div className="rounded-lg border border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700 p-4 text-sm text-red-700 dark:text-red-400">
+          {errorMessage}
+        </div>
+      )}
       <Dialog open={showEdit} onClose={() => setShowEdit(false)} title={t("editReconciliation")}>
         <form onSubmit={handleUpdate} className="space-y-4">
           <Input label={t("startDate")} type="date" value={form.startDate} onChange={(e) => setForm({ ...form, startDate: e.target.value })} required />

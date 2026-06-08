@@ -18,6 +18,7 @@ export default function NewExpenseClient({ accounts, vendors }: { accounts: Acco
   const router = useRouter();
   const t = useTranslations("expenses");
   const [submitting, setSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [form, setForm] = useState({
     date: new Date().toISOString().split("T")[0],
     description: "",
@@ -59,13 +60,23 @@ export default function NewExpenseClient({ accounts, vendors }: { accounts: Acco
           lines: lines.filter((l) => l.accountId).map((l) => ({ accountId: l.accountId, amount: Number(l.amount) })),
         }),
       });
-      if (res.ok) router.push("/expenses");
+      if (res.ok) {
+        router.push("/expenses");
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setErrorMessage(data.error || t("errorOccurred"));
+      }
     } finally { setSubmitting(false); }
   }
 
   return (
     <FadeIn>
     <div className="space-y-6">
+      {errorMessage && (
+        <div className="rounded-lg border border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700 p-4 text-sm text-red-700 dark:text-red-400">
+          {errorMessage}
+        </div>
+      )}
       <PageHeader
         title={t("newExpense")}
         actions={
@@ -91,16 +102,16 @@ export default function NewExpenseClient({ accounts, vendors }: { accounts: Acco
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Expense Lines</CardTitle>
-          <Button variant="outline" size="sm" onClick={addLine}><Plus className="h-4 w-4 ms-1" /> Add Line</Button>
+          <CardTitle>{t("expenseLines")}</CardTitle>
+          <Button variant="outline" size="sm" onClick={addLine}><Plus className="h-4 w-4 ms-1" /> {t("addLine")}</Button>
         </CardHeader>
         <CardContent className="space-y-3">
           {lines.map((line, i) => (
             <div key={i} className="flex gap-2 items-start">
               <div className="flex-1">
-                <Select options={accountOpts} placeholder="Select account" value={line.accountId} onChange={(e) => updateLine(i, "accountId", e.target.value)} />
+                <Select options={accountOpts} placeholder={t("selectAccount")} value={line.accountId} onChange={(e) => updateLine(i, "accountId", e.target.value)} />
               </div>
-              <Input placeholder="Amount" type="number" value={line.amount} onChange={(e) => updateLine(i, "amount", e.target.value)} className="w-32" />
+              <Input placeholder={t("amount")} type="number" value={line.amount} onChange={(e) => updateLine(i, "amount", e.target.value)} className="w-32" />
               <Button type="button" variant="ghost" onClick={() => removeLine(i)} className="text-red-500 mt-1"><Trash2 className="h-4 w-4" /></Button>
             </div>
           ))}

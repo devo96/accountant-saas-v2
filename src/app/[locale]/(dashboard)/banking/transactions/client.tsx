@@ -54,6 +54,7 @@ export function BankTransactionsClient({ data, bankAccounts }: Props) {
     description: "",
     reference: "",
   });
+  const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -68,6 +69,9 @@ export function BankTransactionsClient({ data, bankAccounts }: Props) {
       if (res.ok) {
         setOpen(false);
         router.refresh();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setErrorMessage(data.error || t("errorOccurred"));
       }
     } finally {
       setLoading(false);
@@ -133,6 +137,11 @@ export function BankTransactionsClient({ data, bankAccounts }: Props) {
 
       <DataTable columns={columns} data={data} searchable searchPlaceholder={t("searchPlaceholder")} exportable exportFilename="transactions" />
 
+      {errorMessage && (
+        <div className="rounded-lg border border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700 p-4 text-sm text-red-700 dark:text-red-400">
+          {errorMessage}
+        </div>
+      )}
       <Dialog open={open} onClose={() => setOpen(false)} title={t("dialogTitle")}>
         <form onSubmit={handleSubmit} className="space-y-4">
           <Select

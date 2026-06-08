@@ -17,6 +17,7 @@ export default function NewStockMovementClient({ items, warehouses }: { items: I
   const router = useRouter();
   const t = useTranslations("stockMovements");
   const [submitting, setSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [form, setForm] = useState({
     itemId: "",
     warehouseId: "",
@@ -40,6 +41,7 @@ export default function NewStockMovementClient({ items, warehouses }: { items: I
 
   async function handleSubmit() {
     setSubmitting(true);
+    setErrorMessage("");
     try {
       const res = await fetch("/api/stock-movements", {
         method: "POST",
@@ -47,6 +49,9 @@ export default function NewStockMovementClient({ items, warehouses }: { items: I
         body: JSON.stringify({ ...form, quantity: Number(form.quantity), unitCost: Number(form.unitCost), totalCost: Number(form.totalCost) }),
       });
       if (res.ok) router.push("/inventory/stock-movements");
+      else { const data = await res.json().catch(() => ({})); setErrorMessage(data?.message || "Failed to save"); }
+    } catch (e) {
+      setErrorMessage(e instanceof Error ? e.message : "Network error");
     } finally { setSubmitting(false); }
   }
 
@@ -74,6 +79,7 @@ export default function NewStockMovementClient({ items, warehouses }: { items: I
           <Input label={t("totalCost")} type="number" value={form.totalCost} onChange={(e) => setForm({ ...form, totalCost: e.target.value })} />
           <Input label={t("reference")} value={form.reference} onChange={(e) => setForm({ ...form, reference: e.target.value })} />
           <div className="col-span-3"><Input label={t("description")} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
+          {errorMessage && <div className="col-span-3"><p className="text-sm text-red-500">{errorMessage}</p></div>}
         </CardContent>
       </Card>
     </div>

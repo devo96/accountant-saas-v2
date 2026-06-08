@@ -54,12 +54,12 @@ export default async function DepreciationPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{formatCurrency(totalAccumulatedDep)}</div>
-            <p className="text-xs text-gray-500 mt-1">Accumulated Depreciation</p>
+            <p className="text-xs text-gray-500 mt-1">{tf("accumulatedDepreciation")}</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">Active Assets</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-500">{tf("activeAssets")}</CardTitle>
             <Calculator className="h-5 w-5 text-primary-600" />
           </CardHeader>
           <CardContent>
@@ -76,7 +76,7 @@ export default async function DepreciationPage() {
               <TableHead>{tf("purchaseDate")}</TableHead>
               <TableHead>{tf("cost")}</TableHead>
               <TableHead>{tf("bookValue")}</TableHead>
-              <TableHead>Annual Dep.</TableHead>
+              <TableHead>{tf("annualDepreciation")}</TableHead>
               <TableHead>{tf("accumulatedDepreciation")}</TableHead>
               <TableHead>{tf("usefulLife")}</TableHead>
             </TableRow>

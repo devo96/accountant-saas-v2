@@ -17,6 +17,7 @@ export default function NewPurchaseOrderClient({ vendors: initialVendors }: { ve
   const router = useRouter();
   const t = useTranslations("purchaseOrders");
   const [submitting, setSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [vendors, setVendors] = useState<Vendor[]>(initialVendors);
   const [form, setForm] = useState({
     vendorId: "",
@@ -51,13 +52,23 @@ export default function NewPurchaseOrderClient({ vendors: initialVendors }: { ve
           total: Number(form.total),
         }),
       });
-      if (res.ok) router.push("/purchases/orders");
+      if (res.ok) {
+        router.push("/purchases/orders");
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setErrorMessage(data.error || t("errorOccurred"));
+      }
     } finally { setSubmitting(false); }
   }
 
   return (
     <FadeIn>
     <div className="space-y-6">
+      {errorMessage && (
+        <div className="rounded-lg border border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700 p-4 text-sm text-red-700 dark:text-red-400">
+          {errorMessage}
+        </div>
+      )}
       <PageHeader
         title={t("newOrder")}
         actions={

@@ -149,6 +149,9 @@ export function NewPurchaseInvoiceClient({ vendors: initialVendors, items: initi
       if (res.ok) {
         router.push("/purchases/invoices");
         router.refresh();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setErrorMessage(data.error || tc("errorOccurred"));
       }
     } finally {
       setSubmitting(false);
@@ -269,11 +272,11 @@ export function NewPurchaseInvoiceClient({ vendors: initialVendors, items: initi
               <div className="flex gap-2">
                 <div className="flex-1">
                   <Select
-                    label="Project"
+                    label={tc("project")}
                     options={projectOpts}
                     value={projectId}
                     onChange={(e) => setProjectId(e.target.value)}
-                    placeholder="Select project"
+                    placeholder={tc("selectProject")}
                   />
                 </div>
                 <QuickCreateDialog type="project" onCreated={handleProjectCreated} />

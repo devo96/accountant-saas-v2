@@ -20,18 +20,24 @@ export function BankAccountsClient({ accounts }: Props) {
   const router = useRouter();
   const [showAdd, setShowAdd] = useState(false);
   const [form, setForm] = useState({ name: "", accountNumber: "", iban: "", bankName: "", openingBalance: "" });
+  const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    const res = await fetch("/api/bank-accounts", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
-    if (res.ok) { setShowAdd(false); router.refresh(); }
-    setLoading(false);
+    try {
+      const res = await fetch("/api/bank-accounts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      if (res.ok) { setShowAdd(false); router.refresh(); } else { const data = await res.json().catch(() => ({})); setErrorMessage(data.error || t("errorOccurred")); }
+    } catch (err) {
+      setErrorMessage((err as Error).message || t("errorOccurred"));
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -58,6 +64,11 @@ export function BankAccountsClient({ accounts }: Props) {
         exportable exportFilename="bank-accounts"
       />
 
+      {errorMessage && (
+        <div className="rounded-lg border border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700 p-4 text-sm text-red-700 dark:text-red-400">
+          {errorMessage}
+        </div>
+      )}
       <Dialog open={showAdd} onClose={() => setShowAdd(false)} title={t("dialogTitle")}>
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input label={t("accountName")} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />

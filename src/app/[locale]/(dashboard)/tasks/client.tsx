@@ -26,6 +26,7 @@ export function TasksClient({ tasks }: Props) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [form, setForm] = useState({ projectId: "", title: "", description: "", assigneeId: "", dueDate: "", priority: "MEDIUM", status: "TODO", estimatedHours: 0, actualHours: 0 });
   const t = useTranslations("tasks");
+  const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
   const todoCount = tasks.filter((t) => t.status === "TODO").length;
@@ -46,7 +47,7 @@ export function TasksClient({ tasks }: Props) {
       const isEdit = !!editingId;
       const url = isEdit ? `/api/tasks/${editingId}` : "/api/tasks";
       const res = await fetch(url, { method: isEdit ? "PATCH" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
-      if (res.ok) { setShowAdd(false); setEditingId(null); router.refresh(); }
+      if (res.ok) { setShowAdd(false); setEditingId(null); router.refresh(); } else { const data = await res.json().catch(() => ({})); setErrorMessage(data.error || t("errorOccurred")); }
     } finally { setLoading(false); }
   }
 
@@ -55,7 +56,7 @@ export function TasksClient({ tasks }: Props) {
     setLoading(true);
     try {
       const res = await fetch(`/api/tasks/${deletingId}`, { method: "DELETE" });
-      if (res.ok) { setDeletingId(null); router.refresh(); }
+      if (res.ok) { setDeletingId(null); router.refresh(); } else { const data = await res.json().catch(() => ({})); setErrorMessage(data.error || t("errorOccurred")); }
     } finally { setLoading(false); }
   }
 
@@ -64,6 +65,11 @@ export function TasksClient({ tasks }: Props) {
       <div className="space-y-6">
         <PageHeader title={t("title")} description={t("count", { count: tasks.length })}
           actions={<Button onClick={() => { setEditingId(null); setForm({ projectId: "", title: "", description: "", assigneeId: "", dueDate: "", priority: "MEDIUM", status: "TODO", estimatedHours: 0, actualHours: 0 }); setShowAdd(true); }}><Plus className="h-4 w-4 ms-1" /> {t("add")}</Button>} />
+        {errorMessage && (
+          <div className="rounded-lg border border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700 p-4 text-sm text-red-700 dark:text-red-400">
+            {errorMessage}
+          </div>
+        )}
         <div className="grid grid-cols-4 gap-4">
           <Card><CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-gray-500 flex items-center gap-2"><ListTodo className="h-4 w-4" /> {t("todo")}</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">{todoCount}</p></CardContent></Card>
           <Card><CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-gray-500">{t("inProgress")}</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">{inProgressCount}</p></CardContent></Card>

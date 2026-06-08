@@ -994,7 +994,12 @@
     "save": "حفظ",
     "cancel": "إلغاء",
     "saving": "جاري الحفظ...",
-    "noResults": "لا توجد أبعاد"
+    "noResults": "لا توجد أبعاد",
+    "pageTitle": "مراكز التكلفة",
+    "pageDescription": "{count} مركز تكلفة",
+    "pageDescription_plural": "{count} مراكز تكلفة",
+    "namePlaceholder": "أدخل اسم مركز التكلفة",
+    "deleteConfirm": "هل أنت متأكد من حذف مركز التكلفة هذا؟"
   },
   "auditLogs": {
     "title": "سجل التدقيق",

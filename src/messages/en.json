@@ -996,7 +996,12 @@
     "save": "Save",
     "cancel": "Cancel",
     "saving": "Saving...",
-    "noResults": "No dimensions found"
+    "noResults": "No dimensions found",
+    "pageTitle": "Cost Centers",
+    "pageDescription": "{count} cost center",
+    "pageDescription_plural": "{count} cost centers",
+    "namePlaceholder": "Enter cost center name",
+    "deleteConfirm": "Are you sure you want to delete this cost center?"
   },
   "auditLogs": {
     "title": "Audit Logs",

@@ -177,21 +177,21 @@ export function SalesQuoteViewClient({ quote: initial }: Props) {
       <Dialog open={showConvertDialog} onClose={() => setShowConvertDialog(false)} title={t("convertToInvoice")}>
         <div className="space-y-4">
           <Select
-            label="Payment Method"
+            label={s("method")}
             options={[
-              { value: "CASH", label: "Cash" },
-              { value: "BANK_TRANSFER", label: "Bank Transfer" },
-              { value: "CHECK", label: "Check" },
-              { value: "CREDIT_CARD", label: "Credit Card" },
-              { value: "OTHER", label: "Other" },
+              { value: "CASH", label: s("cash") },
+              { value: "BANK_TRANSFER", label: s("bankTransfer") },
+              { value: "CHECK", label: s("check") },
+              { value: "CREDIT_CARD", label: s("creditCard") },
+              { value: "OTHER", label: s("other") },
             ]}
             value={paymentMethod}
             onChange={(e) => setPaymentMethod(e.target.value)}
           />
           <div className="flex justify-end gap-3">
-            <Button variant="outline" onClick={() => setShowConvertDialog(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setShowConvertDialog(false)}>{s("cancel")}</Button>
             <Button onClick={convertToInvoice} disabled={converting}>
-              {converting ? "Converting..." : t("convertToInvoice")}
+              {converting ? s("sending") : t("convertToInvoice")}
             </Button>
           </div>
         </div>

@@ -46,10 +46,12 @@ export function StockMovementsClient({ movements, items, warehouses }: Props) {
   const [showAdd, setShowAdd] = useState(false);
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ itemId: "", warehouseId: "", type: "ADJUSTMENT_IN", quantity: "1", unitCost: "", totalCost: "", reference: "", description: "" });
+  const [errorMessage, setErrorMessage] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
+    setErrorMessage("");
     try {
       const res = await fetch("/api/stock-movements", {
         method: "POST",
@@ -57,6 +59,9 @@ export function StockMovementsClient({ movements, items, warehouses }: Props) {
         body: JSON.stringify({ ...form, quantity: Number(form.quantity), unitCost: Number(form.unitCost), totalCost: Number(form.totalCost) }),
       });
       if (res.ok) { setShowAdd(false); router.refresh(); }
+      else { const data = await res.json().catch(() => ({})); setErrorMessage(data?.message || "Failed to save"); }
+    } catch (e) {
+      setErrorMessage(e instanceof Error ? e.message : "Network error");
     } finally {
       setLoading(false);
     }
@@ -107,6 +112,7 @@ export function StockMovementsClient({ movements, items, warehouses }: Props) {
           </div>
           <Input label={t("reference")} value={form.reference} onChange={(e) => setForm({ ...form, reference: e.target.value })} />
           <Input label={t("description")} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+          {errorMessage && <p className="text-sm text-red-500">{errorMessage}</p>}
           <div className="flex justify-end gap-3 pt-2">
             <Button type="button" variant="outline" onClick={() => setShowAdd(false)}>{t("cancel")}</Button>
             <Button type="submit" disabled={loading}>{loading ? t("saving") : t("save")}</Button>

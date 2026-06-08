@@ -24,14 +24,18 @@ export function BudgetsClient({ fiscalYears }: Props) {
   const [expenseAccounts, setExpenseAccounts] = useState<AccountItem[]>([]);
   const [edits, setEdits] = useState<Record<string, number>>({});
   const [saving, setSaving] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const fetchData = useCallback(async () => {
     if (!fyId) return;
-    const res = await fetch(`/api/budgets?fiscalYearId=${fyId}`);
-    const data = await res.json();
-    setIncomeAccounts(data.incomeAccounts ?? []);
-    setExpenseAccounts(data.expenseAccounts ?? []);
-    setEdits({});
+    try {
+      const res = await fetch(`/api/budgets?fiscalYearId=${fyId}`);
+      if (!res.ok) { const d = await res.json().catch(() => ({})); setErrorMessage(d.error || ct("errorOccurred")); return; }
+      const data = await res.json();
+      setIncomeAccounts(data.incomeAccounts ?? []);
+      setExpenseAccounts(data.expenseAccounts ?? []);
+      setEdits({});
+    } catch (err) { setErrorMessage((err as Error).message || ct("errorOccurred")); }
   }, [fyId]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
@@ -54,13 +58,16 @@ export function BudgetsClient({ fiscalYears }: Props) {
       const [accountId, month] = key.split(":");
       return { accountId, month: Number(month), amount };
     });
-    await fetch("/api/budgets", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ fiscalYearId: fyId, budgets: budgetData }),
-    });
-    setSaving(false);
-    fetchData();
+    try {
+      const res = await fetch("/api/budgets", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fiscalYearId: fyId, budgets: budgetData }),
+      });
+      if (!res.ok) { const d = await res.json().catch(() => ({})); setErrorMessage(d.error || ct("errorOccurred")); }
+      else fetchData();
+    } catch (err) { setErrorMessage((err as Error).message || ct("errorOccurred")); }
+    finally { setSaving(false); }
   }
 
   function renderTable(accounts: AccountItem[], label: string) {
@@ -128,6 +135,11 @@ export function BudgetsClient({ fiscalYears }: Props) {
         <Button onClick={handleSave} disabled={saving}>{saving ? ct("saving") : ct("save")}</Button>
       </div>
 
+      {errorMessage && (
+        <div className="rounded-lg border border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700 p-4 text-sm text-red-700 dark:text-red-400">
+          {errorMessage}
+        </div>
+      )}
       {fyId && (
         <div className="space-y-8">
           {renderTable(incomeAccounts, t("income"))}

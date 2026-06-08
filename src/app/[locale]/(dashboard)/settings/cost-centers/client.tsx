@@ -17,13 +17,17 @@ type Dimension = { id: string; name: string; accountsCount: number };
 export function CostCentersClient({ dimensions }: { dimensions: Dimension[] }) {
   const router = useRouter();
   const td = useTranslations("accountingDimensions");
+  const s = useTranslations("common");
   const [showAdd, setShowAdd] = useState(false);
   const [name, setName] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  const [error, setError] = useState("");
+
   async function handleCreate() {
     if (!name.trim()) return;
     setSubmitting(true);
+    setError("");
     try {
       const res = await fetch("/api/cost-centers", {
         method: "POST",
@@ -31,26 +35,33 @@ export function CostCentersClient({ dimensions }: { dimensions: Dimension[] }) {
         body: JSON.stringify({ name: name.trim() }),
       });
       if (res.ok) { setShowAdd(false); setName(""); router.refresh(); }
-    } finally { setSubmitting(false); }
+      else { const data = await res.json().catch(() => ({})); setError(data.error || s("errorOccurred")); }
+    } catch { setError(s("errorOccurred")); }
+    finally { setSubmitting(false); }
   }
 
   async function handleDelete(id: string) {
-    if (!confirm("هل أنت متأكد من حذف مركز التكلفة هذا؟")) return;
-    const res = await fetch(`/api/cost-centers/${id}`, { method: "DELETE" });
-    if (res.ok) router.refresh();
+    if (!confirm(td("deleteConfirm"))) return;
+    setError("");
+    try {
+      const res = await fetch(`/api/cost-centers/${id}`, { method: "DELETE" });
+      if (!res.ok) { const data = await res.json().catch(() => ({})); setError(data.error || s("errorOccurred")); }
+      else router.refresh();
+    } catch { setError(s("errorOccurred")); }
   }
 
   return (
     <FadeIn>
       <PageHeader
-        title="Cost Centers"
-        description={`${dimensions.length} مركز تكلفة`}
+        title={td("pageTitle")}
+        description={td("pageDescription", { count: dimensions.length })}
         actions={
           <Button onClick={() => setShowAdd(true)}>
-            <Plus className="h-4 w-4 ms-1" /> إضافة مركز تكلفة
+            <Plus className="h-4 w-4 ms-1" /> {td("newDimension")}
           </Button>
         }
       />
+      {error && <p className="text-sm text-red-600 text-center">{error}</p>}
       <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm overflow-hidden">
         <Table>
           <TableHeader>
@@ -89,13 +100,13 @@ export function CostCentersClient({ dimensions }: { dimensions: Dimension[] }) {
         </Table>
       </div>
 
-      <Dialog open={showAdd} onClose={() => { setShowAdd(false); setName(""); }} title="إضافة مركز تكلفة">
+      <Dialog open={showAdd} onClose={() => { setShowAdd(false); setName(""); setError(""); }} title={td("dialogTitle")}>
         <div className="space-y-4">
-          <Input label={td("name")} value={name} onChange={(e) => setName(e.target.value)} required placeholder="أدخل اسم مركز التكلفة" />
+          <Input label={td("name")} value={name} onChange={(e) => setName(e.target.value)} required placeholder={td("namePlaceholder")} />
           <div className="flex justify-end gap-3">
-            <Button variant="outline" onClick={() => { setShowAdd(false); setName(""); }}>إلغاء</Button>
+            <Button variant="outline" onClick={() => { setShowAdd(false); setName(""); setError(""); }}>{td("cancel")}</Button>
             <Button onClick={handleCreate} disabled={submitting || !name.trim()}>
-              {submitting ? "جاري الحفظ..." : "حفظ"}
+              {submitting ? td("saving") : td("save")}
             </Button>
           </div>
         </div>

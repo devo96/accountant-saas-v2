@@ -88,7 +88,7 @@ export function AccountStatementClient({ accounts }: { accounts: Account[] }) {
             </div>
             <div className="flex justify-end">
               <Button variant="outline" size="sm" onClick={() => exportToExcel(lines.map((l) => ({ Date: new Date(l.date).toLocaleDateString(), Description: l.description, Reference: l.reference ?? "", Debit: l.debit, Credit: l.credit })), "account-statement", [{ key: "Date", label: "Date" }, { key: "Description", label: "Description" }, { key: "Reference", label: "Reference" }, { key: "Debit", label: "Debit" }, { key: "Credit", label: "Credit" }])}>
-                <Download className="h-4 w-4 ms-1" /> Export Excel
+                <Download className="h-4 w-4 ms-1" /> {tc("export")}
               </Button>
             </div>
           </>

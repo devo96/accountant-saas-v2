@@ -28,6 +28,7 @@ export function SalesReturnViewClient({ ret: initial }: Props) {
   const router = useRouter();
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [form, setForm] = useState({ status: initial.status, notes: initial.notes ?? "" });
 
   const statusLabels: Record<string, string> = { DRAFT: "draft", CONFIRMED: "confirmed", ACCEPTED: "accepted", REJECTED: "rejected" };
@@ -35,13 +36,14 @@ export function SalesReturnViewClient({ ret: initial }: Props) {
 
   async function handleSave() {
     setSaving(true);
+    setErrorMessage("");
     try {
       const res = await fetch(`/api/sales-returns/${initial.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
-      if (res.ok) { setEditing(false); router.refresh(); }
+      if (res.ok) { setEditing(false); router.refresh(); } else { const data = await res.json().catch(() => ({})); setErrorMessage(data.error || s("errorOccurred")); }
     } finally { setSaving(false); }
   }
 
@@ -53,6 +55,11 @@ export function SalesReturnViewClient({ ret: initial }: Props) {
           <Button variant="ghost" onClick={() => router.push("/sales/returns")}><ArrowLeft className="h-5 w-5 rtl:scale-x-[-1]" /></Button>
           <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t("editReturn")} {generateNumber("SR", initial.number)}</h2>
         </div>
+        {errorMessage && (
+          <div className="rounded-lg border border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700 p-4 text-sm text-red-700 dark:text-red-400">
+            {errorMessage}
+          </div>
+        )}
         <div className="grid grid-cols-2 gap-4">
           <Select label={t("status")} options={statusOpts} value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} />
           <div className="col-span-2"><Input label={t("notes")} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} /></div>
