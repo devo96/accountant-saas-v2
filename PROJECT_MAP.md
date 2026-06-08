@@ -474,12 +474,12 @@ export const logger = pino({
 | Mega Menu (Products)          | ✅ DONE    | 4-column grid: Sales, Purchases, Accounting, Products. Hover + click. framer-motion. i18n. RTL-aware arrows |
 | Resources Dropdown            | ✅ DONE    | FAQ, Blog, Help Center                        |
 | i18n for Header               | ✅ DONE    | `landing` namespace added to ar.json/en.json   |
-| Testimonials / Social Proof   | 🔲 NOT YET | G2/Capterra-style badges, customer logos       |
-| Trust Badges                  | 🔲 NOT YET | Saudi payment gateways, data center certs      |
-| SEO Meta Tags                 | 🔲 NOT YET | Per-section meta, Open Graph, structured data  |
-| App Store Links               | 🔲 NOT YET | iOS/Android app badges                         |
-| Blog Section                  | 🔲 NOT YET | Latest articles / resources                    |
-| Hero Stats (counters)         | 🔲 NOT YET | "100K+ users", "99.9% uptime", etc.           |
+| Testimonials / Social Proof   | ✅ DONE    | 3 customer testimonial cards with star ratings  |
+| Trust Badges                  | ✅ DONE    | Secure payments, Saudi DC, ZATCA, SSL badges   |
+| SEO Meta Tags                 | ✅ DONE    | title + description + Open Graph on landing    |
+| App Store Links               | ✅ DONE    | iOS App Store + Google Play download buttons   |
+| Blog Section                  | ✅ DONE    | 3 article cards with Read More + View All      |
+| Hero Stats (counters)         | ✅ DONE    | 100K+ users, 99.9% uptime, 50M+ txns, 4.9/5   |
 
 **Relevant files:**
 - `src/components/landing/mega-menu.tsx` — ProductsMegaMenu + ResourcesDropdown

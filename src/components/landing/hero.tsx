@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useLocale } from "next-intl";
 import { formatCurrency } from "@/lib/utils";
+import { HeroStats } from "./hero-stats";
 
 export function LandingHero() {
   const t = useTranslations("landing");
@@ -42,6 +43,7 @@ export function LandingHero() {
               {t("heroCtaDemo")}
             </a>
           </div>
+          <HeroStats />
         </div>
         <div className="mt-16 relative">
           <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent z-10 pointer-events-none" />
