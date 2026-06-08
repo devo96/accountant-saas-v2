@@ -356,7 +356,7 @@ export const logger = pino({
 - [x] General Ledger page (expandable grouped entries)
 - [x] Easy Entries, Opening Balances, Accounting Quality pages
 - [x] Cost Centers via AccountingDimensions
-- [ ] Journal Entry auto-posting to General Ledger (sync GL balances)
+- [x] Journal Entry auto-posting to General Ledger (sync GL balances)
 
 ### M3 — Sales & Purchases 🟢
 - [x] Customers CRUD (list page + create dialog)

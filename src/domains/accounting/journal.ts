@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { logger } from "@/lib/logger";
 import { z } from "zod";
+import { syncJournalEntryBalances } from "./gl";
 
 export const JournalEntrySchema = z.object({
   date: z.string().datetime(),
@@ -69,6 +70,10 @@ export async function createJournalEntry(
     },
     include: { lines: true },
   });
+
+  if (entry.status === "POSTED") {
+    await syncJournalEntryBalances(entry.id);
+  }
 
   logger.info({ entryId: entry.id, number: entry.number }, "Journal entry created");
   return entry;

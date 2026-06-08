@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { createAuditLog } from "@/lib/audit";
 import { logger } from "@/lib/logger";
+import { syncJournalEntryBalances } from "@/domains/accounting/gl";
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
@@ -70,6 +71,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         },
         include: { lines: { include: { account: true } } },
       });
+
+      await syncJournalEntryBalances(entry.id);
 
       await prisma.aiActionDraft.update({
         where: { id },

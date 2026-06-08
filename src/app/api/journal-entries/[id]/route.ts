@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { NextResponse } from "next/server";
 import { createAuditLog } from "@/lib/audit";
+import { syncJournalEntryBalances } from "@/domains/accounting/gl";
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
@@ -47,6 +48,16 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     },
   });
 
+  if (body.status !== undefined) {
+    const wasPosted = existing.status === "POSTED";
+    const nowPosted = updated.status === "POSTED";
+    if (nowPosted && !wasPosted) {
+      await syncJournalEntryBalances(updated.id);
+    } else if (wasPosted && !nowPosted) {
+      await syncJournalEntryBalances(updated.id, true);
+    }
+  }
+
   await createAuditLog({
     organizationId: session.user.organizationId,
     userId: session.user.id,
@@ -76,6 +87,10 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     where: { id },
     data: { status: "DRAFT" },
   });
+
+  if (existing.status === "POSTED") {
+    await syncJournalEntryBalances(id, true);
+  }
 
   await createAuditLog({
     organizationId: session.user.organizationId,
