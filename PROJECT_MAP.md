@@ -424,7 +424,7 @@ export const logger = pino({
 - [x] Customer/Vendor: crNumber + full address (schema + forms + dialogs)
 - [x] Excel export via exceljs (trial balance, balance sheet, income statement, journal entries, account statement)
 - [x] Unit tests: email templates (renderTemplate, DEFAULT_TEMPLATES), utils, ZATCA — 20 tests passing
-- [ ] Integration tests: API / Server Actions
+- [x] Integration tests: Accounting domain (7 tests: GL auto-posting, journal creation, GL queries)
 - [x] E2E tests: existing auth.spec.ts (login, redirect) + journeys.spec.ts (invoices, language switch, 404)
 - [x] Rename middleware.ts → proxy.ts (Next.js 16)
 - [x] CI/CD pipeline — `.github/workflows/ci.yml` (lint + typecheck + build + test on push/PR)
