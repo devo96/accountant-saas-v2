@@ -27,6 +27,17 @@ export default async function proxy(req: NextRequest) {
 
   // API routes: validate session for non-public, non-owner endpoints
   if (pathname.includes("/api/") && !pathname.includes("/api/auth/") && !pathname.includes("/api/owner/")) {
+    // Agent Control Room: writes from the agent team carry a shared secret
+    // instead of a user session — let those bypass the session gate.
+    if (pathname.includes("/api/agents/")) {
+      const agentSecret = process.env.AGENT_SECRET || process.env.CRON_SECRET;
+      const provided = req.headers.get("x-agent-secret")
+        || (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
+      if (agentSecret && provided === agentSecret) {
+        return setLocaleCookie(intlMiddleware(req), locale);
+      }
+      // otherwise fall through to the normal session check (the page's own GETs)
+    }
     const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
     if (!token?.organizationId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
