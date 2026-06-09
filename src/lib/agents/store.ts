@@ -25,10 +25,10 @@ export const DEFAULT_MEMBERS: MemberSeed[] = [
 
 /** Check that an incoming request carries the shared agent secret. */
 export function agentAuthorized(req: Request): boolean {
-  const secret = process.env.AGENT_SECRET || process.env.CRON_SECRET;
+  const secret = (process.env.AGENT_SECRET || process.env.CRON_SECRET || "").trim();
   if (!secret) return false;
-  const header = req.headers.get("x-agent-secret") || "";
-  const bearer = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
+  const header = (req.headers.get("x-agent-secret") || "").trim();
+  const bearer = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "").trim();
   return header === secret || bearer === secret;
 }
 

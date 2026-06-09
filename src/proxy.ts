@@ -30,9 +30,9 @@ export default async function proxy(req: NextRequest) {
     // Agent Control Room: writes from the agent team carry a shared secret
     // instead of a user session — let those bypass the session gate.
     if (pathname.includes("/api/agents/")) {
-      const agentSecret = process.env.AGENT_SECRET || process.env.CRON_SECRET;
-      const provided = req.headers.get("x-agent-secret")
-        || (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
+      const agentSecret = (process.env.AGENT_SECRET || process.env.CRON_SECRET || "").trim();
+      const provided = (req.headers.get("x-agent-secret")
+        || (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "")).trim();
       if (agentSecret && provided === agentSecret) {
         return setLocaleCookie(intlMiddleware(req), locale);
       }
