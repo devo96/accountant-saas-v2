@@ -25,6 +25,7 @@
   "nav": {
     "app": { "name": "Qoyod" },
     "dashboard": "Dashboard",
+    "agents": "Agent Control Room",
     "sales": "Sales",
     "invoices": "Sales Invoices",
     "quotes": "Quotes",

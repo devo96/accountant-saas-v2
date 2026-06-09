@@ -1339,3 +1339,68 @@ model AiProactiveAlert {
   @@index([organizationId, dismissed])
   @@index([organizationId, severity])
 }
+
+// ─────────────────────────────────────────────────────────────
+// AGENT CONTROL ROOM — multi-agent coordination (internal ops)
+// ─────────────────────────────────────────────────────────────
+
+model AgentRun {
+  id        String   @id @default(uuid())
+  title     String
+  goal      String?
+  status    String   @default("ACTIVE") // ACTIVE | PAUSED | DONE
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tasks    AgentTask[]
+  messages AgentMessage[]
+}
+
+model AgentMember {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  name        String
+  role        String
+  emoji       String   @default("🤖")
+  status      String   @default("IDLE") // IDLE | WORKING | BLOCKED | WAITING_USER | DONE
+  currentTask String?
+  updatedAt   DateTime @updatedAt
+}
+
+model AgentTask {
+  id          String    @id @default(uuid())
+  runId       String?
+  title       String
+  description String?
+  assignee    String?   // AgentMember.key
+  status      String    @default("TODO") // TODO | IN_PROGRESS | NEEDS_USER | BLOCKED | DONE
+  etaMinutes  Int?
+  order       Int       @default(0)
+  startedAt   DateTime?
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  run AgentRun? @relation(fields: [runId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@index([runId])
+}
+
+model AgentMessage {
+  id           String   @id @default(uuid())
+  runId        String?
+  taskId       String?
+  author       String   // AgentMember.key or "USER"
+  role         String?
+  type         String   @default("CHAT") // CHAT | STATUS | HANDOFF | QUESTION | ANSWER
+  content      String
+  mentionsUser Boolean  @default(false)
+  answered     Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  run AgentRun? @relation(fields: [runId], references: [id], onDelete: Cascade)
+
+  @@index([createdAt])
+  @@index([mentionsUser, answered])
+}

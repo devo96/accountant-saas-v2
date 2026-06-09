@@ -11,7 +11,7 @@ import {
   PiggyBank, Calculator, FileSpreadsheet, Calendar, Layout, Activity, QrCode, Mail, Upload,
   Handshake, ArrowRightLeft, ShieldCheck, HandCoins, Truck,
   ClipboardList, FolderTree, Ruler, BriefcaseBusiness, CircleDollarSign,
-  Network, Search,
+  Network, Search, Bot,
 } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -25,6 +25,12 @@ const navItems: NavItem[] = [
     key: "dashboard",
     href: "/dashboard",
     icon: LayoutDashboard,
+  },
+  {
+    key: "agents",
+    href: "/agents",
+    icon: Bot,
+    adminOnly: true,
   },
   {
     key: "sales",
