@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { NextResponse } from "next/server";
 import { createAuditLog } from "@/lib/audit";
+import { postPurchaseInvoice } from "@/domains/accounting/posting";
+import { logger } from "@/lib/logger";
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
@@ -94,6 +96,14 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     oldValue: { number: existing.number, status: existing.status, total: Number(existing.total) },
     newValue: { number: invoice.number, status: invoice.status, total: Number(invoice.total) },
   });
+
+  if (invoice.status === "CONFIRMED") {
+    try {
+      await postPurchaseInvoice(session.user.organizationId, session.user.id, invoice.id);
+    } catch (e) {
+      logger.error({ invoiceId: invoice.id, err: (e as Error).message }, "Purchase invoice auto-post failed");
+    }
+  }
 
   return NextResponse.json({
     ...invoice,

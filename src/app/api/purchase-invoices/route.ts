@@ -2,7 +2,9 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { NextResponse } from "next/server";
 import { getPurchaseInvoices, createPurchaseInvoice } from "@/domains/purchases";
+import { postPurchaseInvoice } from "@/domains/accounting/posting";
 import { createAuditLog } from "@/lib/audit";
+import { logger } from "@/lib/logger";
 import { prisma } from "@/lib/prisma";
 
 export async function GET() {
@@ -60,5 +62,15 @@ export async function POST(req: Request) {
     newValue: { number: invoice.number, total: invoice.total },
   });
 
-  return NextResponse.json(invoice);
+  let postingError: string | null = null;
+  if (invoice.status === "CONFIRMED") {
+    try {
+      await postPurchaseInvoice(session.user.organizationId, session.user.id, invoice.id);
+    } catch (e) {
+      postingError = (e as Error).message;
+      logger.error({ invoiceId: invoice.id, err: postingError }, "Purchase invoice auto-post failed");
+    }
+  }
+
+  return NextResponse.json({ ...invoice, postingError });
 }

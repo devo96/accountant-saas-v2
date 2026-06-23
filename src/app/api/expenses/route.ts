@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { NextResponse } from "next/server";
 import { createAuditLog } from "@/lib/audit";
+import { postExpense } from "@/domains/accounting/posting";
+import { logger } from "@/lib/logger";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -59,5 +61,13 @@ export async function POST(req: Request) {
     newValue: { number: expense.number, amount: expense.amount },
   });
 
-  return NextResponse.json(expense);
+  let postingError: string | null = null;
+  try {
+    await postExpense(session.user.organizationId, session.user.id, expense.id);
+  } catch (e) {
+    postingError = (e as Error).message;
+    logger.error({ expenseId: expense.id, err: postingError }, "Expense auto-post failed");
+  }
+
+  return NextResponse.json({ ...expense, postingError });
 }
