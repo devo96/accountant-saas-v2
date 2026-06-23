@@ -44,7 +44,8 @@ export default async function proxy(req: NextRequest) {
     if (!token?.organizationId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    return setLocaleCookie(intlMiddleware(req), locale);
+    // API routes: skip intlMiddleware (it would redirect /api/* → /ar/api/*)
+    return NextResponse.next();
   }
 
   if (isPublic) {
