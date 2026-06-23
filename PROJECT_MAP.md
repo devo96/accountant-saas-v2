@@ -1,6 +1,6 @@
 # PROJECT_MAP — accountant-saas-v2
 
-> **Generated:** 2026-06-23 20:30 UTC+3  
+> **Generated:** 2026-06-23 21:30 UTC+3  
 > **Last Build:** 2026-06-23 — ✅ **Build Succeeded (262 pages, 0 errors)**  
 > **Last Deploy:** 2026-06-23 — ✅ **Vercel (auto-deployed from GitHub push)**  
 > **Seed:** All models populated with demo data (employee, customer, vendor, categories, units, payment terms, branches, fixed assets, items, invoices, receipts, journal entries, projects, tasks, advances, deductions, social insurance)  
@@ -294,6 +294,9 @@ export const logger = pino({
 | Atomic $transaction (posting)| —        | ✅ DONE     | All 3 posting functions wrap ops in `prisma.$transaction`; helpers accept `tx` via `TxOrPrisma` type |
 | Zod validation — all routes  | —        | ✅ DONE     | 21 schemas + `validate()` (POST) + `validatePartial()` (PUT) wired into every API route |
 | Double-counting fix          | —        | ✅ DONE     | balance-sheet, income-statement, trial-balance, reports dashboard — use `account.balance` directly, removed redundant JE line sum |
+| Agent tasks auto-seed        | —        | ✅ DONE     | `ensureSeeded()` creates DEFAULT_TASKS from bug map — board populated on first state load |
+| Task API — user accessible   | —        | ✅ DONE     | POST/PATCH /api/agents/tasks now accept logged-in users (not just agents) |
+| Agents page — locale URLs    | —        | ✅ DONE     | fetch uses `/{locale}/api/agents/*` to prevent intlMiddleware redirect |
 
 ---
 

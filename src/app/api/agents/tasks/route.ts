@@ -17,9 +17,12 @@ export async function GET() {
   return NextResponse.json(tasks);
 }
 
-// Create a task (agents only).
+// Create a task (agents or logged-in users).
 export async function POST(req: Request) {
-  if (!agentAuthorized(req)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  const session = await getServerSession(authOptions);
+  if (!agentAuthorized(req) && !session?.user) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
   const body = await req.json().catch(() => ({}));
   const run = await ensureSeeded();
   const task = await prisma.agentTask.create({
@@ -36,9 +39,12 @@ export async function POST(req: Request) {
   return NextResponse.json(task);
 }
 
-// Update a task (agents only). Accepts { id, status?, assignee?, etaMinutes?, title?, description?, order? }
+// Update a task (agents or logged-in users). Accepts { id, status?, assignee?, etaMinutes?, title?, description?, order? }
 export async function PATCH(req: Request) {
-  if (!agentAuthorized(req)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  const session = await getServerSession(authOptions);
+  if (!agentAuthorized(req) && !session?.user) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
   const body = await req.json().catch(() => ({}));
   if (!body.id) return NextResponse.json({ error: "id required" }, { status: 400 });
 
