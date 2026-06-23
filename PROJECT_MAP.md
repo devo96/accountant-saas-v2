@@ -269,11 +269,11 @@ export const logger = pino({
 
 | # | Issue | Status |
 |---|-------|--------|
-| 1 | **Auto-posting (root):** Sales/Purchase invoices and expenses saved without journal entries | ✅ `posting.ts` + API routes wired (committed) |
-| 2 | **Inventory:** Stock movements (SALES_DELIVERY / PURCHASE_RECEIPT) + COGS JE lines + moving-average costPrice on item-based invoices | ✅ `postSalesInvoice`, `postPurchaseInvoice` updated in `posting.ts` (committed) |
-| 3 | **Balance sheet:** Reads only `POSTED` entries — empty without posting (auto-fixed after #1) | ✅ Fixed double-counting bug — `account.balance` already updated by `syncJournalEntryBalances` during posting, but reports added line totals again. Needs `tester` verification. |
-| 4 | **Permissions:** Auth enforced in 119/124 routes; plan limits (maxUsers, maxInvoices, maxItems) enforced; Employee ↔ User link added | ✅ `checkPlanLimit()` helper + wired into POST routes + `userId` on Employee model (committed) |
-| 5 | **Zod schemas:** Centralized validation for 16 entities + wired into 12 critical POST routes | ✅ `src/validations/index.ts` + `src/lib/validate.ts` + 12 route validations (committed) |
+| 1 | **Auto-posting (root):** Sales/Purchase invoices and expenses saved without journal entries | ✅ `posting.ts` + API routes wired + now uses `$transaction` for atomicity (committed) |
+| 2 | **Inventory:** Stock movements (SALES_DELIVERY / PURCHASE_RECEIPT) + COGS JE lines + moving-average costPrice on item-based invoices | ✅ `postSalesInvoice`, `postPurchaseInvoice` updated in `posting.ts` + stock movements also inside `$transaction` (committed) |
+| 3 | **Balance sheet:** Reads only `POSTED` entries — empty without posting (auto-fixed after #1) | ✅ Fixed double-counting bug — `account.balance` already updated by `syncJournalEntryBalances` during posting, but reports added line totals again. **Needs `tester` verification.** |
+| 4 | **Permissions:** Auth enforced in 119/124 routes; plan limits (maxUsers, maxInvoices, maxItems) enforced; Employee ↔ User link added | ✅ `checkPlanLimit()` helper + wired into POST routes + `userId` on Employee model. **Prisma migration requires manual `npx prisma migrate dev`.** |
+| 5 | **Zod schemas:** Centralized validation for 21 entities + wired into ALL POST & PUT routes | ✅ `src/validations/index.ts` + `src/lib/validate.ts` + `validatePartial()` for PUT + all 21 POST + 13 PUT routes wired (committed) |
 | 6 | **Locked period:** isClosed guard on createJournalEntry + budgets; PATCH toggle + UI close/open button | ✅ `[id]` route, journal guard, budget guard, UI toggle (committed) |
 
 ---
@@ -284,13 +284,16 @@ export const logger = pino({
 | ---------------------------- | -------- | ----------- | ------------------------------------------- |
 | ① Auto-posting               | P0       | ✅ DONE     | `posting.ts` + API routes wired + committed  |
 | ② Inventory (COGS + stock)   | P1       | ✅ DONE     | `postSalesInvoice`/`postPurchaseInvoice` create StockMovement + update item stock + COGS/Inventory JE lines |
-| ③ Permissions                | P2       | ✅ DONE     | Auth on 119/124 routes; `checkPlanLimit()` for maxUsers/maxInvoices/maxItems; Employee ↔ User link via `userId` |
+| ③ Permissions                | P2       | ✅ DONE     | Auth on 119/124 routes; `checkPlanLimit()` for maxUsers/maxInvoices/maxItems; Employee ↔ User link via `userId` ⚠️ needs `npx prisma migrate dev` manually |
 | ④ Locked period feature      | P3       | ✅ DONE     | Close fiscal years via PATCH; journal entry + budget create guards; UI close/open toggle |
-| ⑤ Zod schemas               | P4       | ✅ DONE     | 16 entity schemas + validate helper + wired into 12 POST routes |
+| ⑤ Zod schemas               | P4       | ✅ DONE     | 21 entity schemas + `validate()`/`validatePartial()` helpers + wired into ALL POST + PUT routes |
 | UI: hardcoded colors         | —        | ✅ DONE     | All `#1D97E0`, `text-blue-*`, `bg-blue-*`, `text-indigo-*`, `bg-indigo-*` → `primary-*` |
 | UI: button/input rounding    | —        | ✅ DONE     | All `rounded-md` → `rounded-lg` (button, input, textarea, select, sidebar, file buttons) |
 | Agent Control Room           | —        | ✅ DONE     | `/{locale}/agents` — live board + chat + shared bus (`scripts/agent-bus.mjs`) |
 | Integration tests (posting)  | —        | ✅ DONE     | `src/__tests__/integration/posting.test.ts` — 7 tests |
+| Atomic $transaction (posting)| —        | ✅ DONE     | All 3 posting functions wrap ops in `prisma.$transaction`; helpers accept `tx` via `TxOrPrisma` type |
+| Zod validation — all routes  | —        | ✅ DONE     | 21 schemas + `validate()` (POST) + `validatePartial()` (PUT) wired into every API route |
+| Double-counting fix          | —        | ✅ DONE     | balance-sheet, income-statement, trial-balance, reports dashboard — use `account.balance` directly, removed redundant JE line sum |
 
 ---
 
