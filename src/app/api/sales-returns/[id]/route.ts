@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { NextResponse } from "next/server";
 import { createAuditLog } from "@/lib/audit";
+import { validatePartial } from "@/lib/validate";
+import { SalesReturnSchema } from "@/validations";
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
@@ -37,6 +39,10 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   const { id } = await params;
   const body = await req.json();
 
+  const parsed = validatePartial(SalesReturnSchema, body);
+  if (parsed.error) return parsed.error;
+  const d = parsed.data;
+
   const existing = await prisma.salesReturn.findFirst({
     where: { id, organizationId: session.user.organizationId },
   });
@@ -45,10 +51,10 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   const updated = await prisma.salesReturn.update({
     where: { id },
     data: {
-      ...(body.returnDate !== undefined && { returnDate: new Date(body.returnDate) }),
-      ...(body.status !== undefined && { status: body.status }),
-      ...(body.notes !== undefined && { notes: body.notes }),
-      ...(body.originalInvoiceId !== undefined && { originalInvoiceId: body.originalInvoiceId }),
+      ...(d.returnDate !== undefined && { returnDate: new Date(d.returnDate) }),
+      ...(d.status !== undefined && { status: d.status }),
+      ...(d.notes !== undefined && { notes: d.notes }),
+      ...(d.originalInvoiceId !== undefined && { originalInvoiceId: d.originalInvoiceId }),
     },
   });
 

@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { NextResponse } from "next/server";
 import { createAuditLog } from "@/lib/audit";
+import { validatePartial } from "@/lib/validate";
+import { PurchaseOrderSchema } from "@/validations";
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
@@ -39,6 +41,10 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   const { id } = await params;
   const body = await req.json();
 
+  const parsed = validatePartial(PurchaseOrderSchema, body);
+  if (parsed.error) return parsed.error;
+  const d = parsed.data;
+
   const existing = await prisma.purchaseOrder.findFirst({
     where: { id, organizationId: session.user.organizationId },
   });
@@ -47,10 +53,10 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   const updated = await prisma.purchaseOrder.update({
     where: { id },
     data: {
-      ...(body.orderDate !== undefined && { orderDate: new Date(body.orderDate) }),
-      ...(body.expectedDate !== undefined && { expectedDate: new Date(body.expectedDate) }),
-      ...(body.status !== undefined && { status: body.status }),
-      ...(body.notes !== undefined && { notes: body.notes }),
+      ...(d.orderDate !== undefined && { orderDate: new Date(d.orderDate) }),
+      ...(d.expectedDate !== undefined && { expectedDate: new Date(d.expectedDate) }),
+      ...(d.status !== undefined && { status: d.status }),
+      ...(d.notes !== undefined && { notes: d.notes }),
     },
   });
 
