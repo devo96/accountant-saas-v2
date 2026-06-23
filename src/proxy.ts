@@ -34,7 +34,9 @@ export default async function proxy(req: NextRequest) {
       const provided = (req.headers.get("x-agent-secret")
         || (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "")).trim();
       if (agentSecret && provided === agentSecret) {
-        return setLocaleCookie(intlMiddleware(req), locale);
+        // Server-to-server call: skip next-intl (it would redirect /api/* to
+        // /ar/api/* when there is no NEXT_LOCALE cookie) and hit the route directly.
+        return NextResponse.next();
       }
       // otherwise fall through to the normal session check (the page's own GETs)
     }

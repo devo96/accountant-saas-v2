@@ -610,6 +610,7 @@ model SalesInvoice {
   invoiceDate    DateTime
   dueDate        DateTime?
   status         InvoiceStatus @default(DRAFT)
+  journalEntryId  String?
   customerId      String
   currencyId      String?
   referenceNumber String?
@@ -746,6 +747,7 @@ model PurchaseInvoice {
   invoiceDate    DateTime
   dueDate        DateTime?
   status         InvoiceStatus @default(DRAFT)
+  journalEntryId  String?
   vendorId       String
   currencyId     String?
   referenceNumber String?
@@ -880,8 +882,9 @@ model Expense {
   date           DateTime
   category       String?
   description    String
-  amount         Decimal 
+  amount         Decimal
   taxAmount      Decimal  @default(0)
+  journalEntryId String?
   vendorId       String?
   paymentMethod  PaymentMethod @default(CASH)
   receipt        String?
