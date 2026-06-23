@@ -8,9 +8,9 @@ type TicketInfo = { id: string; subject: string; message: string; priority: stri
 type AuditInfo = { id: string; action: string; entity: string; entityId: string | null; oldValue: any; newValue: any; createdAt: string; };
 type ProfileData = { org: OrgProfile; plan: PlanInfo; stats: StatsInfo; recentErrors: { id: string; action: string; createdAt: string; entity: string }[]; payments: PaymentInfo[]; tickets: TicketInfo[]; auditLogs: AuditInfo[]; zatcaConnected: boolean; integrations: { name: string; status: string; lastSync: string | null }[]; };
 
-const statusStyles: Record<string, string> = { ACTIVE: "bg-green-100 text-green-700", TRIALING: "bg-blue-100 text-blue-700", EXPIRED: "bg-red-100 text-red-700", CANCELLED: "bg-gray-100 text-gray-500", PAUSED: "bg-amber-100 text-amber-700" };
-const priorityStyles: Record<string, string> = { URGENT: "bg-red-100 text-red-700", HIGH: "bg-orange-100 text-orange-700", NORMAL: "bg-blue-100 text-blue-700", LOW: "bg-gray-100 text-gray-500" };
-const ticketStatusStyles: Record<string, string> = { OPEN: "bg-blue-100 text-blue-700", IN_PROGRESS: "bg-amber-100 text-amber-700", RESOLVED: "bg-green-100 text-green-700", CLOSED: "bg-gray-100 text-gray-500" };
+const statusStyles: Record<string, string> = { ACTIVE: "bg-green-100 text-green-700", TRIALING: "bg-primary-100 text-primary-700", EXPIRED: "bg-red-100 text-red-700", CANCELLED: "bg-gray-100 text-gray-500", PAUSED: "bg-amber-100 text-amber-700" };
+const priorityStyles: Record<string, string> = { URGENT: "bg-red-100 text-red-700", HIGH: "bg-orange-100 text-orange-700", NORMAL: "bg-primary-100 text-primary-700", LOW: "bg-gray-100 text-gray-500" };
+const ticketStatusStyles: Record<string, string> = { OPEN: "bg-primary-100 text-primary-700", IN_PROGRESS: "bg-amber-100 text-amber-700", RESOLVED: "bg-green-100 text-green-700", CLOSED: "bg-gray-100 text-gray-500" };
 const eventStyles: Record<string, string> = { SUCCESS: "bg-green-100 text-green-700", FAILED: "bg-red-100 text-red-700", PENDING: "bg-amber-100 text-amber-700" };
 
 function formatDate(d: string, locale: string) { return new Date(d).toLocaleDateString(locale === "ar" ? "ar-SA" : "en-US", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }); }
@@ -85,7 +85,7 @@ function Tab1Overview({ data, t, locale, onStatusChange }: { data: ProfileData; 
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <Card><CardContent className="p-4 text-center"><FileText className="h-6 w-6 text-blue-600 mx-auto mb-1" /><p className="text-2xl font-bold">{stats.totalInvoices}</p><p className="text-xs text-gray-500">{t("totalInvoices")}</p></CardContent></Card>
+        <Card><CardContent className="p-4 text-center"><FileText className="h-6 w-6 text-primary-600 mx-auto mb-1" /><p className="text-2xl font-bold">{stats.totalInvoices}</p><p className="text-xs text-gray-500">{t("totalInvoices")}</p></CardContent></Card>
         <Card><CardContent className="p-4 text-center"><PackageOpen className="h-6 w-6 text-purple-600 mx-auto mb-1" /><p className="text-2xl font-bold">{stats.totalItems}</p><p className="text-xs text-gray-500">{t("totalProducts")}</p></CardContent></Card>
         <Card><CardContent className="p-4 text-center"><UsersIcon className="h-6 w-6 text-green-600 mx-auto mb-1" /><p className="text-2xl font-bold">{stats.totalEmployees + stats.totalUsers}</p><p className="text-xs text-gray-500">{t("totalEmployees")}</p></CardContent></Card>
         <Card><CardContent className="p-4 text-center"><DollarSign className="h-6 w-6 text-amber-600 mx-auto mb-1" /><p className="text-2xl font-bold">{formatCurrency(stats.totalSales)}</p><p className="text-xs text-gray-500">{t("totalSales")}</p></CardContent></Card>

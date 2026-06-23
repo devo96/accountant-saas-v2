@@ -14,14 +14,14 @@ const MEMBER_STATUS: Record<string, { label: string; cls: string; dot: string }>
   WORKING: { label: "يعمل الآن", cls: "bg-green-100 text-green-700 dark:bg-green-950/50 dark:text-green-300", dot: "bg-green-500 animate-pulse" },
   BLOCKED: { label: "متوقف", cls: "bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-300", dot: "bg-red-500" },
   WAITING_USER: { label: "بانتظار ردّك", cls: "bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300", dot: "bg-amber-500 animate-pulse" },
-  DONE: { label: "أنهى", cls: "bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300", dot: "bg-blue-500" },
+  DONE: { label: "أنهى", cls: "bg-primary-100 text-primary-700 dark:bg-primary-950/50 dark:text-primary-300", dot: "bg-primary-500" },
 };
 
 const COLUMNS: { key: string; label: string; match: string[]; icon: React.ComponentType<{ className?: string }>; tint: string }[] = [
   { key: "TODO", label: "قيد الانتظار", match: ["TODO"], icon: CircleDot, tint: "text-gray-500" },
   { key: "IN_PROGRESS", label: "تنفيذ", match: ["IN_PROGRESS"], icon: Loader2, tint: "text-green-600" },
   { key: "NEEDS_USER", label: "يحتاج تدخّلك", match: ["NEEDS_USER", "BLOCKED"], icon: AlertCircle, tint: "text-amber-600" },
-  { key: "DONE", label: "منجز", match: ["DONE"], icon: CheckCircle2, tint: "text-blue-600" },
+  { key: "DONE", label: "منجز", match: ["DONE"], icon: CheckCircle2, tint: "text-primary-600" },
 ];
 
 function eta(min: number | null) {

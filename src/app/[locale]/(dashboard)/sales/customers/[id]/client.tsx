@@ -194,7 +194,7 @@ export function CustomerDetailClient({ customer }: Props) {
                     <div className="font-medium">{formatCurrency(Number(inv.total))}</div>
                     <div className={`text-xs px-2 py-0.5 rounded-full inline-block ${
                       inv.status === "CONFIRMED" ? "bg-green-100 text-green-700" :
-                      inv.status === "PAID" ? "bg-blue-100 text-blue-700" :
+                      inv.status === "PAID" ? "bg-primary-100 text-primary-700" :
                       inv.status === "CANCELLED" ? "bg-red-100 text-red-700" :
                       inv.status === "PARTIALLY_PAID" ? "bg-yellow-100 text-yellow-700" : "bg-gray-100 text-gray-600"
                     }`}>

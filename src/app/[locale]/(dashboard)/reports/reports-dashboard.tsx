@@ -74,8 +74,8 @@ export function ReportsDashboard({
       secondValue: totalIncome,
       sublabel: tc("total"),
       icon: TrendingUp,
-      color: "#1D97E0",
-      bg: "rgba(29,151,224,0.08)",
+      color: "#7C3AED",
+      bg: "rgba(124,58,237,0.08)",
       change: "+12%",
       positive: true,
     },
@@ -219,7 +219,7 @@ export function ReportsDashboard({
                       <XAxis dataKey="month" tick={{ fontSize: 11, fill: textColor }} />
                       <YAxis tick={{ fontSize: 11, fill: textColor }} />
                       <Tooltip content={<CustomTooltip />} />
-                      <Bar dataKey="revenue" name={t("income")} fill="#1D97E0" radius={[4, 4, 0, 0]} maxBarSize={24} />
+                      <Bar dataKey="revenue" name={t("income")} fill="#7C3AED" radius={[4, 4, 0, 0]} maxBarSize={24} />
                       <Bar dataKey="expenses" name={t("expenses")} fill="#FD9A00" radius={[4, 4, 0, 0]} maxBarSize={24} />
                     </BarChart>
                   </ResponsiveContainer>

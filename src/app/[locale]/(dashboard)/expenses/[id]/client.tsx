@@ -109,7 +109,7 @@ export function ExpenseViewClient({ expense: initial }: Props) {
         <div className="rounded-lg border p-4 space-y-2 text-sm">
           <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">{t("vendor")}</span><span>{initial.vendor?.name ?? "-"}</span></div>
           <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">{t("notes")}</span><span>{initial.notes ?? "-"}</span></div>
-          <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">{t("receipt")}</span><span>{initial.receipt ? <a href={initial.receipt} target="_blank" rel="noreferrer" className="text-blue-600 underline">View</a> : "-"}</span></div>
+          <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">{t("receipt")}</span><span>{initial.receipt ? <a href={initial.receipt} target="_blank" rel="noreferrer" className="text-primary-600 underline">View</a> : "-"}</span></div>
         </div>
       </div>
 

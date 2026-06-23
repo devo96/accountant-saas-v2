@@ -63,7 +63,7 @@ export function EmailTemplatesClient({ templates: initial }: Props) {
               <div className="flex items-center gap-2">
                 <Mail className="h-4 w-4 text-gray-400" />
                 <span className="font-medium">{templateLabels[tmpl.key] ?? tmpl.key}</span>
-                {tmpl.isCustom && <span className="text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded">{t("customized")}</span>}
+                {tmpl.isCustom && <span className="text-xs bg-primary-100 text-primary-700 px-1.5 py-0.5 rounded">{t("customized")}</span>}
               </div>
               <Button variant="outline" size="sm" onClick={() => startEdit(tmpl.key)}>{t("edit")}</Button>
             </div>

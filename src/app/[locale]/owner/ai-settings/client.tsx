@@ -93,7 +93,7 @@ export function AiSettingsClient({ plans: initialPlans, settings: initialSetting
   }, [aiEnabled, maxQueries, maxTokens, proactiveAlerts, modelProvider, addonPrice, plans, t]);
 
   const toggleClass = (on: boolean) =>
-    `relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${on ? "bg-indigo-500" : "bg-gray-300"}`;
+    `relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${on ? "bg-primary-500" : "bg-gray-300"}`;
   const toggleKnob = (on: boolean) =>
     `inline-block h-5 w-5 rounded-full bg-white shadow-sm transform transition-transform ${on ? "translate-x-[22px]" : "translate-x-[2px]"}`;
 
@@ -108,8 +108,8 @@ export function AiSettingsClient({ plans: initialPlans, settings: initialSetting
       {/* Global Usage Counter Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 flex items-center gap-4">
-          <div className="rounded-lg p-2.5 bg-indigo-50 dark:bg-indigo-900/20">
-            <Zap className="h-5 w-5 text-indigo-500" />
+          <div className="rounded-lg p-2.5 bg-primary-50 dark:bg-primary-900/20">
+            <Zap className="h-5 w-5 text-primary-500" />
           </div>
           <div>
             <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">{t("aiTotalTokens")}</p>
@@ -128,7 +128,7 @@ export function AiSettingsClient({ plans: initialPlans, settings: initialSetting
       </div>
 
       <Card>
-        <CardHeader><CardTitle className="flex items-center gap-2 text-base"><Brain className="h-5 w-5 text-indigo-500" />{t("aiGlobalSettings")}</CardTitle></CardHeader>
+        <CardHeader><CardTitle className="flex items-center gap-2 text-base"><Brain className="h-5 w-5 text-primary-500" />{t("aiGlobalSettings")}</CardTitle></CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div><p className="text-sm font-medium">{t("aiOcr")}</p></div>
@@ -141,13 +141,13 @@ export function AiSettingsClient({ plans: initialPlans, settings: initialSetting
             <div>
               <label className="block text-sm font-medium mb-1 text-gray-700">{t("aiMaxQueries")}</label>
               <input type="number" value={maxQueries} onChange={(e) => setMaxQueries(e.target.value)}
-                className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30" min={0} />
+                className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30" min={0} />
               <p className="text-xs text-gray-400 mt-1">{t("aiQueriesLabel")}</p>
             </div>
             <div>
               <label className="block text-sm font-medium mb-1 text-gray-700">{t("aiTokensPerMonth")}</label>
               <input type="number" value={maxTokens} onChange={(e) => setMaxTokens(e.target.value)}
-                className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30" min={0} />
+                className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30" min={0} />
               <p className="text-xs text-gray-400 mt-1">{t("aiTokensLabel")}</p>
             </div>
           </div>
@@ -155,13 +155,13 @@ export function AiSettingsClient({ plans: initialPlans, settings: initialSetting
           {/* AI Model Provider Dropdown */}
           <div className="border-t border-gray-100 pt-4">
             <label className="block text-sm font-medium mb-1 text-gray-700">
-              <Cpu className="h-4 w-4 inline ml-1 text-indigo-500" />
+              <Cpu className="h-4 w-4 inline ml-1 text-primary-500" />
               {t("aiModelProvider")}
             </label>
             <select
               value={modelProvider}
               onChange={(e) => setModelProvider(e.target.value)}
-              className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 bg-white"
+              className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30 bg-white"
             >
               {AI_MODELS.map((m) => (
                 <option key={m.value} value={m.value}>{m.label}</option>
@@ -178,7 +178,7 @@ export function AiSettingsClient({ plans: initialPlans, settings: initialSetting
             </label>
             <div className="flex items-center gap-2">
               <input type="number" value={addonPrice} onChange={(e) => setAddonPrice(e.target.value)}
-                className="w-40 border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30" min={0} />
+                className="w-40 border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30" min={0} />
               <span className="text-sm text-gray-500">SAR</span>
             </div>
             <p className="text-xs text-gray-400 mt-1">{t("aiAddonPriceHint")}</p>
@@ -197,7 +197,7 @@ export function AiSettingsClient({ plans: initialPlans, settings: initialSetting
       </Card>
 
       <Card>
-        <CardHeader><CardTitle className="flex items-center gap-2 text-base"><FileText className="h-5 w-5 text-indigo-500" />{t("aiPerPlan")}</CardTitle></CardHeader>
+        <CardHeader><CardTitle className="flex items-center gap-2 text-base"><FileText className="h-5 w-5 text-primary-500" />{t("aiPerPlan")}</CardTitle></CardHeader>
         <CardContent className="space-y-3">
           {/* Table Header */}
           <div className="hidden md:grid grid-cols-[1fr_repeat(3,auto)] items-center px-3 py-2 text-xs font-medium text-gray-400 uppercase tracking-wider gap-4">
@@ -209,7 +209,7 @@ export function AiSettingsClient({ plans: initialPlans, settings: initialSetting
 
           {plans.map((plan) => {
             const feats = getAiFeatures(plan);
-            const tierColors: Record<string, string> = { FREE: "text-gray-500 bg-gray-100", STARTER: "text-blue-600 bg-blue-50", PROFESSIONAL: "text-purple-600 bg-purple-50", ENTERPRISE: "text-amber-600 bg-amber-50" };
+            const tierColors: Record<string, string> = { FREE: "text-gray-500 bg-gray-100", STARTER: "text-primary-600 bg-primary-50", PROFESSIONAL: "text-purple-600 bg-purple-50", ENTERPRISE: "text-amber-600 bg-amber-50" };
             const tc = tierColors[plan.tier] ?? "text-gray-500 bg-gray-100";
             return (
               <div key={plan.id} className="grid grid-cols-1 md:grid-cols-[1fr_repeat(3,auto)] items-center py-3 px-4 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors gap-2 md:gap-4">
@@ -223,7 +223,7 @@ export function AiSettingsClient({ plans: initialPlans, settings: initialSetting
                       type="checkbox"
                       checked={feats[key]}
                       onChange={() => togglePlanFeature(plan.id, key)}
-                      className="h-4 w-4 rounded border-gray-300 text-indigo-500 focus:ring-indigo-500/30 cursor-pointer"
+                      className="h-4 w-4 rounded border-gray-300 text-primary-500 focus:ring-primary-500/30 cursor-pointer"
                     />
                   </label>
                 ))}
@@ -234,7 +234,7 @@ export function AiSettingsClient({ plans: initialPlans, settings: initialSetting
       </Card>
 
       <div className="flex justify-end">
-        <Button onClick={handleSave} disabled={saving} className="bg-indigo-500 hover:bg-indigo-600">
+        <Button onClick={handleSave} disabled={saving} className="bg-primary-500 hover:bg-primary-600">
           <Save className="h-4 w-4 ml-1" />
           {saving ? t("formSave") + "..." : t("formSave")}
         </Button>

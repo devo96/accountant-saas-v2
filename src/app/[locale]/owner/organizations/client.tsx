@@ -4,12 +4,12 @@ type OrganizationInfo = { id: string; name: string; email: string; createdAt: Da
 type PlanInfo = { id: string; name: string; tier: string; monthlyPrice: number; yearlyPrice: number; maxUsers: number; maxInvoices: number; active: boolean; };
 const statusIcon: Record<string, { icon: React.ReactNode; color: string }> = {
   ACTIVE: { icon: <Crown className="h-3 w-3" />, color: "text-green-600 bg-green-50" },
-  TRIALING: { icon: <Package className="h-3 w-3" />, color: "text-blue-600 bg-blue-50" },
+  TRIALING: { icon: <Package className="h-3 w-3" />, color: "text-primary-600 bg-primary-50" },
   EXPIRED: { icon: <Building2 className="h-3 w-3" />, color: "text-red-600 bg-red-50" },
   CANCELLED: { icon: <Building2 className="h-3 w-3" />, color: "text-gray-500 bg-gray-100" },
   PAUSED: { icon: <Package className="h-3 w-3" />, color: "text-amber-600 bg-amber-50" },
 };
-const tierColors: Record<string, string> = { FREE: "text-gray-500 bg-gray-100", STARTER: "text-blue-600 bg-blue-50", PROFESSIONAL: "text-purple-600 bg-purple-50", ENTERPRISE: "text-amber-600 bg-amber-50" };
+const tierColors: Record<string, string> = { FREE: "text-gray-500 bg-gray-100", STARTER: "text-primary-600 bg-primary-50", PROFESSIONAL: "text-purple-600 bg-purple-50", ENTERPRISE: "text-amber-600 bg-amber-50" };
 function daysRemaining(dateStr: string | null | undefined): number | null { if (!dateStr) return null; const diff = new Date(dateStr).getTime() - Date.now(); return Math.ceil(diff / 86400000); }
 function DaysBadge({ days, t }: { days: number | null; t: (key: string, params?: any) => string }) {
   if (days === null) return <span className="text-gray-400">{t("noPlan")}</span>;
@@ -84,7 +84,7 @@ export function OrganizationsClient({ orgs: initialOrgs, plans }: { orgs: Organi
                       const r = await fetch(`/api/owner/impersonate/${org.id}`, { method: "POST" });
                       if (r.ok) { const d = await r.json(); window.location.href = d.redirectTo; }
                       else { alert(t("impersonateFailed")); }
-                    }} title={t("impersonate")}><LogIn className="h-3 w-3 text-blue-600" /></Button>
+                    }} title={t("impersonate")}><LogIn className="h-3 w-3 text-primary-600" /></Button>
                   </td>
                 </tr>);
               })}</tbody>

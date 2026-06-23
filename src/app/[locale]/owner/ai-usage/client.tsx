@@ -41,8 +41,8 @@ export function AiUsageClient({ totalQueries, totalTokens, totalCostUsd, imagesP
     <div className="space-y-6" dir="rtl">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="rounded-xl border border-gray-200 bg-white p-4 flex items-center gap-4">
-          <div className="rounded-lg p-2.5 bg-indigo-50">
-            <Zap className="h-5 w-5 text-indigo-500" />
+          <div className="rounded-lg p-2.5 bg-primary-50">
+            <Zap className="h-5 w-5 text-primary-500" />
           </div>
           <div>
             <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">{t("aiUsageTotalTokens")}</p>
@@ -81,7 +81,7 @@ export function AiUsageClient({ totalQueries, totalTokens, totalCostUsd, imagesP
 
       <div className="rounded-xl border border-gray-200 bg-white overflow-hidden">
         <div className="px-4 py-3 border-b border-gray-100 flex items-center gap-2">
-          <BarChart3 className="h-4 w-4 text-indigo-500" />
+          <BarChart3 className="h-4 w-4 text-primary-500" />
           <span className="text-sm font-semibold text-gray-800">{t("aiUsageLogTitle")}</span>
         </div>
         <div className="overflow-x-auto">
@@ -112,8 +112,8 @@ export function AiUsageClient({ totalQueries, totalTokens, totalCostUsd, imagesP
                       <td className="px-4 py-2.5">
                         <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-medium ${
                           log.operationType === "image_processing"
-                            ? "bg-purple-100 text-purple-700"
-                            : "bg-blue-100 text-blue-700"
+                            ? "bg-primary-100 text-primary-700"
+                            : "bg-primary-100 text-primary-700"
                         }`}>
                           {opLabel.ar}
                         </span>

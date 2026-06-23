@@ -82,7 +82,7 @@ export function AuditLogsClient({ translations: t }: Props) {
               return (
                 <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
                   a === "CREATE" ? "bg-green-100 text-green-700" :
-                  a === "UPDATE" ? "bg-blue-100 text-blue-700" :
+                  a === "UPDATE" ? "bg-primary-100 text-primary-700" :
                   a === "DELETE" ? "bg-red-100 text-red-700" :
                   "bg-gray-100 text-gray-700"
                 }`}>{a}</span>

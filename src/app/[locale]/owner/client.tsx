@@ -9,13 +9,13 @@ export function OwnerOverviewClient({ totalOrgs, totalUsers, mrr, arr, churnRate
     <div className="space-y-4">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <Card><CardContent className="p-4"><div className="flex items-center gap-3"><div className="p-2 rounded-md bg-green-50"><TrendingUp className="h-5 w-5 text-green-600" /></div><div><p className="text-xs text-gray-500">{t("mrr")}</p><p className="text-lg font-bold">{formatCurrency(mrr)}</p></div></div></CardContent></Card>
-        <Card><CardContent className="p-4"><div className="flex items-center gap-3"><div className="p-2 rounded-md bg-blue-50"><Calendar className="h-5 w-5 text-blue-600" /></div><div><p className="text-xs text-gray-500">{t("arr")}</p><p className="text-lg font-bold">{formatCurrency(arr)}</p></div></div></CardContent></Card>
+        <Card><CardContent className="p-4"><div className="flex items-center gap-3"><div className="p-2 rounded-md bg-primary-50"><Calendar className="h-5 w-5 text-primary-600" /></div><div><p className="text-xs text-gray-500">{t("arr")}</p><p className="text-lg font-bold">{formatCurrency(arr)}</p></div></div></CardContent></Card>
         <Card><CardContent className="p-4"><div className="flex items-center gap-3"><div className="p-2 rounded-md bg-red-50"><Percent className="h-5 w-5 text-red-500" /></div><div><p className="text-xs text-gray-500">{t("churnRate")}</p><p className="text-lg font-bold">{churnRate}%</p></div></div></CardContent></Card>
         <Card><CardContent className="p-4"><div className="flex items-center gap-3"><div className="p-2 rounded-md bg-purple-50"><Activity className="h-5 w-5 text-purple-500" /></div><div><p className="text-xs text-gray-500">{t("liveOps")}</p><p className="text-lg font-bold">{liveOps.journals + liveOps.invoices}</p></div></div></CardContent></Card>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
         <Card><CardContent className="p-3 flex items-center justify-between"><span className="text-xs text-gray-500">{t("active")}</span><span className="text-sm font-bold text-green-600">{activeOrgs}</span></CardContent></Card>
-        <Card><CardContent className="p-3 flex items-center justify-between"><span className="text-xs text-gray-500">{t("trialing")}</span><span className="text-sm font-bold text-blue-600">{trialingOrgs}</span></CardContent></Card>
+        <Card><CardContent className="p-3 flex items-center justify-between"><span className="text-xs text-gray-500">{t("trialing")}</span><span className="text-sm font-bold text-primary-600">{trialingOrgs}</span></CardContent></Card>
         <Card><CardContent className="p-3 flex items-center justify-between"><span className="text-xs text-gray-500">{t("expired")}</span><span className="text-sm font-bold text-red-600">{expiredOrgs}</span></CardContent></Card>
         <Card><CardContent className="p-3 flex items-center justify-between"><span className="text-xs text-gray-500">{t("cancelled")}</span><span className="text-sm font-bold text-gray-600">{cancelledOrgs}</span></CardContent></Card>
         <Card><CardContent className="p-3 flex items-center justify-between"><span className="text-xs text-gray-500">{t("newOrgsMonth")}</span><span className="text-sm font-bold">{orgsThisMonth}</span></CardContent></Card>
@@ -37,7 +37,7 @@ export function OwnerOverviewClient({ totalOrgs, totalUsers, mrr, arr, churnRate
                 <XAxis dataKey="month" tick={{ fontSize: 11 }} />
                 <YAxis tick={{ fontSize: 11 }} />
                 <Tooltip />
-                <Bar dataKey="revenue" fill="#1D97E0" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="revenue" fill="#7C3AED" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>

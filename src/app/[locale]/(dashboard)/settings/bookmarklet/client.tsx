@@ -30,7 +30,7 @@ export function BookmarkletClient() {
       <PageHeader title={t("title")} description={t("description")} />
 
       <div className="rounded-lg border p-6 space-y-6">
-        <div className="text-center p-8 bg-blue-50 dark:bg-blue-950/30 rounded-xl space-y-4">
+        <div className="text-center p-8 bg-primary-50 dark:bg-primary-950/30 rounded-xl space-y-4">
           <p className="text-lg font-semibold">{t("dragInstruction")}</p>
           <p className="text-sm text-gray-500 dark:text-gray-400">{t("dragHint")}</p>
         </div>
@@ -49,7 +49,7 @@ export function BookmarkletClient() {
           <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{t("manualDesc")}</p>
           <div className="flex gap-2 items-center">
             <input ref={inputRef} readOnly value={BOOKMARKLET_URL} className="flex-1 px-3 py-2 text-xs font-mono border rounded-lg bg-white dark:bg-gray-800 dark:border-gray-700 truncate cursor-pointer" onClick={copyCode} />
-            <button onClick={copyCode} className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors shrink-0">{copied ? "✓" : t("copyBtn")}</button>
+            <button onClick={copyCode} className="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors shrink-0">{copied ? "✓" : t("copyBtn")}</button>
           </div>
           <p className="text-xs text-gray-400 mt-2">{t("manualNote")}</p>
         </div>

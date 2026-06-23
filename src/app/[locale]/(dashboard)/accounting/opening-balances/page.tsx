@@ -52,7 +52,7 @@ export default async function OpeningBalancesPage() {
             <CardTitle className="text-sm font-medium text-gray-500">إجمالي الأرصدة الدائنة</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-blue-600">{formatCurrency(totalCreditBalance)}</p>
+            <p className="text-2xl font-bold text-primary-600">{formatCurrency(totalCreditBalance)}</p>
           </CardContent>
         </Card>
       </div>

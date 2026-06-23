@@ -16,7 +16,7 @@ import { useTranslations } from "next-intl";
 type Task = { id: string; projectId: string | null; project: { id: string; name: string } | null; title: string; description: string | null; assigneeId: string | null; assignee: { id: string; name: string } | null; dueDate: Date | null; priority: string; status: string; estimatedHours: number; actualHours: number };
 type Props = { tasks: Task[] };
 
-const priorityColor: Record<string, string> = { LOW: "text-gray-400", MEDIUM: "text-blue-500", HIGH: "text-amber-500", URGENT: "text-red-500" };
+const priorityColor: Record<string, string> = { LOW: "text-gray-400", MEDIUM: "text-primary-500", HIGH: "text-amber-500", URGENT: "text-red-500" };
 const statusVariant: Record<string, "info" | "success" | "warning" | "danger" | "outline"> = { TODO: "info", IN_PROGRESS: "warning", DONE: "success", CANCELLED: "danger" };
 
 export function TasksClient({ tasks }: Props) {

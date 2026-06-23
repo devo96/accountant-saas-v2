@@ -1,6 +1,6 @@
 "use client"; import { useTranslations } from "next-intl"; import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"; import { Button } from "@/components/ui/button"; import { Dialog } from "@/components/ui/dialog"; import { Plus, Edit3, Trash2, Crown } from "lucide-react"; import { useState, useCallback } from "react"; import { formatCurrency } from "@/lib/utils"; import { PlanForm } from "../_forms";
 type PlanExt = { id: string; name: string; tier: string; monthlyPrice: number; yearlyPrice: number; maxUsers: number; maxInvoices: number; active: boolean; orgCount: number; };
-const tierColors: Record<string, string> = { FREE: "text-gray-500 bg-gray-100", STARTER: "text-blue-600 bg-blue-50", PROFESSIONAL: "text-purple-600 bg-purple-50", ENTERPRISE: "text-amber-600 bg-amber-50" };
+const tierColors: Record<string, string> = { FREE: "text-gray-500 bg-gray-100", STARTER: "text-primary-600 bg-primary-50", PROFESSIONAL: "text-purple-600 bg-purple-50", ENTERPRISE: "text-amber-600 bg-amber-50" };
 export function PlansClient({ plans: initialPlans }: { plans: PlanExt[] }) {
   const t = useTranslations("ownerPanel");
   const [plans, setPlans] = useState(initialPlans);

@@ -124,7 +124,7 @@ ${modNote ? `\nModification note:\n${modNote}` : ""}`;
           >
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-bold flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-blue-500" />
+                <span className="w-2 h-2 rounded-full bg-primary-500" />
                 معلومات العنصر
               </h3>
               <button onClick={close} className="text-gray-400 hover:text-gray-600 text-xl">&times;</button>
@@ -148,7 +148,7 @@ ${modNote ? `\nModification note:\n${modNote}` : ""}`;
                 صف التعديل المطلوب
               </label>
               <textarea
-                className="w-full border rounded-lg p-3 text-sm min-h-[80px] resize-y focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-700"
+                className="w-full border rounded-lg p-3 text-sm min-h-[80px] resize-y focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:border-gray-700"
                 placeholder="مثال: غير النص إلى ...، أضف زر جديد، غير اللون..."
                 value={modNote}
                 onChange={(e) => setModNote(e.target.value)}
@@ -159,7 +159,7 @@ ${modNote ? `\nModification note:\n${modNote}` : ""}`;
             <div className="flex gap-2">
               <button
                 onClick={copyInfo}
-                className="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+                className="flex-1 px-4 py-2.5 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700 transition-colors"
               >
                 {copied ? "✓ تم النسخ!" : "نسخ المعلومات"}
               </button>

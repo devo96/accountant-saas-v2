@@ -7,7 +7,7 @@ export function SecurityClient({ health, auditLogs }: { health: HealthInfo; audi
     <div className="space-y-3">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <Card><CardContent className="p-4"><div className="flex items-center gap-3"><Server className="h-5 w-5 text-green-500" /><div><p className="text-xs text-gray-500">{t("systemStatus")}</p><p className="text-lg font-bold text-green-600">{t("healthy")}</p></div></div></CardContent></Card>
-        <Card><CardContent className="p-4"><div className="flex items-center gap-3"><Activity className="h-5 w-5 text-blue-500" /><div><p className="text-xs text-gray-500">{t("uptime")}</p><p className="text-lg font-bold">{health.uptime}</p></div></div></CardContent></Card>
+        <Card><CardContent className="p-4"><div className="flex items-center gap-3"><Activity className="h-5 w-5 text-primary-500" /><div><p className="text-xs text-gray-500">{t("uptime")}</p><p className="text-lg font-bold">{health.uptime}</p></div></div></CardContent></Card>
         <Card><CardContent className="p-4"><div className="flex items-center gap-3"><HardDrive className="h-5 w-5 text-amber-500" /><div><p className="text-xs text-gray-500">{t("dbRecords")}</p><p className="text-lg font-bold">{health.totalDbRecords.toLocaleString()}</p></div></div></CardContent></Card>
         <Card><CardContent className="p-4"><div className="flex items-center gap-3"><Shield className="h-5 w-5 text-purple-500" /><div><p className="text-xs text-gray-500">{t("audit7d")}</p><p className="text-lg font-bold">{health.auditLast7d}</p></div></div></CardContent></Card>
       </div>

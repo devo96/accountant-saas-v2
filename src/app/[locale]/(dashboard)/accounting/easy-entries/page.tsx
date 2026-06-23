@@ -14,12 +14,12 @@ import { formatCurrency, formatDate } from "@/lib/utils";
 
 const templates = [
   { icon: DollarSign, label: "قيود المبيعات", description: "تسجيل إيرادات المبيعات", color: "text-green-600" },
-  { icon: ShoppingCart, label: "قيود المشتريات", description: "تسجيل مصروفات المشتريات", color: "text-blue-600" },
+  { icon: ShoppingCart, label: "قيود المشتريات", description: "تسجيل مصروفات المشتريات", color: "text-primary-600" },
   { icon: Receipt, label: "سداد مصروفات", description: "تسجيل مصروف تشغيلي", color: "text-orange-600" },
   { icon: Landmark, label: "سند قبض", description: "تسجيل مبلغ مستلم", color: "text-purple-600" },
   { icon: Calculator, label: "تسوية", description: "تسوية بين الحسابات", color: "text-teal-600" },
   { icon: PiggyBank, label: "إيداع بنكي", description: "تسجيل إيداع بنكي", color: "text-emerald-600" },
-  { icon: ArrowRightLeft, label: "تحويل", description: "تحويل أموال بين الحسابات", color: "text-indigo-600" },
+  { icon: ArrowRightLeft, label: "تحويل", description: "تحويل أموال بين الحسابات", color: "text-primary-600" },
   { icon: Calendar, label: "مصروفات مقدمة", description: "تسجيل مصروفات مدفوعة مقدماً", color: "text-rose-600" },
 ];
 

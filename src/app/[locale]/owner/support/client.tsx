@@ -1,7 +1,7 @@
 "use client"; import { useTranslations } from "next-intl"; import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"; import { Button } from "@/components/ui/button"; import { Select } from "@/components/ui/select"; import { Dialog } from "@/components/ui/dialog"; import { Plus, Ticket } from "lucide-react"; import { useState, useCallback } from "react"; import { NewTicketForm } from "../_forms";
 type TicketInfo = { id: string; organizationId: string; subject: string; message: string; status: string; priority: string; createdBy: string; assignedTo: string | null; createdAt: string; organization: { name: string }; user: { name: string; email: string } | null };
-const statusColor: Record<string, string> = { OPEN: "text-blue-600 bg-blue-50", IN_PROGRESS: "text-amber-600 bg-amber-50", RESOLVED: "text-green-600 bg-green-50", CLOSED: "text-gray-400 bg-gray-100" };
-const priorityColor: Record<string, string> = { LOW: "text-gray-400", NORMAL: "text-blue-500", HIGH: "text-amber-500", URGENT: "text-red-500" };
+const statusColor: Record<string, string> = { OPEN: "text-primary-600 bg-primary-50", IN_PROGRESS: "text-amber-600 bg-amber-50", RESOLVED: "text-green-600 bg-green-50", CLOSED: "text-gray-400 bg-gray-100" };
+const priorityColor: Record<string, string> = { LOW: "text-gray-400", NORMAL: "text-primary-500", HIGH: "text-amber-500", URGENT: "text-red-500" };
 export function SupportClient({ tickets: initialTickets }: { tickets: TicketInfo[] }) {
   const t = useTranslations("ownerPanel");
   const [tickets, setTickets] = useState(initialTickets);

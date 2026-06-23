@@ -35,7 +35,7 @@ interface DashboardClientProps {
   initialAlerts: AlertData[];
 }
 
-const barColors = ["#1D97E0", "#49CC6F", "#FD9A00", "#576487", "#0070F2", "#14293C"];
+const barColors = ["#7C3AED", "#49CC6F", "#FD9A00", "#576487", "#0070F2", "#14293C"];
 
 function cn(...classes: (string | false | undefined | null)[]) {
   return classes.filter(Boolean).join(" ");
@@ -118,8 +118,8 @@ export default function DashboardClient({
       value: revenue,
       currency: true,
       icon: TrendingUp,
-      color: "#1D97E0",
-      bg: "rgba(29,151,224,0.08)",
+      color: "#7C3AED",
+      bg: "rgba(124,58,237,0.08)",
       change: "+12%",
       positive: true,
     },
@@ -175,7 +175,7 @@ export default function DashboardClient({
     >
       {/* Breadcrumb */}
       <motion.div variants={itemVariants} className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-        <span className="hover:text-[#1D97E0] cursor-pointer transition-colors">
+        <span className="hover:text-primary-600 cursor-pointer transition-colors">
           {t("home")}
         </span>
         <ChevronLeft className="h-3.5 w-3.5 rtl:rotate-180" />
@@ -200,7 +200,7 @@ export default function DashboardClient({
             <span className="hidden sm:inline">{fromDate} - {toDate}</span>
             <span className="sm:hidden">{months[monthIndex]} {year}</span>
           </button>
-          <button className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-[#1D97E0] text-white rounded-lg hover:bg-[#1a87c9] transition-colors">
+          <button className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
             <Download className="h-4 w-4" />
             <span className="hidden sm:inline">{t("export")}</span>
           </button>
@@ -214,7 +214,7 @@ export default function DashboardClient({
           <input
             type="date"
             defaultValue={fromDate}
-            className="text-sm border border-gray-200 dark:border-gray-700 rounded-lg px-2.5 py-1.5 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#1D97E0]/20 focus:border-[#1D97E0]"
+            className="text-sm border border-gray-200 dark:border-gray-700 rounded-lg px-2.5 py-1.5 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
           />
         </div>
         <div className="flex items-center gap-2">
@@ -222,7 +222,7 @@ export default function DashboardClient({
           <input
             type="date"
             defaultValue={toDate}
-            className="text-sm border border-gray-200 dark:border-gray-700 rounded-lg px-2.5 py-1.5 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#1D97E0]/20 focus:border-[#1D97E0]"
+            className="text-sm border border-gray-200 dark:border-gray-700 rounded-lg px-2.5 py-1.5 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
           />
         </div>
         <button className="inline-flex items-center gap-1 px-3 py-1.5 text-sm border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-gray-600 dark:text-gray-300">
@@ -281,7 +281,7 @@ export default function DashboardClient({
                   ? "border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/30"
                   : alert.severity === "WARNING"
                     ? "border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30"
-                    : "border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/30"
+                    : "border-primary-200 dark:border-primary-800 bg-primary-50 dark:bg-primary-950/30"
               )}
             >
               <div className="flex-shrink-0 mt-0.5">
@@ -290,7 +290,7 @@ export default function DashboardClient({
                 ) : alert.severity === "WARNING" ? (
                   <AlertTriangle className="h-5 w-5 text-amber-500" />
                 ) : (
-                  <Info className="h-5 w-5 text-blue-500" />
+                  <Info className="h-5 w-5 text-primary-500" />
                 )}
               </div>
               <div className="flex-1 min-w-0">
@@ -300,7 +300,7 @@ export default function DashboardClient({
                     ? "text-red-800 dark:text-red-200"
                     : alert.severity === "WARNING"
                       ? "text-amber-800 dark:text-amber-200"
-                      : "text-blue-800 dark:text-blue-200"
+                      : "text-primary-800 dark:text-primary-200"
                 )}>
                   {alert.title}
                 </p>
@@ -310,7 +310,7 @@ export default function DashboardClient({
                     ? "text-red-600 dark:text-red-300"
                     : alert.severity === "WARNING"
                       ? "text-amber-600 dark:text-amber-300"
-                      : "text-blue-600 dark:text-blue-300"
+                      : "text-primary-600 dark:text-primary-300"
                 )}>
                   {alert.message}
                 </p>
@@ -331,7 +331,7 @@ export default function DashboardClient({
         <Card>
           <CardHeader>
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <BarChart className="h-4 w-4 text-[#1D97E0]" />
+              <BarChart className="h-4 w-4 text-primary-600" />
               {t("vsExpenses")}
             </CardTitle>
           </CardHeader>
@@ -408,7 +408,7 @@ export default function DashboardClient({
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <ShoppingCart className="h-4 w-4 text-[#1D97E0]" />
+              <ShoppingCart className="h-4 w-4 text-primary-600" />
               {t("recentInvoices")}
             </CardTitle>
             <span className="text-xs text-gray-400 dark:text-gray-500">{recentInvoices.length}</span>
@@ -424,8 +424,8 @@ export default function DashboardClient({
                 {recentInvoices.map((inv) => (
                   <div key={inv.id} className="flex items-center justify-between py-2.5 first:pt-0 last:pb-0">
                     <div className="flex items-center gap-2.5 min-w-0">
-                      <div className="w-7 h-7 rounded-full bg-[#1D97E0]/10 flex items-center justify-center flex-shrink-0">
-                        <ShoppingCart className="h-3.5 w-3.5 text-[#1D97E0]" />
+                      <div className="w-7 h-7 rounded-full bg-primary-600/10 flex items-center justify-center flex-shrink-0">
+                        <ShoppingCart className="h-3.5 w-3.5 text-primary-600" />
                       </div>
                       <div className="min-w-0">
                         <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">

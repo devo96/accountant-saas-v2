@@ -11,7 +11,7 @@ const variants = {
   success: "bg-success-bg text-success-text dark:bg-green-900 dark:text-green-300",
   warning: "bg-warning-bg text-warning-text dark:bg-yellow-900 dark:text-yellow-300",
   danger: "bg-danger-bg text-danger-text dark:bg-red-900 dark:text-red-300",
-  info: "bg-info-bg text-info-text dark:bg-blue-900 dark:text-blue-300",
+  info: "bg-info-bg text-info-text dark:bg-primary-900 dark:text-primary-300",
   outline: "border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300",
 };
 
