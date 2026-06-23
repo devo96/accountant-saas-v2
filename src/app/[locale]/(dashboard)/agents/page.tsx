@@ -49,7 +49,12 @@ export default function AgentsControlRoom() {
   const load = useCallback(async () => {
     try {
       const res = await fetch("/api/agents/state", { cache: "no-store" });
-      if (!res.ok) throw new Error(res.status === 401 ? "يجب تسجيل الدخول" : "تعذّر التحميل");
+      if (!res.ok) {
+        const text = await res.text().catch(() => "");
+        throw new Error(res.status === 401
+          ? "يجب تسجيل الدخول"
+          : `تعذّر التحميل (${res.status}) ${text.slice(0, 200)}`);
+      }
       setState(await res.json());
       setErr(null);
     } catch (e) {
