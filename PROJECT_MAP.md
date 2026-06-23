@@ -271,7 +271,7 @@ export const logger = pino({
 |---|-------|--------|
 | 1 | **Auto-posting (root):** Sales/Purchase invoices and expenses saved without journal entries | ✅ `posting.ts` + API routes wired (committed) |
 | 2 | **Inventory:** Stock movements (SALES_DELIVERY / PURCHASE_RECEIPT) + COGS JE lines + moving-average costPrice on item-based invoices | ✅ `postSalesInvoice`, `postPurchaseInvoice` updated in `posting.ts` (committed) |
-| 3 | **Balance sheet:** Reads only `POSTED` entries — empty without posting (auto-fixed after #1) | ⏳ Should work now, needs `tester` verification |
+| 3 | **Balance sheet:** Reads only `POSTED` entries — empty without posting (auto-fixed after #1) | ✅ Fixed double-counting bug — `account.balance` already updated by `syncJournalEntryBalances` during posting, but reports added line totals again. Needs `tester` verification. |
 | 4 | **Permissions:** Auth enforced in 119/124 routes; plan limits (maxUsers, maxInvoices, maxItems) enforced; Employee ↔ User link added | ✅ `checkPlanLimit()` helper + wired into POST routes + `userId` on Employee model (committed) |
 | 5 | **Zod schemas:** Centralized validation for 16 entities + wired into 12 critical POST routes | ✅ `src/validations/index.ts` + `src/lib/validate.ts` + 12 route validations (committed) |
 | 6 | **Locked period:** isClosed guard on createJournalEntry + budgets; PATCH toggle + UI close/open button | ✅ `[id]` route, journal guard, budget guard, UI toggle (committed) |

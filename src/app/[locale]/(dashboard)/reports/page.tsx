@@ -17,7 +17,6 @@ export default async function ReportsDashboardPage() {
     rawInvoices,
     rawExpenses,
     rawAccounts,
-    rawEntries,
     rawBankTxns,
     rawCustomers,
     rawVendors,
@@ -36,10 +35,6 @@ export default async function ReportsDashboardPage() {
     }),
     prisma.account.findMany({
       where: { organizationId: orgId, active: true },
-    }),
-    prisma.journalEntry.findMany({
-      where: { organizationId: orgId, status: "POSTED" },
-      include: { lines: true },
     }),
     prisma.bankTransaction.findMany({
       where: { organizationId: orgId },
@@ -67,25 +62,12 @@ export default async function ReportsDashboardPage() {
   }));
 
   const accounts = rawAccounts.map((a) => ({ ...a, balance: Number(a.balance) }));
-  const entries = rawEntries.map((e) => ({
-    ...e,
-    lines: e.lines.map((l) => ({ ...l, debit: Number(l.debit), credit: Number(l.credit) })),
-  }));
 
   const incomeAccounts = accounts.filter((a) => a.type === "INCOME");
   const expenseAccounts = accounts.filter((a) => a.type === "EXPENSE");
 
-  const totalIncome = incomeAccounts.reduce((s, a) => {
-    const totalDebit = entries.reduce((sd, e) => sd + e.lines.filter((l) => l.accountId === a.id).reduce((ls, l) => ls + l.debit, 0), 0);
-    const totalCredit = entries.reduce((sc, e) => sc + e.lines.filter((l) => l.accountId === a.id).reduce((ls, l) => ls + l.credit, 0), 0);
-    return s + (a.nature === "DEBIT" ? a.balance + totalDebit - totalCredit : a.balance + totalCredit - totalDebit);
-  }, 0);
-
-  const totalExpenses = expenseAccounts.reduce((s, a) => {
-    const totalDebit = entries.reduce((sd, e) => sd + e.lines.filter((l) => l.accountId === a.id).reduce((ls, l) => ls + l.debit, 0), 0);
-    const totalCredit = entries.reduce((sc, e) => sc + e.lines.filter((l) => l.accountId === a.id).reduce((ls, l) => ls + l.credit, 0), 0);
-    return s + (a.nature === "DEBIT" ? a.balance + totalDebit - totalCredit : a.balance + totalCredit - totalDebit);
-  }, 0);
+  const totalIncome = incomeAccounts.reduce((s, a) => s + a.balance, 0);
+  const totalExpenses = expenseAccounts.reduce((s, a) => s + a.balance, 0);
 
   const netProfit = totalIncome - totalExpenses;
   const profitMargin = totalIncome > 0 ? ((netProfit / totalIncome) * 100).toFixed(1) : "0.0";
