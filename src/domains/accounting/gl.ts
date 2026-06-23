@@ -1,7 +1,9 @@
 import { prisma } from "@/lib/prisma";
+import type { TxOrPrisma } from "./types";
 
-export async function syncJournalEntryBalances(journalEntryId: string, reverse = false): Promise<void> {
-  const lines = await prisma.journalEntryLine.findMany({
+export async function syncJournalEntryBalances(journalEntryId: string, reverse = false, tx?: TxOrPrisma): Promise<void> {
+  const client = tx ?? prisma;
+  const lines = await client.journalEntryLine.findMany({
     where: { journalEntryId },
     include: { account: true },
   });
@@ -13,7 +15,7 @@ export async function syncJournalEntryBalances(journalEntryId: string, reverse =
       : Number(credit) - Number(debit);
     const multiplier = reverse ? -1 : 1;
 
-    await prisma.account.update({
+    await client.account.update({
       where: { id: account.id },
       data: { balance: { increment: delta * multiplier } },
     });

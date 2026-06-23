@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { logger } from "@/lib/logger";
 import { z } from "zod";
 import { syncJournalEntryBalances } from "./gl";
+import type { TxOrPrisma } from "./types";
 
 export const JournalEntrySchema = z.object({
   date: z.string().datetime(),
@@ -36,26 +37,28 @@ export type JournalEntryInput = z.infer<typeof JournalEntrySchema>;
 export async function createJournalEntry(
   organizationId: string,
   userId: string,
-  input: JournalEntryInput & { status?: string }
+  input: JournalEntryInput & { status?: string },
+  tx?: TxOrPrisma,
 ) {
   const data = JournalEntrySchema.parse(input);
+  const client = tx ?? prisma;
 
   // Resolve fiscal year: use provided one, or find by date range
-  const resolvedFyId = data.fiscalYearId || await resolveFiscalYear(organizationId, data.date);
+  const resolvedFyId = data.fiscalYearId || await resolveFiscalYear(organizationId, data.date, tx);
   if (resolvedFyId) {
-    const fy = await prisma.fiscalYear.findUnique({ where: { id: resolvedFyId } });
+    const fy = await client.fiscalYear.findUnique({ where: { id: resolvedFyId } });
     if (fy?.isClosed) {
       throw new Error(`Fiscal year "${fy.name}" is closed. Cannot post entries to a closed period.`);
     }
   }
 
-  const lastEntry = await prisma.journalEntry.findFirst({
+  const lastEntry = await client.journalEntry.findFirst({
     where: { organizationId },
     orderBy: { number: "desc" },
     select: { number: true },
   });
 
-  const entry = await prisma.journalEntry.create({
+  const entry = await client.journalEntry.create({
     data: {
       number: (lastEntry?.number ?? 0) + 1,
       date: new Date(data.date),
@@ -81,7 +84,7 @@ export async function createJournalEntry(
   });
 
   if (entry.status === "POSTED") {
-    await syncJournalEntryBalances(entry.id);
+    await syncJournalEntryBalances(entry.id, false, tx);
   }
 
   logger.info({ entryId: entry.id, number: entry.number }, "Journal entry created");
@@ -89,9 +92,10 @@ export async function createJournalEntry(
 }
 
 /** Find the fiscal year that covers a given date for an organization. */
-async function resolveFiscalYear(organizationId: string, dateStr: string): Promise<string | null> {
+async function resolveFiscalYear(organizationId: string, dateStr: string, tx?: TxOrPrisma): Promise<string | null> {
+  const client = tx ?? prisma;
   const date = new Date(dateStr);
-  const fy = await prisma.fiscalYear.findFirst({
+  const fy = await client.fiscalYear.findFirst({
     where: {
       organizationId,
       startDate: { lte: date },
