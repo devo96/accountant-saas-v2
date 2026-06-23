@@ -1,6 +1,6 @@
 # PROJECT_MAP — accountant-saas-v2
 
-> **Generated:** 2026-06-23 16:00 UTC+3  
+> **Generated:** 2026-06-23 18:40 UTC+3  
 > **Last Build:** 2026-06-23 — ✅ **Build Succeeded (262 pages, 0 errors)**  
 > **Last Deploy:** 2026-06-23 — ✅ **Vercel (auto-deployed from GitHub push)**  
 > **Seed:** All models populated with demo data (employee, customer, vendor, categories, units, payment terms, branches, fixed assets, items, invoices, receipts, journal entries, projects, tasks, advances, deductions, social insurance)  
@@ -270,7 +270,7 @@ export const logger = pino({
 | # | Issue | Status |
 |---|-------|--------|
 | 1 | **Auto-posting (root):** Sales/Purchase invoices and expenses saved without journal entries | ✅ `posting.ts` + API routes wired (committed) |
-| 2 | **Inventory:** No stock movement or COGS on sale/purchase | ❌ Pending |
+| 2 | **Inventory:** Stock movements (SALES_DELIVERY / PURCHASE_RECEIPT) + COGS JE lines + moving-average costPrice on item-based invoices | ✅ `postSalesInvoice`, `postPurchaseInvoice` updated in `posting.ts` (committed) |
 | 3 | **Balance sheet:** Reads only `POSTED` entries — empty without posting (auto-fixed after #1) | ⏳ Should work now, needs `tester` verification |
 | 4 | **Permissions:** Enforced in only 5/97 routes; plan limits not enforced | ❌ Pending |
 | 5 | **Translation:** Scattered hardcoded text; no centralized Zod schemas | ❌ Pending |
@@ -283,7 +283,7 @@ export const logger = pino({
 | Bug Map Item                 | Priority | Status      | Notes                                       |
 | ---------------------------- | -------- | ----------- | ------------------------------------------- |
 | ① Auto-posting               | P0       | ✅ DONE     | `posting.ts` + API routes wired + committed  |
-| ② Inventory (COGS + stock)   | P1       | ❌ PENDING  | No automatic stock movement or COGS on sale/purchase |
+| ② Inventory (COGS + stock)   | P1       | ✅ DONE     | `postSalesInvoice`/`postPurchaseInvoice` create StockMovement + update item stock + COGS/Inventory JE lines |
 | ③ Permissions                | P2       | ❌ PENDING  | Only 5/97 routes enforce auth; plan limits not enforced; Employee not linked to User |
 | ④ Locked period feature      | P3       | ❌ PENDING  | Build proper financial period closing |
 | ⑤ Translation & Zod schemas  | P4       | ⏳ PARTIAL  | UI colors fixed; scattered hardcoded text remains; no centralized Zod |
