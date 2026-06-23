@@ -5,6 +5,8 @@ import { NextResponse } from "next/server";
 import { createAuditLog } from "@/lib/audit";
 import { postExpense } from "@/domains/accounting/posting";
 import { logger } from "@/lib/logger";
+import { ExpenseSchema } from "@/validations";
+import { validate } from "@/lib/validate";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -28,6 +30,9 @@ export async function POST(req: Request) {
   }
 
   const body = await req.json();
+  const parsed = validate(ExpenseSchema, body);
+  if (parsed.error) return parsed.error;
+
   const last = await prisma.expense.findFirst({
     where: { organizationId: session.user.organizationId },
     orderBy: { number: "desc" },

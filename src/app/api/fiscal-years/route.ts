@@ -2,6 +2,8 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { NextResponse } from "next/server";
+import { FiscalYearSchema } from "@/validations";
+import { validate } from "@/lib/validate";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -24,6 +26,9 @@ export async function POST(req: Request) {
   }
 
   const body = await req.json();
+
+  const parsed = validate(FiscalYearSchema, body);
+  if (parsed.error) return parsed.error;
 
   const existing = await prisma.fiscalYear.findFirst({
     where: { organizationId: session.user.organizationId, name: body.name },

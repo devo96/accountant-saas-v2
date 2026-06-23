@@ -4,6 +4,8 @@ import { authOptions } from "@/lib/auth";
 import { NextResponse } from "next/server";
 import { createAuditLog } from "@/lib/audit";
 import { checkPlanLimit } from "@/lib/permissions";
+import { ItemSchema } from "@/validations";
+import { validate } from "@/lib/validate";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -26,6 +28,9 @@ export async function POST(req: Request) {
   }
 
   const body = await req.json();
+
+  const parsed = validate(ItemSchema, body);
+  if (parsed.error) return parsed.error;
 
   const limit = await checkPlanLimit(session.user.organizationId, "items");
   if (limit.limited) return limit.error;
