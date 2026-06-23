@@ -35,6 +35,7 @@ export async function POST(req: Request) {
       email: body.email || null,
       phone: body.phone || null,
       position: body.position || null,
+      userId: body.userId || null,
       basicSalary: Number(body.basicSalary) || 0,
       allowances: Number(body.allowances) || 0,
       gosiContribution: Number(body.gosiContribution) || 0,

@@ -311,6 +311,7 @@ model User {
   managedProjects Project[] @relation("ProjectManager")
   assignedTasks Task[] @relation("TaskAssignee")
   supportTickets SupportTicket[]
+  employees Employee[]
 
   @@index([organizationId])
 }
@@ -980,14 +981,19 @@ model Employee {
   iqamaNumber    String?
   bankAccountNumber String?
   organizationId String
+  userId         String?
   active         Boolean  @default(true)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  advances Advance[]
-  deductions Deduction[]
+  user         User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  advances     Advance[]
+  deductions   Deduction[]
   socialInsuranceRecords SocialInsuranceRecord[]
+
+  @@index([organizationId])
+  @@index([userId])
 }
 
 model PayrollRun {

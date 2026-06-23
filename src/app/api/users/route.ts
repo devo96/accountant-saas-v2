@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import { requireRole } from "@/lib/permissions";
+import { requireRole, checkPlanLimit } from "@/lib/permissions";
 
 export async function GET() {
   const auth = await requireRole("ADMIN");
@@ -31,6 +31,9 @@ export async function POST(req: Request) {
   if (existing) {
     return NextResponse.json({ error: "Email already in use" }, { status: 409 });
   }
+
+  const limit = await checkPlanLimit(session.user.organizationId, "users");
+  if (limit.limited) return limit.error;
 
   const passwordHash = await bcrypt.hash(body.password, 12);
   const user = await prisma.user.create({

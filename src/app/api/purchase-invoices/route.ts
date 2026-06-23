@@ -3,6 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { NextResponse } from "next/server";
 import { getPurchaseInvoices, createPurchaseInvoice } from "@/domains/purchases";
 import { postPurchaseInvoice } from "@/domains/accounting/posting";
+import { checkPlanLimit } from "@/lib/permissions";
 import { createAuditLog } from "@/lib/audit";
 import { logger } from "@/lib/logger";
 import { prisma } from "@/lib/prisma";
@@ -24,6 +25,10 @@ export async function POST(req: Request) {
   }
 
   const body = await req.json();
+
+  const limit = await checkPlanLimit(session.user.organizationId, "invoices");
+  if (limit.limited) return limit.error;
+
   const [org, vendor] = await Promise.all([
     prisma.organization.findUnique({ where: { id: session.user.organizationId } }),
     prisma.vendor.findUnique({ where: { id: body.vendorId } }),

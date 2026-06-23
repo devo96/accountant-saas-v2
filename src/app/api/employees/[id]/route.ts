@@ -44,6 +44,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       ...(body.gosiContribution !== undefined && { gosiContribution: Number(body.gosiContribution) }),
       ...(body.iqamaNumber !== undefined && { iqamaNumber: body.iqamaNumber }),
       ...(body.bankAccountNumber !== undefined && { bankAccountNumber: body.bankAccountNumber }),
+      ...(body.userId !== undefined && { userId: body.userId }),
     },
   });
 
