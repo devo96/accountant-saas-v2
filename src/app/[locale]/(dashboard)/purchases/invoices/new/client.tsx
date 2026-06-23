@@ -412,7 +412,7 @@ export function NewPurchaseInvoiceClient({ vendors: initialVendors, items: initi
                 ref={fileRef}
                 type="file"
                 multiple
-                className="block w-full text-xs text-gray-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-medium file:bg-qoyod-bg file:text-qoyod hover:file:bg-qoyod/10"
+                className="block w-full text-xs text-gray-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-qoyod-bg file:text-qoyod hover:file:bg-qoyod/10"
                 onChange={(e) => {
                   if (e.target.files) setAttachments(Array.from(e.target.files));
                 }}

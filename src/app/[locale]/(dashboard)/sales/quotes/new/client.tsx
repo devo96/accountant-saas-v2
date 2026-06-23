@@ -411,7 +411,7 @@ export default function NewQuoteClient({
         </CardHeader>
         <CardContent>
           <textarea
-            className="w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+            className="w-full rounded-lg border border-gray-300 px-3 py-1.5 text-sm shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
             rows={3}
             value={notes}
             onChange={(e) => setNotes(e.target.value)}

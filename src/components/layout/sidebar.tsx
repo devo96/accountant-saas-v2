@@ -219,7 +219,7 @@ export function Sidebar({ show, onClose, desktopOpen, onToggleDesktop }: { show?
       </AnimatePresence>
       <button
         onClick={onToggleDesktop}
-        className="fixed top-3 z-50 p-1.5 rounded-md bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors hidden md:flex items-center justify-center"
+        className="fixed top-3 z-50 p-1.5 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors hidden md:flex items-center justify-center"
         style={{ insetInlineStart: desktopOpen ? "calc(var(--sidebar-width) + 8px)" : "8px" }}
         title={desktopOpen ? "Hide sidebar" : "Show sidebar"}
       >
