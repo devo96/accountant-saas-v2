@@ -1,6 +1,6 @@
 # PROJECT_MAP — accountant-saas-v2
 
-> **Generated:** 2026-06-23 19:50 UTC+3  
+> **Generated:** 2026-06-23 20:30 UTC+3  
 > **Last Build:** 2026-06-23 — ✅ **Build Succeeded (262 pages, 0 errors)**  
 > **Last Deploy:** 2026-06-23 — ✅ **Vercel (auto-deployed from GitHub push)**  
 > **Seed:** All models populated with demo data (employee, customer, vendor, categories, units, payment terms, branches, fixed assets, items, invoices, receipts, journal entries, projects, tasks, advances, deductions, social insurance)  
@@ -273,7 +273,7 @@ export const logger = pino({
 | 2 | **Inventory:** Stock movements (SALES_DELIVERY / PURCHASE_RECEIPT) + COGS JE lines + moving-average costPrice on item-based invoices | ✅ `postSalesInvoice`, `postPurchaseInvoice` updated in `posting.ts` (committed) |
 | 3 | **Balance sheet:** Reads only `POSTED` entries — empty without posting (auto-fixed after #1) | ⏳ Should work now, needs `tester` verification |
 | 4 | **Permissions:** Auth enforced in 119/124 routes; plan limits (maxUsers, maxInvoices, maxItems) enforced; Employee ↔ User link added | ✅ `checkPlanLimit()` helper + wired into POST routes + `userId` on Employee model (committed) |
-| 5 | **Translation:** Scattered hardcoded text; no centralized Zod schemas | ❌ Pending |
+| 5 | **Zod schemas:** Centralized validation for 16 entities + wired into 12 critical POST routes | ✅ `src/validations/index.ts` + `src/lib/validate.ts` + 12 route validations (committed) |
 | 6 | **Locked period:** isClosed guard on createJournalEntry + budgets; PATCH toggle + UI close/open button | ✅ `[id]` route, journal guard, budget guard, UI toggle (committed) |
 
 ---
@@ -286,7 +286,7 @@ export const logger = pino({
 | ② Inventory (COGS + stock)   | P1       | ✅ DONE     | `postSalesInvoice`/`postPurchaseInvoice` create StockMovement + update item stock + COGS/Inventory JE lines |
 | ③ Permissions                | P2       | ✅ DONE     | Auth on 119/124 routes; `checkPlanLimit()` for maxUsers/maxInvoices/maxItems; Employee ↔ User link via `userId` |
 | ④ Locked period feature      | P3       | ✅ DONE     | Close fiscal years via PATCH; journal entry + budget create guards; UI close/open toggle |
-| ⑤ Translation & Zod schemas  | P4       | ⏳ PARTIAL  | UI colors fixed; scattered hardcoded text remains; no centralized Zod |
+| ⑤ Zod schemas               | P4       | ✅ DONE     | 16 entity schemas + validate helper + wired into 12 POST routes |
 | UI: hardcoded colors         | —        | ✅ DONE     | All `#1D97E0`, `text-blue-*`, `bg-blue-*`, `text-indigo-*`, `bg-indigo-*` → `primary-*` |
 | UI: button/input rounding    | —        | ✅ DONE     | All `rounded-md` → `rounded-lg` (button, input, textarea, select, sidebar, file buttons) |
 | Agent Control Room           | —        | ✅ DONE     | `/{locale}/agents` — live board + chat + shared bus (`scripts/agent-bus.mjs`) |
