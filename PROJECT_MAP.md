@@ -272,7 +272,7 @@ export const logger = pino({
 | 1 | **Auto-posting (root):** Sales/Purchase invoices and expenses saved without journal entries | ✅ `posting.ts` + API routes wired (committed) |
 | 2 | **Inventory:** Stock movements (SALES_DELIVERY / PURCHASE_RECEIPT) + COGS JE lines + moving-average costPrice on item-based invoices | ✅ `postSalesInvoice`, `postPurchaseInvoice` updated in `posting.ts` (committed) |
 | 3 | **Balance sheet:** Reads only `POSTED` entries — empty without posting (auto-fixed after #1) | ⏳ Should work now, needs `tester` verification |
-| 4 | **Permissions:** Enforced in only 5/97 routes; plan limits not enforced | ❌ Pending |
+| 4 | **Permissions:** Auth enforced in 119/124 routes; plan limits (maxUsers, maxInvoices, maxItems) enforced; Employee ↔ User link added | ✅ `checkPlanLimit()` helper + wired into POST routes + `userId` on Employee model (committed) |
 | 5 | **Translation:** Scattered hardcoded text; no centralized Zod schemas | ❌ Pending |
 | 6 | **Locked period:** Build proper alternative for financial accountant | ❌ Pending |
 
@@ -284,7 +284,7 @@ export const logger = pino({
 | ---------------------------- | -------- | ----------- | ------------------------------------------- |
 | ① Auto-posting               | P0       | ✅ DONE     | `posting.ts` + API routes wired + committed  |
 | ② Inventory (COGS + stock)   | P1       | ✅ DONE     | `postSalesInvoice`/`postPurchaseInvoice` create StockMovement + update item stock + COGS/Inventory JE lines |
-| ③ Permissions                | P2       | ❌ PENDING  | Only 5/97 routes enforce auth; plan limits not enforced; Employee not linked to User |
+| ③ Permissions                | P2       | ✅ DONE     | Auth on 119/124 routes; `checkPlanLimit()` for maxUsers/maxInvoices/maxItems; Employee ↔ User link via `userId` |
 | ④ Locked period feature      | P3       | ❌ PENDING  | Build proper financial period closing |
 | ⑤ Translation & Zod schemas  | P4       | ⏳ PARTIAL  | UI colors fixed; scattered hardcoded text remains; no centralized Zod |
 | UI: hardcoded colors         | —        | ✅ DONE     | All `#1D97E0`, `text-blue-*`, `bg-blue-*`, `text-indigo-*`, `bg-indigo-*` → `primary-*` |
