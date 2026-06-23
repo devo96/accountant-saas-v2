@@ -31,21 +31,22 @@ export async function POST(req: Request) {
 
   const parsed = validate(ItemSchema, body);
   if (parsed.error) return parsed.error;
+  const d = parsed.data;
 
   const limit = await checkPlanLimit(session.user.organizationId, "items");
   if (limit.limited) return limit.error;
 
   const item = await prisma.item.create({
     data: {
-      name: body.name,
-      sku: body.sku || null,
-      barcode: body.barcode || null,
-      type: body.type ?? "PRODUCT",
-      unit: body.unit || "piece",
-      sellingPrice: Number(body.sellingPrice) || 0,
-      costPrice: Number(body.costPrice) || 0,
-      minStock: body.minStock ? Number(body.minStock) : 0,
-      description: body.description || null,
+      name: d.name,
+      sku: d.sku || null,
+      barcode: d.barcode || null,
+      type: d.type ?? "PRODUCT",
+      unit: d.unit || "piece",
+      sellingPrice: d.sellingPrice ?? 0,
+      costPrice: d.costPrice ?? 0,
+      minStock: d.minStock ?? 0,
+      description: d.description || null,
       organizationId: session.user.organizationId,
     },
   });

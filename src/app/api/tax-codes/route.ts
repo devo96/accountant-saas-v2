@@ -15,8 +15,9 @@ export async function POST(req: Request) {
 
   const parsed = validate(TaxCodeSchema, body);
   if (parsed.error) return parsed.error;
+  const d = parsed.data;
 
-  if (body.isDefault) {
+  if (d.isDefault) {
     await prisma.taxCode.updateMany({
       where: { organizationId: session.user.organizationId, isDefault: true },
       data: { isDefault: false },
@@ -25,9 +26,9 @@ export async function POST(req: Request) {
 
   const taxCode = await prisma.taxCode.create({
     data: {
-      name: body.name,
-      rate: Number(body.rate),
-      isDefault: body.isDefault ?? false,
+      name: d.name,
+      rate: d.rate,
+      isDefault: d.isDefault ?? false,
       organizationId: session.user.organizationId,
     },
   });

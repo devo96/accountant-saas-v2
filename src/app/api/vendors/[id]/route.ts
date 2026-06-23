@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { NextResponse } from "next/server";
 import { createAuditLog } from "@/lib/audit";
+import { validatePartial } from "@/lib/validate";
+import { VendorSchema } from "@/validations";
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
@@ -30,6 +32,10 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   const { id } = await params;
   const body = await req.json();
 
+  const parsed = validatePartial(VendorSchema, body);
+  if (parsed.error) return parsed.error;
+  const data = parsed.data;
+
   const existing = await prisma.vendor.findFirst({
     where: { id, organizationId: session.user.organizationId },
   });
@@ -38,19 +44,19 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   const vendor = await prisma.vendor.update({
     where: { id },
     data: {
-      name: body.name,
-      email: body.email ?? null,
-      phone: body.phone ?? null,
-      mobile: body.mobile ?? null,
-      address: body.address ?? null,
-      crNumber: body.crNumber ?? null,
-      street: body.street ?? null,
-      city: body.city ?? null,
-      district: body.district ?? null,
-      region: body.region ?? null,
-      country: body.country ?? null,
-      postalCode: body.postalCode ?? null,
-      taxNumber: body.taxNumber ?? null,
+      name: data.name ?? existing.name,
+      email: data.email ?? null,
+      phone: data.phone ?? null,
+      mobile: data.mobile ?? null,
+      address: data.address ?? null,
+      crNumber: data.crNumber ?? null,
+      street: data.street ?? null,
+      city: data.city ?? null,
+      district: data.district ?? null,
+      region: data.region ?? null,
+      country: data.country ?? null,
+      postalCode: data.postalCode ?? null,
+      taxNumber: data.taxNumber ?? null,
     },
   });
 

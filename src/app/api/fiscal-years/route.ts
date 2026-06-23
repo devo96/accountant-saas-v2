@@ -29,9 +29,10 @@ export async function POST(req: Request) {
 
   const parsed = validate(FiscalYearSchema, body);
   if (parsed.error) return parsed.error;
+  const d = parsed.data;
 
   const existing = await prisma.fiscalYear.findFirst({
-    where: { organizationId: session.user.organizationId, name: body.name },
+    where: { organizationId: session.user.organizationId, name: d.name },
   });
   if (existing) {
     return NextResponse.json({ error: "Fiscal year with this name already exists" }, { status: 409 });
@@ -39,10 +40,10 @@ export async function POST(req: Request) {
 
   const year = await prisma.fiscalYear.create({
     data: {
-      name: body.name,
-      startDate: new Date(body.startDate),
-      endDate: new Date(body.endDate),
-      isClosed: body.isClosed ?? false,
+      name: d.name,
+      startDate: new Date(d.startDate),
+      endDate: new Date(d.endDate),
+      isClosed: d.isClosed ?? false,
       organizationId: session.user.organizationId,
     },
   });

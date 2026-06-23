@@ -33,20 +33,21 @@ export async function POST(req: Request) {
   const body = await req.json();
   const parsed = validate(EmployeeSchema, body);
   if (parsed.error) return parsed.error;
+  const d = parsed.data;
 
   const employee = await prisma.employee.create({
     data: {
-      name: body.name,
-      email: body.email || null,
-      phone: body.phone || null,
-      position: body.position || null,
-      userId: body.userId || null,
-      basicSalary: Number(body.basicSalary) || 0,
-      allowances: Number(body.allowances) || 0,
-      gosiContribution: Number(body.gosiContribution) || 0,
-      iqamaNumber: body.iqamaNumber || null,
-      bankAccountNumber: body.bankAccountNumber || null,
-      active: body.active ?? true,
+      name: d.name,
+      email: d.email || null,
+      phone: d.phone || null,
+      position: d.position || null,
+      userId: d.userId || null,
+      basicSalary: d.basicSalary ?? 0,
+      allowances: d.allowances ?? 0,
+      gosiContribution: d.gosiContribution ?? 0,
+      iqamaNumber: d.iqamaNumber || null,
+      bankAccountNumber: d.bankAccountNumber || null,
+      active: d.active ?? true,
       organizationId: session.user.organizationId,
     },
   });

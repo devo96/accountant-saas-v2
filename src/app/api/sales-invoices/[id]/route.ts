@@ -5,6 +5,8 @@ import { NextResponse } from "next/server";
 import { createAuditLog } from "@/lib/audit";
 import { postSalesInvoice } from "@/domains/accounting/posting";
 import { logger } from "@/lib/logger";
+import { validatePartial } from "@/lib/validate";
+import { SalesInvoiceSchema } from "@/validations";
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
@@ -55,23 +57,27 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 
   const body = await req.json();
 
+  const parsed = validatePartial(SalesInvoiceSchema, body);
+  if (parsed.error) return parsed.error;
+  const { lines, ...fields } = parsed.data;
+
   const invoice = await prisma.$transaction(async (tx) => {
     await tx.salesInvoiceLine.deleteMany({ where: { invoiceId: id } });
 
     return tx.salesInvoice.update({
       where: { id },
       data: {
-        invoiceDate: body.invoiceDate ? new Date(body.invoiceDate) : undefined,
-        dueDate: body.dueDate ? new Date(body.dueDate) : null,
-        customerId: body.customerId ?? undefined,
-        subtotal: body.subtotal ?? undefined,
-        discountAmount: body.discountAmount ?? 0,
-        taxAmount: body.taxAmount ?? undefined,
-        total: body.total ?? undefined,
-        notes: body.notes ?? null,
-        status: body.status ?? undefined,
+        invoiceDate: fields.invoiceDate ? new Date(fields.invoiceDate) : undefined,
+        dueDate: fields.dueDate ? new Date(fields.dueDate) : null,
+        customerId: fields.customerId ?? undefined,
+        subtotal: fields.subtotal ?? undefined,
+        discountAmount: fields.discountAmount ?? 0,
+        taxAmount: fields.taxAmount ?? undefined,
+        total: fields.total ?? undefined,
+        notes: fields.notes ?? null,
+        status: fields.status ?? undefined,
         lines: {
-          create: (body.lines ?? []).map((l: { itemId?: string; description: string; quantity: number; unitPrice: number; discountPercent?: number; taxCodeId?: string; taxRate?: number; lineTotal: number }) => ({
+          create: (lines ?? []).map((l) => ({
             itemId: l.itemId || null,
             description: l.description,
             quantity: l.quantity,

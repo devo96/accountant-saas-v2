@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { NextResponse } from "next/server";
 import { createAuditLog } from "@/lib/audit";
+import { validatePartial } from "@/lib/validate";
+import { ItemSchema } from "@/validations";
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
@@ -27,23 +29,27 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   const { id } = await params;
   const body = await req.json();
 
+  const parsed = validatePartial(ItemSchema, body);
+  if (parsed.error) return parsed.error;
+  const data = parsed.data;
+
   const existing = await prisma.item.findFirst({
     where: { id, organizationId: session.user.organizationId },
   });
   if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-    const item = await prisma.item.update({
-      where: { id },
-      data: {
-        name: body.name,
-        sku: body.sku ?? null,
-      barcode: body.barcode ?? null,
-      type: body.type ?? "PRODUCT",
-      unit: body.unit ?? "piece",
-      sellingPrice: Number(body.sellingPrice) || 0,
-      costPrice: Number(body.costPrice) || 0,
-      minStock: body.minStock ? Number(body.minStock) : 0,
-      description: body.description ?? null,
+  const item = await prisma.item.update({
+    where: { id },
+    data: {
+      name: data.name ?? existing.name,
+      sku: data.sku ?? null,
+      barcode: data.barcode ?? null,
+      type: data.type ?? "PRODUCT",
+      unit: data.unit ?? "piece",
+      sellingPrice: data.sellingPrice !== undefined ? data.sellingPrice : Number(existing.sellingPrice),
+      costPrice: data.costPrice !== undefined ? data.costPrice : Number(existing.costPrice),
+      minStock: data.minStock !== undefined ? data.minStock : Number(existing.minStock),
+      description: data.description ?? null,
     },
   });
 

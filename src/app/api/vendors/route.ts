@@ -29,22 +29,23 @@ export async function POST(req: Request) {
   const body = await req.json();
   const parsed = validate(VendorSchema, body);
   if (parsed.error) return parsed.error;
+  const d = parsed.data;
 
   const vendor = await prisma.vendor.create({
     data: {
-      name: body.name,
-      email: body.email || null,
-      phone: body.phone || null,
-      mobile: body.mobile || null,
-      address: body.address || null,
-      crNumber: body.crNumber || null,
-      street: body.street || null,
-      city: body.city || null,
-      district: body.district || null,
-      region: body.region || null,
-      country: body.country || null,
-      postalCode: body.postalCode || null,
-      taxNumber: body.taxNumber || null,
+      name: d.name,
+      email: d.email || null,
+      phone: d.phone || null,
+      mobile: d.mobile || null,
+      address: d.address || null,
+      crNumber: d.crNumber || null,
+      street: d.street || null,
+      city: d.city || null,
+      district: d.district || null,
+      region: d.region || null,
+      country: d.country || null,
+      postalCode: d.postalCode || null,
+      taxNumber: d.taxNumber || null,
       organizationId: session.user.organizationId,
     },
   });

@@ -15,8 +15,9 @@ export async function POST(req: Request) {
 
   const parsed = validate(CurrencySchema, body);
   if (parsed.error) return parsed.error;
+  const d = parsed.data;
 
-  if (body.isBase) {
+  if (d.isBase) {
     await prisma.currency.updateMany({
       where: { organizationId: session.user.organizationId, isBase: true },
       data: { isBase: false },
@@ -25,11 +26,11 @@ export async function POST(req: Request) {
 
   const currency = await prisma.currency.create({
     data: {
-      code: body.code,
-      name: body.name,
-      symbol: body.symbol,
-      exchangeRate: Number(body.exchangeRate) ?? 1,
-      isBase: body.isBase ?? false,
+      code: d.code,
+      name: d.name,
+      symbol: d.symbol ?? "",
+      exchangeRate: d.exchangeRate ?? 1,
+      isBase: d.isBase ?? false,
       organizationId: session.user.organizationId,
     },
   });

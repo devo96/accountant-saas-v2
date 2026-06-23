@@ -18,9 +18,10 @@ export async function POST(req: Request) {
   const body = await req.json();
   const parsed = validate(ProjectSchema, body);
   if (parsed.error) return parsed.error;
+  const d = parsed.data;
 
   const project = await prisma.project.create({
-    data: { name: body.name, description: body.description || null, startDate: body.startDate ? new Date(body.startDate) : null, endDate: body.endDate ? new Date(body.endDate) : null, status: body.status || "PLANNING", budget: Number(body.budget) ?? 0, customerId: body.customerId || null, managerId: body.managerId || null, progress: body.progress ?? 0, organizationId: session.user.organizationId },
+    data: { name: d.name, description: d.description || null, startDate: d.startDate ? new Date(d.startDate) : null, endDate: d.endDate ? new Date(d.endDate) : null, status: d.status || "PLANNING", budget: d.budget ?? 0, customerId: d.customerId || null, managerId: d.managerId || null, progress: d.progress ?? 0, organizationId: session.user.organizationId },
   });
   return NextResponse.json(project);
 }

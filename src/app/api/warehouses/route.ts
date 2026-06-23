@@ -28,11 +28,12 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const parsed = validate(WarehouseSchema, body);
   if (parsed.error) return parsed.error;
+  const d = parsed.data;
 
   const warehouse = await prisma.warehouse.create({
     data: {
-      name: body.name,
-      address: body.address || null,
+      name: d.name,
+      address: d.address || null,
       organizationId: session.user.organizationId,
     },
   });

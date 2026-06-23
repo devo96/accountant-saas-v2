@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { NextResponse } from "next/server";
 import { createAuditLog } from "@/lib/audit";
+import { validatePartial } from "@/lib/validate";
+import { EmployeeSchema } from "@/validations";
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
@@ -27,6 +29,10 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   const { id } = await params;
   const body = await req.json();
 
+  const parsed = validatePartial(EmployeeSchema, body);
+  if (parsed.error) return parsed.error;
+  const d = parsed.data;
+
   const existing = await prisma.employee.findFirst({
     where: { id, organizationId: session.user.organizationId },
   });
@@ -35,16 +41,16 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   const updated = await prisma.employee.update({
     where: { id },
     data: {
-      ...(body.name !== undefined && { name: body.name }),
-      ...(body.email !== undefined && { email: body.email }),
-      ...(body.phone !== undefined && { phone: body.phone }),
-      ...(body.position !== undefined && { position: body.position }),
-      ...(body.basicSalary !== undefined && { basicSalary: Number(body.basicSalary) }),
-      ...(body.allowances !== undefined && { allowances: Number(body.allowances) }),
-      ...(body.gosiContribution !== undefined && { gosiContribution: Number(body.gosiContribution) }),
-      ...(body.iqamaNumber !== undefined && { iqamaNumber: body.iqamaNumber }),
-      ...(body.bankAccountNumber !== undefined && { bankAccountNumber: body.bankAccountNumber }),
-      ...(body.userId !== undefined && { userId: body.userId }),
+      ...(d.name !== undefined && { name: d.name }),
+      ...(d.email !== undefined && { email: d.email }),
+      ...(d.phone !== undefined && { phone: d.phone }),
+      ...(d.position !== undefined && { position: d.position }),
+      ...(d.basicSalary !== undefined && { basicSalary: d.basicSalary }),
+      ...(d.allowances !== undefined && { allowances: d.allowances }),
+      ...(d.gosiContribution !== undefined && { gosiContribution: d.gosiContribution }),
+      ...(d.iqamaNumber !== undefined && { iqamaNumber: d.iqamaNumber }),
+      ...(d.bankAccountNumber !== undefined && { bankAccountNumber: d.bankAccountNumber }),
+      ...(d.userId !== undefined && { userId: d.userId }),
     },
   });
 

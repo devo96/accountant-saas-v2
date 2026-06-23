@@ -32,6 +32,7 @@ export async function POST(req: Request) {
   const body = await req.json();
   const parsed = validate(ExpenseSchema, body);
   if (parsed.error) return parsed.error;
+  const d = parsed.data;
 
   const last = await prisma.expense.findFirst({
     where: { organizationId: session.user.organizationId },
@@ -42,18 +43,18 @@ export async function POST(req: Request) {
   const expense = await prisma.expense.create({
     data: {
       number: (last?.number ?? 0) + 1,
-      date: new Date(body.date),
-      description: body.description,
-      amount: Number(body.amount),
-      taxAmount: body.taxAmount ? Number(body.taxAmount) : 0,
-      vendorId: body.vendorId || null,
-      category: body.category || null,
-      receipt: body.receipt || null,
-      paymentMethod: body.paymentMethod ?? "CASH",
-      notes: body.notes || null,
+      date: new Date(d.date),
+      description: d.description,
+      amount: d.amount,
+      taxAmount: d.taxAmount ?? 0,
+      vendorId: d.vendorId || null,
+      category: d.category || null,
+      receipt: d.receipt || null,
+      paymentMethod: d.paymentMethod ?? "CASH",
+      notes: d.notes || null,
       organizationId: session.user.organizationId,
       createdById: session.user.id,
-      lines: { create: { accountId: body.accountId, amount: Number(body.amount) } },
+      lines: { create: { accountId: d.accountId, amount: d.amount } },
     },
   });
 

@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { NextResponse } from "next/server";
 import { createAuditLog } from "@/lib/audit";
+import { validatePartial } from "@/lib/validate";
+import { WarehouseSchema } from "@/validations";
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
@@ -27,6 +29,10 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   const { id } = await params;
   const body = await req.json();
 
+  const parsed = validatePartial(WarehouseSchema, body);
+  if (parsed.error) return parsed.error;
+  const d = parsed.data;
+
   const existing = await prisma.warehouse.findFirst({
     where: { id, organizationId: session.user.organizationId },
   });
@@ -35,8 +41,8 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   const updated = await prisma.warehouse.update({
     where: { id },
     data: {
-      ...(body.name !== undefined && { name: body.name }),
-      ...(body.address !== undefined && { address: body.address }),
+      ...(d.name !== undefined && { name: d.name }),
+      ...(d.address !== undefined && { address: d.address }),
     },
   });
 

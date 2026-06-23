@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { NextResponse } from "next/server";
 import { createAuditLog } from "@/lib/audit";
+import { validatePartial } from "@/lib/validate";
+import { ExpenseSchema } from "@/validations";
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
@@ -28,6 +30,10 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   const { id } = await params;
   const body = await req.json();
 
+  const parsed = validatePartial(ExpenseSchema, body);
+  if (parsed.error) return parsed.error;
+  const d = parsed.data;
+
   const existing = await prisma.expense.findFirst({
     where: { id, organizationId: session.user.organizationId },
   });
@@ -36,12 +42,14 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   const updated = await prisma.expense.update({
     where: { id },
     data: {
-      ...(body.category !== undefined && { category: body.category }),
-      ...(body.description !== undefined && { description: body.description }),
-      ...(body.amount !== undefined && { amount: Number(body.amount) }),
-      ...(body.taxAmount !== undefined && { taxAmount: Number(body.taxAmount) }),
-      ...(body.paymentMethod !== undefined && { paymentMethod: body.paymentMethod }),
-      ...(body.notes !== undefined && { notes: body.notes }),
+      ...(d.date !== undefined && { date: new Date(d.date) }),
+      ...(d.category !== undefined && { category: d.category }),
+      ...(d.description !== undefined && { description: d.description }),
+      ...(d.amount !== undefined && { amount: d.amount }),
+      ...(d.taxAmount !== undefined && { taxAmount: d.taxAmount }),
+      ...(d.vendorId !== undefined && { vendorId: d.vendorId || null }),
+      ...(d.paymentMethod !== undefined && { paymentMethod: d.paymentMethod }),
+      ...(d.notes !== undefined && { notes: d.notes }),
     },
   });
 

@@ -18,9 +18,10 @@ export async function POST(req: Request) {
   const body = await req.json();
   const parsed = validate(TaskSchema, body);
   if (parsed.error) return parsed.error;
+  const d = parsed.data;
 
   const task = await prisma.task.create({
-    data: { projectId: body.projectId || null, title: body.title, description: body.description || null, assigneeId: body.assigneeId || null, dueDate: body.dueDate ? new Date(body.dueDate) : null, priority: body.priority || "MEDIUM", status: body.status || "TODO", estimatedHours: Number(body.estimatedHours) ?? 0, actualHours: Number(body.actualHours) ?? 0, organizationId: session.user.organizationId },
+    data: { projectId: d.projectId || null, title: d.title, description: d.description || null, assigneeId: d.assigneeId || null, dueDate: d.dueDate ? new Date(d.dueDate) : null, priority: d.priority || "MEDIUM", status: d.status || "TODO", estimatedHours: d.estimatedHours ?? 0, actualHours: d.actualHours ?? 0, organizationId: session.user.organizationId },
   });
   return NextResponse.json(task);
 }

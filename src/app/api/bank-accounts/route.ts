@@ -14,14 +14,15 @@ export async function POST(req: Request) {
   const body = await req.json();
   const parsed = validate(BankAccountSchema, body);
   if (parsed.error) return parsed.error;
+  const d = parsed.data;
 
   const account = await prisma.bankAccount.create({
     data: {
-      name: body.name,
-      accountNumber: body.accountNumber,
-      iban: body.iban || null,
-      bankName: body.bankName,
-      openingBalance: body.openingBalance ? Number(body.openingBalance) : 0,
+      name: d.name,
+      accountNumber: d.accountNumber ?? "",
+      iban: d.iban || null,
+      bankName: d.bankName,
+      openingBalance: d.openingBalance ?? 0,
       organizationId: session.user.organizationId,
     },
   });

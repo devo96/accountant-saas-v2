@@ -4,10 +4,14 @@ export const CustomerSchema = z.object({
   name: z.string().min(1, "Name is required"),
   email: z.string().email().optional().or(z.literal("")),
   phone: z.string().optional().or(z.literal("")),
+  mobile: z.string().optional().or(z.literal("")),
   taxNumber: z.string().optional().or(z.literal("")),
   crNumber: z.string().optional().or(z.literal("")),
   address: z.string().optional().or(z.literal("")),
+  street: z.string().optional().or(z.literal("")),
   city: z.string().optional().or(z.literal("")),
+  district: z.string().optional().or(z.literal("")),
+  region: z.string().optional().or(z.literal("")),
   country: z.string().optional().or(z.literal("")),
   postalCode: z.string().optional().or(z.literal("")),
   creditLimit: z.number().nonnegative().optional(),
@@ -18,10 +22,14 @@ export const VendorSchema = z.object({
   name: z.string().min(1, "Name is required"),
   email: z.string().email().optional().or(z.literal("")),
   phone: z.string().optional().or(z.literal("")),
+  mobile: z.string().optional().or(z.literal("")),
   taxNumber: z.string().optional().or(z.literal("")),
   crNumber: z.string().optional().or(z.literal("")),
   address: z.string().optional().or(z.literal("")),
+  street: z.string().optional().or(z.literal("")),
   city: z.string().optional().or(z.literal("")),
+  district: z.string().optional().or(z.literal("")),
+  region: z.string().optional().or(z.literal("")),
   country: z.string().optional().or(z.literal("")),
   postalCode: z.string().optional().or(z.literal("")),
   active: z.boolean().optional(),
@@ -97,6 +105,7 @@ export const ExpenseLineSchema = z.object({
 
 export const ExpenseSchema = z.object({
   date: z.string().min(1, "Date is required"),
+  category: z.string().optional().or(z.literal("")),
   description: z.string().min(1, "Description is required"),
   amount: z.number().positive(),
   taxAmount: z.number().min(0).optional(),
@@ -179,6 +188,7 @@ export const ProjectSchema = z.object({
   budget: z.number().nonnegative().optional(),
   customerId: z.string().uuid().optional().or(z.literal("")),
   managerId: z.string().uuid().optional().or(z.literal("")),
+  progress: z.number().min(0).max(100).optional(),
 });
 
 export const TaskSchema = z.object({
@@ -190,4 +200,5 @@ export const TaskSchema = z.object({
   priority: z.enum(["LOW", "MEDIUM", "HIGH", "URGENT"]).optional(),
   status: z.enum(["TODO", "IN_PROGRESS", "REVIEW", "DONE"]).optional(),
   estimatedHours: z.number().nonnegative().optional(),
+  actualHours: z.number().nonnegative().optional(),
 });
