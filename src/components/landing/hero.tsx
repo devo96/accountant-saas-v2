@@ -78,7 +78,7 @@ export function LandingHero() {
                   <div className="flex items-end justify-between h-24 gap-1">
                     {[65, 45, 80, 55, 70, 90].map((h, i) => (
                       <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                        <div className="w-full rounded-t" style={{ height: `${h}%`, backgroundColor: i === 5 ? "#7259ff" : "#c7bdff" }} />
+                        <div className="w-full rounded-t" style={{ height: `${h}%`, backgroundColor: i === 5 ? "#7C3AED" : "#C4B5FD" }} />
                         <span className="text-[9px] text-gray-400">M{i + 1}</span>
                       </div>
                     ))}
