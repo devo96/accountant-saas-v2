@@ -77,6 +77,22 @@ export const SalesInvoiceSchema = z.object({
   lines: z.array(InvoiceLineSchema).min(1, "At least one line is required"),
 });
 
+export const SalesQuoteSchema = z.object({
+  customerId: z.string().uuid("Customer is required"),
+  quoteDate: z.string().min(1, "Quote date is required"),
+  expiryDate: z.string().optional().or(z.literal("")),
+  status: z.enum(["DRAFT", "CONFIRMED"]).optional(),
+  paymentTermId: z.string().uuid().optional().or(z.literal("")),
+  branchId: z.string().uuid().optional().or(z.literal("")),
+  projectId: z.string().uuid().optional().or(z.literal("")),
+  subtotal: z.number().nonnegative(),
+  discountAmount: z.number().min(0).optional(),
+  taxAmount: z.number().min(0),
+  total: z.number().positive("Total must be positive"),
+  notes: z.string().optional().or(z.literal("")),
+  lines: z.array(InvoiceLineSchema).min(1, "At least one line is required"),
+});
+
 export const PurchaseInvoiceSchema = z.object({
   vendorId: z.string().uuid("Vendor is required"),
   invoiceDate: z.string().min(1, "Invoice date is required"),

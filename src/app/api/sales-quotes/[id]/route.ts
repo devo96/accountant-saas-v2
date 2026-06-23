@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { NextResponse } from "next/server";
 import { createAuditLog } from "@/lib/audit";
+import { validatePartial } from "@/lib/validate";
+import { SalesQuoteSchema } from "@/validations";
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
@@ -40,6 +42,10 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   const { id } = await params;
   const body = await req.json();
 
+  const parsed = validatePartial(SalesQuoteSchema, body);
+  if (parsed.error) return parsed.error;
+  const d = parsed.data;
+
   const existing = await prisma.salesQuote.findFirst({
     where: { id, organizationId: session.user.organizationId },
   });
@@ -48,10 +54,10 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   const updated = await prisma.salesQuote.update({
     where: { id },
     data: {
-      ...(body.quoteDate !== undefined && { quoteDate: new Date(body.quoteDate) }),
-      ...(body.expiryDate !== undefined && { expiryDate: new Date(body.expiryDate) }),
-      ...(body.status !== undefined && { status: body.status }),
-      ...(body.notes !== undefined && { notes: body.notes }),
+      ...(d.quoteDate !== undefined && { quoteDate: new Date(d.quoteDate) }),
+      ...(d.expiryDate !== undefined && { expiryDate: new Date(d.expiryDate) }),
+      ...(d.status !== undefined && { status: d.status }),
+      ...(d.notes !== undefined && { notes: d.notes }),
     },
   });
 

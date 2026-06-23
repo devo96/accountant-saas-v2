@@ -7,6 +7,8 @@ import { checkPlanLimit } from "@/lib/permissions";
 import { createAuditLog } from "@/lib/audit";
 import { logger } from "@/lib/logger";
 import { prisma } from "@/lib/prisma";
+import { validate } from "@/lib/validate";
+import { SalesInvoiceSchema } from "@/validations";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -26,35 +28,39 @@ export async function POST(req: Request) {
 
   const body = await req.json();
 
+  const parsed = validate(SalesInvoiceSchema, body);
+  if (parsed.error) return parsed.error;
+  const d = parsed.data;
+
   const limit = await checkPlanLimit(session.user.organizationId, "invoices");
   if (limit.limited) return limit.error;
 
   const [org, customer] = await Promise.all([
     prisma.organization.findUnique({ where: { id: session.user.organizationId } }),
-    prisma.customer.findUnique({ where: { id: body.customerId } }),
+    prisma.customer.findUnique({ where: { id: d.customerId } }),
   ]);
 
   const invoice = await createSalesInvoice({
     organizationId: session.user.organizationId,
     createdById: session.user.id,
-    status: body.status === "DRAFT" ? "DRAFT" : "CONFIRMED",
-    customerId: body.customerId,
+    status: d.status === "DRAFT" ? "DRAFT" : "CONFIRMED",
+    customerId: d.customerId,
     customerName: customer?.name,
     sellerName: org?.name,
     sellerVatNumber: org?.taxNumber ?? undefined,
-    invoiceDate: body.invoiceDate,
-    dueDate: body.dueDate,
-    referenceNumber: body.referenceNumber ?? null,
-    description: body.description ?? null,
-    paymentTermId: body.paymentTermId ?? null,
-    branchId: body.branchId ?? null,
-    projectId: body.projectId ?? null,
-    subtotal: body.subtotal,
-    discountAmount: body.discountAmount ?? 0,
-    taxAmount: body.taxAmount,
-    total: body.total,
-    notes: body.notes || null,
-    lines: body.lines,
+    invoiceDate: d.invoiceDate,
+    dueDate: d.dueDate,
+    referenceNumber: d.referenceNumber ?? null,
+    description: d.description ?? null,
+    paymentTermId: d.paymentTermId ?? null,
+    branchId: d.branchId ?? null,
+    projectId: d.projectId ?? null,
+    subtotal: d.subtotal,
+    discountAmount: d.discountAmount ?? 0,
+    taxAmount: d.taxAmount,
+    total: d.total,
+    notes: d.notes || null,
+    lines: d.lines,
   });
 
   await createAuditLog({

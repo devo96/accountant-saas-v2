@@ -2,6 +2,8 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { NextResponse } from "next/server";
+import { validate } from "@/lib/validate";
+import { SalesQuoteSchema } from "@/validations";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -25,6 +27,11 @@ export async function POST(req: Request) {
   }
 
   const body = await req.json();
+
+  const parsed = validate(SalesQuoteSchema, body);
+  if (parsed.error) return parsed.error;
+  const d = parsed.data;
+
   const orgId = session.user.organizationId;
   const userId = session.user.id;
 
@@ -37,26 +44,22 @@ export async function POST(req: Request) {
   const quote = await prisma.salesQuote.create({
     data: {
       number: (last?.number ?? 0) + 1,
-      quoteDate: new Date(body.quoteDate),
-      expiryDate: body.expiryDate ? new Date(body.expiryDate) : null,
+      quoteDate: new Date(d.quoteDate),
+      expiryDate: d.expiryDate ? new Date(d.expiryDate) : null,
       status: "DRAFT",
-      customerId: body.customerId,
-      paymentTermId: body.paymentTermId || null,
-      branchId: body.branchId || null,
-      projectId: body.projectId || null,
-      subtotal: body.subtotal,
-      discountAmount: body.discountAmount ?? 0,
-      taxAmount: body.taxAmount,
-      total: body.total,
-      notes: body.notes || null,
+      customerId: d.customerId,
+      paymentTermId: d.paymentTermId || null,
+      branchId: d.branchId || null,
+      projectId: d.projectId || null,
+      subtotal: d.subtotal,
+      discountAmount: d.discountAmount ?? 0,
+      taxAmount: d.taxAmount,
+      total: d.total,
+      notes: d.notes || null,
       organizationId: orgId,
       createdById: userId,
       lines: {
-        create: body.lines.map((l: {
-          itemId?: string; description: string; quantity: number;
-          unitPrice: number; discountPercent: number;
-          taxCodeId?: string; taxRate: number; lineTotal: number;
-        }) => ({
+        create: d.lines.map((l) => ({
           itemId: l.itemId || null,
           description: l.description,
           quantity: l.quantity,
