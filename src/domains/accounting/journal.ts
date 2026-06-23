@@ -40,6 +40,15 @@ export async function createJournalEntry(
 ) {
   const data = JournalEntrySchema.parse(input);
 
+  // Resolve fiscal year: use provided one, or find by date range
+  const resolvedFyId = data.fiscalYearId || await resolveFiscalYear(organizationId, data.date);
+  if (resolvedFyId) {
+    const fy = await prisma.fiscalYear.findUnique({ where: { id: resolvedFyId } });
+    if (fy?.isClosed) {
+      throw new Error(`Fiscal year "${fy.name}" is closed. Cannot post entries to a closed period.`);
+    }
+  }
+
   const lastEntry = await prisma.journalEntry.findFirst({
     where: { organizationId },
     orderBy: { number: "desc" },
@@ -53,7 +62,7 @@ export async function createJournalEntry(
       description: data.description,
       descriptionAr: data.descriptionAr,
       reference: data.reference,
-      fiscalYearId: data.fiscalYearId,
+      fiscalYearId: resolvedFyId,
       projectId: data.projectId,
       attachments: data.attachments,
       organizationId,
@@ -77,4 +86,19 @@ export async function createJournalEntry(
 
   logger.info({ entryId: entry.id, number: entry.number }, "Journal entry created");
   return entry;
+}
+
+/** Find the fiscal year that covers a given date for an organization. */
+async function resolveFiscalYear(organizationId: string, dateStr: string): Promise<string | null> {
+  const date = new Date(dateStr);
+  const fy = await prisma.fiscalYear.findFirst({
+    where: {
+      organizationId,
+      startDate: { lte: date },
+      endDate: { gte: date },
+    },
+    orderBy: { startDate: "desc" },
+    select: { id: true },
+  });
+  return fy?.id ?? null;
 }

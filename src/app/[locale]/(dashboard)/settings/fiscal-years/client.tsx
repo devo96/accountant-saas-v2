@@ -7,7 +7,7 @@ import { Dialog } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { FadeIn } from "@/components/transitions";
 import { PageHeader } from "@/components/ui/page-header";
-import { Plus } from "lucide-react";
+import { Plus, Lock, Unlock } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
 import { useState } from "react";
 
@@ -21,6 +21,15 @@ export function FiscalYearsClient({ years }: Props) {
   const [showAdd, setShowAdd] = useState(false);
   const [form, setForm] = useState({ name: "", startDate: "", endDate: "" });
   const [loading, setLoading] = useState(false);
+
+  async function handleToggle(id: string, isClosed: boolean) {
+    await fetch(`/api/fiscal-years/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ isClosed: !isClosed }),
+    });
+    router.refresh();
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -54,7 +63,27 @@ export function FiscalYearsClient({ years }: Props) {
           { key: "name", label: t("name") },
           { key: "startDate", label: t("startDate"), render: (y) => new Date((y as FiscalYear).startDate).toLocaleDateString() },
           { key: "endDate", label: t("endDate"), render: (y) => new Date((y as FiscalYear).endDate).toLocaleDateString() },
-          { key: "isClosed", label: t("status"), render: (y) => (y as FiscalYear).isClosed ? t("closed") : t("open") },
+          { key: "isClosed", label: t("status"), render: (y) => {
+            const fy = y as FiscalYear;
+            return (
+              <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${fy.isClosed ? "bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-300" : "bg-green-100 text-green-700 dark:bg-green-950/50 dark:text-green-300"}`}>
+                {fy.isClosed ? <Lock className="h-3 w-3" /> : <Unlock className="h-3 w-3" />}
+                {fy.isClosed ? t("closed") : t("open")}
+              </span>
+            );
+          }},
+          { key: "actions", label: "", render: (y) => {
+            const fy = y as FiscalYear;
+            return (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleToggle(fy.id, fy.isClosed)}
+              >
+                {fy.isClosed ? t("open") : t("close")}
+              </Button>
+            );
+          }},
         ]}
         data={years as unknown as Record<string, unknown>[]}
         exportable exportFilename="fiscal-years"

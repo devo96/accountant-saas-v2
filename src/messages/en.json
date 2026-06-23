@@ -981,6 +981,7 @@
     "endDate": "End Date",
     "status": "Status",
     "open": "Open",
+    "close": "Close",
     "closed": "Closed",
     "dialogTitle": "New Fiscal Year",
     "save": "Save",

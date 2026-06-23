@@ -96,6 +96,14 @@ export async function POST(req: Request) {
   const { fiscalYearId, budgets: budgetData } = await req.json();
   if (!fiscalYearId || !budgetData) return NextResponse.json({ error: "fiscalYearId and budgets required" }, { status: 400 });
 
+  const fy = await prisma.fiscalYear.findFirst({
+    where: { id: fiscalYearId, organizationId: session.user.organizationId },
+  });
+  if (!fy) return NextResponse.json({ error: "Fiscal year not found" }, { status: 404 });
+  if (fy.isClosed) {
+    return NextResponse.json({ error: "Cannot modify budgets for a closed fiscal year" }, { status: 403 });
+  }
+
   for (const b of budgetData) {
     if (b.amount > 0) {
       await prisma.budget.upsert({
