@@ -98,7 +98,7 @@ ${modNote ? `\nModification note:\n${modNote}` : ""}`;
         onClick={(e) => { e.stopPropagation(); setActive(!active); }}
         className="fixed bottom-4 right-4 z-[9999] w-12 h-12 rounded-full shadow-xl flex items-center justify-center text-white text-lg font-bold transition-all duration-200 hover:scale-110"
         style={{
-          backgroundColor: active ? "#ef4444" : "#3b82f6",
+          backgroundColor: active ? "#ef4444" : "#7C3AED",
         }}
         title={active ? "إلغاء وضع التحديد" : "تفعيل وضع التحديد"}
       >
