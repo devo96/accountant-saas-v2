@@ -1,6 +1,6 @@
 # PROJECT_MAP — accountant-saas-v2
 
-> **Generated:** 2026-06-23 18:40 UTC+3  
+> **Generated:** 2026-06-23 19:50 UTC+3  
 > **Last Build:** 2026-06-23 — ✅ **Build Succeeded (262 pages, 0 errors)**  
 > **Last Deploy:** 2026-06-23 — ✅ **Vercel (auto-deployed from GitHub push)**  
 > **Seed:** All models populated with demo data (employee, customer, vendor, categories, units, payment terms, branches, fixed assets, items, invoices, receipts, journal entries, projects, tasks, advances, deductions, social insurance)  
@@ -274,7 +274,7 @@ export const logger = pino({
 | 3 | **Balance sheet:** Reads only `POSTED` entries — empty without posting (auto-fixed after #1) | ⏳ Should work now, needs `tester` verification |
 | 4 | **Permissions:** Auth enforced in 119/124 routes; plan limits (maxUsers, maxInvoices, maxItems) enforced; Employee ↔ User link added | ✅ `checkPlanLimit()` helper + wired into POST routes + `userId` on Employee model (committed) |
 | 5 | **Translation:** Scattered hardcoded text; no centralized Zod schemas | ❌ Pending |
-| 6 | **Locked period:** Build proper alternative for financial accountant | ❌ Pending |
+| 6 | **Locked period:** isClosed guard on createJournalEntry + budgets; PATCH toggle + UI close/open button | ✅ `[id]` route, journal guard, budget guard, UI toggle (committed) |
 
 ---
 
@@ -285,7 +285,7 @@ export const logger = pino({
 | ① Auto-posting               | P0       | ✅ DONE     | `posting.ts` + API routes wired + committed  |
 | ② Inventory (COGS + stock)   | P1       | ✅ DONE     | `postSalesInvoice`/`postPurchaseInvoice` create StockMovement + update item stock + COGS/Inventory JE lines |
 | ③ Permissions                | P2       | ✅ DONE     | Auth on 119/124 routes; `checkPlanLimit()` for maxUsers/maxInvoices/maxItems; Employee ↔ User link via `userId` |
-| ④ Locked period feature      | P3       | ❌ PENDING  | Build proper financial period closing |
+| ④ Locked period feature      | P3       | ✅ DONE     | Close fiscal years via PATCH; journal entry + budget create guards; UI close/open toggle |
 | ⑤ Translation & Zod schemas  | P4       | ⏳ PARTIAL  | UI colors fixed; scattered hardcoded text remains; no centralized Zod |
 | UI: hardcoded colors         | —        | ✅ DONE     | All `#1D97E0`, `text-blue-*`, `bg-blue-*`, `text-indigo-*`, `bg-indigo-*` → `primary-*` |
 | UI: button/input rounding    | —        | ✅ DONE     | All `rounded-md` → `rounded-lg` (button, input, textarea, select, sidebar, file buttons) |
