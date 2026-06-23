@@ -39,6 +39,11 @@ function timeAgo(iso: string) {
   return new Date(iso).toLocaleDateString("ar-SA");
 }
 
+function api(path: string) {
+  const locale = typeof window !== "undefined" ? window.location.pathname.split("/")[1] || "ar" : "ar";
+  return `/${locale}${path}`;
+}
+
 export default function AgentsControlRoom() {
   const [state, setState] = useState<State | null>(null);
   const [input, setInput] = useState("");
@@ -48,13 +53,8 @@ export default function AgentsControlRoom() {
 
   const load = useCallback(async () => {
     try {
-      const res = await fetch("/api/agents/state", { cache: "no-store" });
-      if (!res.ok) {
-        const text = await res.text().catch(() => "");
-        throw new Error(res.status === 401
-          ? "يجب تسجيل الدخول"
-          : `تعذّر التحميل (${res.status}) ${text.slice(0, 200)}`);
-      }
+      const res = await fetch(api("/api/agents/state"), { cache: "no-store" });
+      if (!res.ok) throw new Error(res.status === 401 ? "يجب تسجيل الدخول" : "تعذّر التحميل");
       setState(await res.json());
       setErr(null);
     } catch (e) {
@@ -77,7 +77,7 @@ export default function AgentsControlRoom() {
     if (!content || sending) return;
     setSending(true);
     try {
-      await fetch("/api/agents/messages", {
+      await fetch(api("/api/agents/messages"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ content, type: "CHAT" }),
