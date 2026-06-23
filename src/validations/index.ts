@@ -207,6 +207,24 @@ export const FiscalYearSchema = z.object({
   isClosed: z.boolean().optional(),
 });
 
+export const RecurringInvoiceSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  customerId: z.string().uuid("Customer is required"),
+  frequency: z.enum(["DAILY", "WEEKLY", "MONTHLY", "YEARLY"]).optional(),
+  interval: z.number().int().positive().optional(),
+  nextRunDate: z.string().min(1, "Next run date is required"),
+  endDate: z.string().optional().or(z.literal("")),
+  invoiceDay: z.number().int().min(1).max(31).optional(),
+  dueDateDays: z.number().int().nonnegative().optional(),
+  lines: z.any().optional(),
+  subtotal: z.number().nonnegative().optional(),
+  discountAmount: z.number().min(0).optional(),
+  taxAmount: z.number().min(0).optional(),
+  total: z.number().nonnegative().optional(),
+  notes: z.string().optional().or(z.literal("")),
+  active: z.boolean().optional(),
+});
+
 export const CurrencySchema = z.object({
   name: z.string().min(1, "Name is required"),
   code: z.string().min(1, "Code is required"),

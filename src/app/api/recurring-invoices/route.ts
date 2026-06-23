@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { NextResponse } from "next/server";
 import { createAuditLog } from "@/lib/audit";
+import { validate } from "@/lib/validate";
+import { RecurringInvoiceSchema } from "@/validations";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -20,23 +22,28 @@ export async function POST(req: Request) {
   if (!session?.user?.organizationId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await req.json();
+
+  const parsed = validate(RecurringInvoiceSchema, body);
+  if (parsed.error) return parsed.error;
+  const d = parsed.data;
+
   const template = await prisma.recurringInvoiceTemplate.create({
     data: {
       organizationId: session.user.organizationId,
-      name: body.name,
-      customerId: body.customerId,
-      frequency: body.frequency ?? "MONTHLY",
-      interval: body.interval ?? 1,
-      nextRunDate: new Date(body.nextRunDate),
-      endDate: body.endDate ? new Date(body.endDate) : null,
-      invoiceDay: body.invoiceDay ?? null,
-      dueDateDays: body.dueDateDays ?? 30,
-      lines: body.lines ?? [],
-      subtotal: body.subtotal ?? 0,
-      discountAmount: body.discountAmount ?? 0,
-      taxAmount: body.taxAmount ?? 0,
-      total: body.total ?? 0,
-      notes: body.notes ?? null,
+      name: d.name,
+      customerId: d.customerId,
+      frequency: d.frequency ?? "MONTHLY",
+      interval: d.interval ?? 1,
+      nextRunDate: new Date(d.nextRunDate),
+      endDate: d.endDate ? new Date(d.endDate) : null,
+      invoiceDay: d.invoiceDay ?? null,
+      dueDateDays: d.dueDateDays ?? 30,
+      lines: d.lines ?? [],
+      subtotal: d.subtotal ?? 0,
+      discountAmount: d.discountAmount ?? 0,
+      taxAmount: d.taxAmount ?? 0,
+      total: d.total ?? 0,
+      notes: d.notes ?? null,
     },
   });
 

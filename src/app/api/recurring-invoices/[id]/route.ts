@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { NextResponse } from "next/server";
 import { createAuditLog } from "@/lib/audit";
+import { validatePartial } from "@/lib/validate";
+import { RecurringInvoiceSchema } from "@/validations";
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
@@ -15,24 +17,29 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   const body = await req.json();
+
+  const parsed = validatePartial(RecurringInvoiceSchema, body);
+  if (parsed.error) return parsed.error;
+  const d = parsed.data;
+
   const updated = await prisma.recurringInvoiceTemplate.update({
     where: { id },
     data: {
-      name: body.name ?? undefined,
-      customerId: body.customerId ?? undefined,
-      frequency: body.frequency ?? undefined,
-      interval: body.interval ?? undefined,
-      nextRunDate: body.nextRunDate ? new Date(body.nextRunDate) : undefined,
-      endDate: body.endDate ? new Date(body.endDate) : body.endDate === null ? null : undefined,
-      invoiceDay: body.invoiceDay ?? undefined,
-      dueDateDays: body.dueDateDays ?? undefined,
-      lines: body.lines ?? undefined,
-      subtotal: body.subtotal ?? undefined,
-      discountAmount: body.discountAmount ?? undefined,
-      taxAmount: body.taxAmount ?? undefined,
-      total: body.total ?? undefined,
-      notes: body.notes ?? undefined,
-      active: body.active ?? undefined,
+      name: d.name ?? undefined,
+      customerId: d.customerId ?? undefined,
+      frequency: d.frequency ?? undefined,
+      interval: d.interval ?? undefined,
+      nextRunDate: d.nextRunDate ? new Date(d.nextRunDate) : undefined,
+      endDate: d.endDate ? new Date(d.endDate) : d.endDate === null ? null : undefined,
+      invoiceDay: d.invoiceDay ?? undefined,
+      dueDateDays: d.dueDateDays ?? undefined,
+      lines: d.lines ?? undefined,
+      subtotal: d.subtotal ?? undefined,
+      discountAmount: d.discountAmount ?? undefined,
+      taxAmount: d.taxAmount ?? undefined,
+      total: d.total ?? undefined,
+      notes: d.notes ?? undefined,
+      active: d.active ?? undefined,
     },
   });
 
