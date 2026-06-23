@@ -1,12 +1,13 @@
 # PROJECT_MAP — accountant-saas-v2
 
-> **Generated:** 2026-06-07 23:40 UTC+3  
-> **Last Build:** 2026-06-07 23:35 UTC+3 — ✅ **Build Succeeded (256 pages)**  
-> **Last Deploy:** 2026-06-07 21:35 UTC+3 — ✅ **Vercel (schema auto-synced, all pages live)**  
+> **Generated:** 2026-06-23 16:00 UTC+3  
+> **Last Build:** 2026-06-23 — ✅ **Build Succeeded (262 pages, 0 errors)**  
+> **Last Deploy:** 2026-06-23 — ✅ **Vercel (auto-deployed from GitHub push)**  
 > **Seed:** All models populated with demo data (employee, customer, vendor, categories, units, payment terms, branches, fixed assets, items, invoices, receipts, journal entries, projects, tasks, advances, deductions, social insurance)  
 > **Target:** 100% feature parity with Qoyod (https://app.qoyod.com)  
 > **Paradigm:** Simplicity First · Domain-Driven · No Feature Creep  
-> **Deployment:** https://accountant-saas-v2.vercel.app
+> **Deployment:** https://accountant-saas-v2.vercel.app  
+> **Agent Team:** Multi-agent system via `AGENT_TEAM.md` — bus at `scripts/agent-bus.mjs`, live board at `/{locale}/agents`
 
 ---
 
@@ -264,73 +265,32 @@ export const logger = pino({
 | Element Inspector             | `src/components/inspector/`      | زر عائم (✎) في الزاوية اليمنى السفلية. تضغط عليه لتفعيل وضع التحديد، ثم تضغط على أي عنصر في الموقع فتظهر نافذة بمعلومات العنصر (المسار، الوسم، النص، الـ CSS Selector) مع حقل لوصف التعديل المطلوب وزر نسخ المعلومات |
 | Bookmarklet Inspector          | `public/bookmarklet.js` + `/settings/bookmarklet` | إشارة مرجعية للمتصفح تعمل على أي صفحة. hover لإظهار الحدود، click لعرض معلومات العنصر في لوحة منبثقة. تدعم أي موقع وليس فقط هذا التطبيق |
 
+## BUG MAP (from AGENT_TEAM.md — based on actual code audit)
+
+| # | Issue | Status |
+|---|-------|--------|
+| 1 | **Auto-posting (root):** Sales/Purchase invoices and expenses saved without journal entries | ✅ `posting.ts` + API routes wired (committed) |
+| 2 | **Inventory:** No stock movement or COGS on sale/purchase | ❌ Pending |
+| 3 | **Balance sheet:** Reads only `POSTED` entries — empty without posting (auto-fixed after #1) | ⏳ Should work now, needs `tester` verification |
+| 4 | **Permissions:** Enforced in only 5/97 routes; plan limits not enforced | ❌ Pending |
+| 5 | **Translation:** Scattered hardcoded text; no centralized Zod schemas | ❌ Pending |
+| 6 | **Locked period:** Build proper alternative for financial accountant | ❌ Pending |
+
+---
+
 ## ORPHANS & PENDING
 
-| Item                          | Status      | Notes                                       |
-| ----------------------------- | ----------- | ------------------------------------------- |
-| Multi-tenant isolation        | ✅ DONE    | JWT session check in proxy for API routes   |
-| PDF generation (quotes)       | ✅ DONE    | jsPDF + html2canvas client-side; Puppeteer `/api/export/pdf` |
-| PDF generation (invoices)     | ✅ DONE    | jsPDF + html2canvas wired to invoice detail view |
-| Email send (quotes)           | ✅ DONE    | POST `/api/quotes/[id]/send-email` via resend.com |
-| Email notifications (general) | ✅ DONE    | Resend SDK wired to `lib/email.ts` sendEmail; template engine extracted to `lib/email-templates.ts` |
-| Dark mode                     | ✅ DONE    | Tailwind dark variant, simple toggle; light mode is default |
-| Proxy (Next.js 16)            | ✅ DONE    | Renamed `middleware.ts` → `proxy.ts` (export function `proxy`) |
-| Vitest/Playwright tests       | ✅ DONE    | 20 tests passing (utils, ZATCA, email templates) — vitest config + playwright config exist |
-| CRUD APIs for new models      | ✅ DONE    | Full GET/POST/PATCH/DELETE for Category, UnitOfMeasure, PaymentTerm, Branch, Advance, Deduction, SocialInsurance, Project, Task |
-| Payroll run engine            | ✅ DONE    | `src/domains/payroll/engine.ts` calculates salaries + advances + deductions + GOSI; Auto Calculate button in UI; `/api/payroll-runs/calculate` endpoint |
-| Excel export (all reports)    | ✅ DONE    | `exceljs` via `lib/export.ts` — trial balance, balance sheet, income statement, journal entries, account statement |
-| Quote→Invoice conversion      | ✅ DONE    | Convert button creates SalesInvoice + lines, auto-redirects to Sales Invoices list |
-| Project quick-create          | ✅ DONE    | `QuickCreateDialog` → Project form in slide-over |
-| Item validation               | ✅ DONE    | `errorMessage` + disabled Save when no lines in invoice/quote |
-| Customer/Vendor address       | ✅ DONE    | `crNumber`, `street`, `city`, `district`, `region`, `country`, `postalCode` added to schema + forms |
-| Arabic translation completeness| ✅ DONE   | All pages translated (easy-entries, opening-balances, cost-centers, accounting-quality, fixed-assets); added missing keys (vendors/customers address fields, paymentReceipts.noReceipts, items types, fixedAssets fields, stockSummary section, disposals section) |
-| Quick-create vendor in purchase orders | ✅ DONE | QuickCreateDialog integrated in purchase order creation form |
-| Sidebar 404 fix               | ✅ DONE    | Fixed `/accounting/fixed-assets/transfer` → `/asset-transfer/` |
-| Light mode default            | ✅ DONE    | Theme provider always defaults to light mode |
-| AI Data Isolation Layer       | ✅ DONE    | All tools filter by orgId; no delete/drop tools; usage tracking via AiUsage model |
-| Draft & Approval Workflow     | ✅ DONE    | AiActionDraft model; AI creates drafts only; summary card with Confirm/Cancel buttons in chat |
-| Owner AI Settings Page        | ✅ DONE    | `/owner/ai-settings` — plan toggles (OCR, Reporting, Drafting), usage limits, proactive alerts |
-| AI Proactive Alerts (engine)  | ✅ DONE    | `src/lib/ai/proactive-alerts.ts` fully implements cash flow, receivables, payables, revenue trend analysis; POST `/api/ai/proactive-alerts` triggers analysis |
-| Forms: auto-form component    | ✅ DONE    | Generic form builder created                |
-| Forms: invoice-line-editor    | ✅ DONE    | Reusable line editor component              |
-| Sidebar restructure (Qoyod)   | ✅ DONE    | 12 groups, 58 items, matched Qoyod layout  |
-| General Ledger page           | ✅ DONE    | Expandable card-based table                 |
-| Sales Quotes list + new form  | ✅ DONE    | Full CRUD with line editor                  |
-| Sales Returns list            | ✅ DONE    | DataTable with status badges                |
-| Purchase Returns list         | ✅ DONE    | DataTable with status badges                |
-| Banking Transactions page     | ✅ DONE    | List + create dialog, colored amounts       |
-| Banking Reconciliation page   | ✅ DONE    | List with status badges                     |
-| Warehouses page               | ✅ DONE    | List + add dialog                           |
-| Inventory Adjustments page    | ✅ DONE    | List + create dialog                        |
-| Payroll page                  | ✅ DONE    | Layout with employee list + feature cards   |
-| Sales Report                  | ✅ DONE    | Invoice list with totals                    |
-| Purchase Report               | ✅ DONE    | Invoice list with totals                    |
-| Expense Report                | ✅ DONE    | Expense list with account + total            |
-| Tax Report                    | ✅ DONE    | Grouped by tax code                         |
-| Cash Flow Report              | ✅ DONE    | Monthly inflows/outflows                    |
-| AR Aging Report               | ✅ DONE    | 5 aging buckets per customer                |
-| AP Aging Report               | ✅ DONE    | 5 aging buckets per vendor                  |
-| Domain: banking services      | ✅ DONE    | getBankAccounts, getBankTransactions, etc.  |
-| Domain: inventory services    | ✅ DONE    | getItems, getWarehouses, getStockMovements  |
-| Domain: organization services | ✅ DONE    | getOrganization, updateOrganization, etc.   |
-| Domain: tax services          | ✅ DONE    | getTaxCodes, createTaxCode, calculateTax   |
-| API: bank-transactions route  | ✅ DONE    | POST + GET, wired to domain service         |
-| API: warehouses route         | ✅ DONE    | POST + GET                                  |
-| API: inventory/adjustments    | ✅ DONE    | POST + GET                                  |
-| API: sales-quotes route       | ✅ DONE    | POST + GET, auto-increment number           |
-| API: sales-returns route      | ✅ DONE    | POST + GET                                  |
-| API: purchase-returns route   | ✅ DONE    | POST + GET                                  |
-| API: bank-reconciliation      | ✅ DONE    | POST + GET (was missing entirely)           |
-| API: items route              | ✅ DONE    | POST + GET (was POST-only)                   |
-| API: vendors route            | ✅ DONE    | POST + GET (was POST-only)                   |
-| API: customers route          | ✅ DONE    | POST + GET (was POST-only)                   |
-| API: sales-invoices route     | ✅ DONE    | POST + GET (was POST-only)                  |
-| API: purchase-invoices route  | ✅ DONE    | POST + GET (was POST-only)                  |
-| API: expenses route           | ✅ DONE    | POST + GET (was POST-only)                  |
-| API: journal-entries route    | ✅ DONE    | POST + GET, wired to domain service         |
-| API: tax-codes route          | ✅ DONE    | POST + GET                                   |
-| API: bank-accounts route      | ✅ DONE    | POST + GET                                   |
-| API: currencies route         | ✅ DONE    | POST + GET                                   |
+| Bug Map Item                 | Priority | Status      | Notes                                       |
+| ---------------------------- | -------- | ----------- | ------------------------------------------- |
+| ① Auto-posting               | P0       | ✅ DONE     | `posting.ts` + API routes wired + committed  |
+| ② Inventory (COGS + stock)   | P1       | ❌ PENDING  | No automatic stock movement or COGS on sale/purchase |
+| ③ Permissions                | P2       | ❌ PENDING  | Only 5/97 routes enforce auth; plan limits not enforced; Employee not linked to User |
+| ④ Locked period feature      | P3       | ❌ PENDING  | Build proper financial period closing |
+| ⑤ Translation & Zod schemas  | P4       | ⏳ PARTIAL  | UI colors fixed; scattered hardcoded text remains; no centralized Zod |
+| UI: hardcoded colors         | —        | ✅ DONE     | All `#1D97E0`, `text-blue-*`, `bg-blue-*`, `text-indigo-*`, `bg-indigo-*` → `primary-*` |
+| UI: button/input rounding    | —        | ✅ DONE     | All `rounded-md` → `rounded-lg` (button, input, textarea, select, sidebar, file buttons) |
+| Agent Control Room           | —        | ✅ DONE     | `/{locale}/agents` — live board + chat + shared bus (`scripts/agent-bus.mjs`) |
+| Integration tests (posting)  | —        | ✅ DONE     | `src/__tests__/integration/posting.test.ts` — 7 tests |
 
 ---
 
@@ -357,6 +317,7 @@ export const logger = pino({
 - [x] Easy Entries, Opening Balances, Accounting Quality pages
 - [x] Cost Centers via AccountingDimensions
 - [x] Journal Entry auto-posting to General Ledger (sync GL balances)
+- [x] **Auto-posting from documents:** Sales Invoices, Purchase Invoices, and Expenses automatically create balanced journal entries when confirmed (`src/domains/accounting/posting.ts` + wired to API routes)
 
 ### M3 — Sales & Purchases 🟢
 - [x] Customers CRUD (list page + create dialog)
