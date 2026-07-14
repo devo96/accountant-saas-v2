@@ -393,7 +393,7 @@ export const logger = pino({
 - [x] Unit tests: email templates (renderTemplate, DEFAULT_TEMPLATES), utils, ZATCA — 20 tests passing
 - [x] Integration tests: Accounting domain (7 tests: GL auto-posting, journal creation, GL queries)
 - [x] E2E tests: existing auth.spec.ts (login, redirect) + journeys.spec.ts (invoices, language switch, 404)
-- [x] Rename middleware.ts → proxy.ts (Next.js 16)
+- [ ] ~~Rename middleware.ts → proxy.ts (Next.js 16)~~ → reverted: proxy.ts → middleware.ts (Next.js does NOT support custom middleware filenames)
 - [x] CI/CD pipeline — `.github/workflows/ci.yml` (lint + typecheck + build + test on push/PR)
 
 ### M9 — Qoyod Parity Completion ✅
@@ -412,7 +412,7 @@ export const logger = pino({
 - [x] Item validation (no items = no save)
 - [x] PDF generation (invoices) — jsPDF + html2canvas in invoice detail view
 - [x] Email notifications (general) — Resend SDK wired; `lib/email-templates.ts` extracted
-- [x] Multi-tenant isolation — JWT check in proxy.ts for API routes
+- [x] Multi-tenant isolation — JWT check in middleware.ts for API routes
 
 ### M10 — AI Accounting Assistant 🟢
 - [x] AiActionDraft model (draft before write)
