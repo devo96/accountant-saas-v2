@@ -21,7 +21,7 @@ function setLocaleCookie(response: NextResponse, locale: string): NextResponse {
 export default async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const locale = getLocale(pathname);
-  const publicPaths = ["/login", "/register", "/forgot-password"];
+  const publicPaths = ["/login", "/register", "/forgot-password", "/auth"];
   const isPublic = publicPaths.some((p) => pathname.includes(p))
     || pathname === "/" || /^\/(ar|en)$/.test(pathname);
 

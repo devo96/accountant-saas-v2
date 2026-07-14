@@ -9,4 +9,11 @@ npx("prisma generate --schema=prisma/schema.prisma");
 if (process.env.VERCEL_ENV) {
   console.log("\nVercel (" + process.env.VERCEL_ENV + ") detected -- pushing schema...");
   npx("prisma db push --schema=prisma/schema.prisma --accept-data-loss");
+
+  console.log("\nSeeding default data (idempotent upserts)...");
+  try {
+    npx("tsx prisma/seed.ts");
+  } catch (e) {
+    console.warn("Seed failed (non-fatal):", e.message);
+  }
 }
