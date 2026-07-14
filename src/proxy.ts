@@ -25,8 +25,13 @@ export default async function proxy(req: NextRequest) {
   const isPublic = publicPaths.some((p) => pathname.includes(p))
     || pathname === "/" || /^\/(ar|en)$/.test(pathname);
 
-  // API routes: validate session for non-public, non-owner endpoints
-  if (pathname.includes("/api/") && !pathname.includes("/api/auth/") && !pathname.includes("/api/owner/")) {
+  // Auth API routes (callback, signin, etc.) — always allow through
+  if (pathname.includes("/api/auth/")) {
+    return setLocaleCookie(intlMiddleware(req), locale);
+  }
+
+  // Other API routes: validate session for non-public, non-owner endpoints
+  if (pathname.includes("/api/") && !pathname.includes("/api/owner/")) {
     // Agent Control Room: writes from the agent team carry a shared secret
     // instead of a user session — let those bypass the session gate.
     if (pathname.includes("/api/agents/")) {
